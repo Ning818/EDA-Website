@@ -5,7 +5,7 @@
 export default function PageIntroBand({ category, title, children }) {
   return (
     <section className="bg-navy">
-      <div className={`mx-auto max-w-[1440px] px-8 pt-16 lg:px-[120px] ${children ? '' : 'pb-16'}`}>
+      <div className="mx-auto flex max-w-[1440px] flex-col gap-2.5 px-8 pt-16 lg:px-[120px]">
         <p className="font-heading text-[36px] font-bold tracking-tight text-[#279aae]">{category}</p>
         {title && <p className="font-heading text-[36px] font-bold tracking-tight text-white">{title}</p>}
       </div>

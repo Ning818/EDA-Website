@@ -15,9 +15,9 @@ export default function FundedProjectsListSection({ title, items, splitAt }) {
   const right = items.slice(at)
 
   return (
-    <section className="mx-auto max-w-[1440px] px-8 pb-20 pt-10 lg:px-[120px]">
-      <h2 className="border-b border-[rgba(0,40,75,0.15)] py-2 font-heading text-4xl font-bold text-navy">{title}</h2>
-      <div className="mt-4 flex flex-col gap-x-6 gap-y-2 md:flex-row">
+    <section className="mx-auto max-w-[1440px] px-8 lg:px-[120px]">
+      <h2 className="pt-20 font-heading text-4xl font-bold text-navy">{title}</h2>
+      <div className="flex flex-col gap-x-6 gap-y-2 pb-20 pt-10 md:flex-row">
         <div className="flex-1">
           {left.map((item, i) => (
             <ListItem key={i} {...item} />

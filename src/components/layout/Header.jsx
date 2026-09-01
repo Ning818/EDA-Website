@@ -23,7 +23,7 @@ export default function Header() {
             <NavLink
               key={link.to}
               to={link.to}
-              end={link.to === '/'}
+              end
               className="group flex flex-col items-center gap-1 font-heading text-lg font-medium text-navy lg:text-2xl"
             >
               {({ isActive }) => (

@@ -24,13 +24,19 @@ export default function Header() {
               key={link.to}
               to={link.to}
               end={link.to === '/'}
-              className={({ isActive }) =>
-                `flex flex-col items-center gap-1 font-heading text-lg font-medium text-navy lg:text-2xl ${
-                  isActive ? 'border-b-2 border-navy' : ''
-                }`
-              }
+              className="group flex flex-col items-center gap-1 font-heading text-lg font-medium text-navy lg:text-2xl"
             >
-              {link.label}
+              {({ isActive }) => (
+                <>
+                  {link.label}
+                  {/* Figma: underline grows 0 -> 2px on hover, 0.2s linear (ON_HOVER Smart Animate) */}
+                  <span
+                    className={`h-0 w-full origin-bottom bg-navy transition-[height] duration-200 ease-linear group-hover:h-[2px] ${
+                      isActive ? 'h-[2px]' : ''
+                    }`}
+                  />
+                </>
+              )}
             </NavLink>
           ))}
         </nav>

@@ -18,3 +18,11 @@ body {
   color: var(--color-navy);
   font-family: var(--font-body);
 }
+
+/* Accessibility default: soften the hover animations (nav underline, logo-name
+   reveal, professor card flip) instead of forcing users to sit through them. */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition-duration: 0.001ms !important;
+  }
+}

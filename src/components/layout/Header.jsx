@@ -76,13 +76,18 @@ export default function Header() {
                 )}
 
                 {link.dropdown && (
-                  <div className="invisible absolute left-0 top-full z-20 w-56 -translate-y-2 pt-3 opacity-0 transition-[opacity,visibility,transform] duration-200 ease-out group-hover:visible group-hover:translate-y-0 group-hover:opacity-100">
+                  <div className="invisible absolute left-0 top-full z-20 w-56 pt-3 group-hover:visible">
                     <ul className="bg-mint shadow-lg">
-                      {link.dropdown.map((item) => (
+                      {link.dropdown.map((item, i) => (
                         <li key={item.label}>
+                          {/* Each item slides/fades in on its own, staggered after the one above it,
+                              so the menu reads as unfolding top-to-bottom instead of moving as one block. */}
                           <NavLink
                             to={item.to}
-                            className="block px-5 py-2.5 font-body text-base text-navy transition-colors duration-150 hover:bg-navy hover:text-mint"
+                            // Stagger only the entrance (opacity/transform); the hover color-swap
+                            // (background-color/color) stays instant regardless of item position.
+                            style={{ transitionDelay: `${i * 50}ms, ${i * 50}ms, 0ms, 0ms` }}
+                            className="block -translate-y-2 px-5 py-2.5 font-body text-base text-navy opacity-0 transition-[opacity,transform,background-color,color] duration-200 ease-out hover:bg-navy hover:text-mint group-hover:translate-y-0 group-hover:opacity-100"
                           >
                             {item.label}
                           </NavLink>

@@ -86,8 +86,8 @@ export default function Header() {
                             to={item.to}
                             // Stagger only the entrance (opacity/transform); the hover color-swap
                             // (background-color/color) stays instant regardless of item position.
-                            style={{ transitionDelay: `${i * 50}ms, ${i * 50}ms, 0ms, 0ms` }}
-                            className="block -translate-y-2 px-5 py-2.5 font-body text-base text-navy opacity-0 transition-[opacity,transform,background-color,color] duration-200 ease-out hover:bg-navy hover:text-mint group-hover:translate-y-0 group-hover:opacity-100"
+                            style={{ transitionDelay: `${i * 80}ms, ${i * 80}ms, 0ms, 0ms` }}
+                            className="block -translate-y-2 px-5 py-2.5 font-body text-base text-navy opacity-0 transition-[opacity,transform,background-color,color] duration-300 ease-out hover:bg-navy hover:text-mint group-hover:translate-y-0 group-hover:opacity-100"
                           >
                             {item.label}
                           </NavLink>

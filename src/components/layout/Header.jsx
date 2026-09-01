@@ -47,10 +47,10 @@ export default function Header() {
                 {({ isActive }) => (
                   <>
                     {link.label}
-                    {/* Figma: underline grows 0 -> 2px on hover, 0.2s linear (ON_HOVER Smart Animate) */}
+                    {/* Underline fades in on hover (opacity 0 -> 1) instead of growing thicker */}
                     <span
-                      className={`h-0 w-full origin-bottom bg-navy transition-[height] duration-100 ease-linear group-hover:h-[2px] ${
-                        isActive ? 'h-[2px]' : ''
+                      className={`h-[2px] w-full bg-navy opacity-0 transition-opacity duration-100 ease-linear group-hover:opacity-100 ${
+                        isActive ? 'opacity-100' : ''
                       }`}
                     />
                   </>

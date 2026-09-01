@@ -1,0 +1,20 @@
+@import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Roboto:wght@400;500;700&display=swap');
+
+@theme {
+  --font-heading: 'Poppins', sans-serif;
+  --font-body: 'Roboto', sans-serif;
+
+  --color-navy: #002843;
+  --color-navy-soft: #5a7385;
+  --color-mint: #eef8f3;
+  --color-mint-deep: #dcefe6;
+  --color-placeholder: #d9d9d9;
+}
+
+body {
+  margin: 0;
+  background: var(--color-mint);
+  color: var(--color-navy);
+  font-family: var(--font-body);
+}

@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import PageIntroBand from '../components/sections/PageIntroBand'
 import TeachingSidebar from '../components/sections/TeachingSidebar'
 import ProfessorGrid from '../components/sections/ProfessorGrid'
@@ -28,7 +29,15 @@ const PROFESSORS = [
   { photo: saraVinco, name: 'Sara Vinco', title: 'Associate Professor' },
 ]
 
+// The other sidebar tabs (Phd Students / Alumni / Administrative Clerks) don't have
+// real content in Figma yet - reproduced as a placeholder grid that duplicates the
+// first professor's card, matching the count of real Professor cards.
+const PLACEHOLDER_PEOPLE = Array.from({ length: PROFESSORS.length }, () => PROFESSORS[0])
+
 export default function Teaching() {
+  const [active, setActive] = useState('Professors')
+  const people = active === 'Professors' ? PROFESSORS : PLACEHOLDER_PEOPLE
+
   return (
     <main>
       <PageIntroBand category="Teaching">
@@ -42,8 +51,8 @@ export default function Teaching() {
       </PageIntroBand>
 
       <div className="mx-auto flex max-w-[1440px] flex-col px-8 py-6 lg:flex-row lg:gap-6 lg:px-[120px]">
-        <TeachingSidebar active="Professors" />
-        <ProfessorGrid professors={PROFESSORS} />
+        <TeachingSidebar active={active} onSelect={setActive} />
+        <ProfessorGrid professors={people} />
       </div>
     </main>
   )

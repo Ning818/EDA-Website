@@ -14,7 +14,7 @@ export default function TeachingSidebar({ active = 'Professors', onSelect }) {
               key={item}
               type="button"
               onClick={() => onSelect?.(item)}
-              className={`border-l-4 px-6 py-4 text-left font-body text-lg font-bold ${
+              className={`cursor-pointer border-l-4 px-6 py-4 text-left font-body text-lg font-bold ${
                 isActive ? 'border-[#279aae] bg-white text-navy' : 'border-transparent text-navy'
               }`}
             >

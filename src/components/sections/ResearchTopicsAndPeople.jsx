@@ -51,7 +51,7 @@ export default function ResearchTopicsAndPeople() {
           <h2 className="py-2 font-heading text-[32px] font-bold text-navy">Involved people</h2>
           <div className="flex flex-wrap justify-between gap-x-4 gap-y-4">
             {PEOPLE.map((person, i) => (
-              <div key={`${person.name}-${i}`} className="flex w-[168px] flex-col gap-1 rounded-lg bg-[rgba(255,199,70,0.2)] px-3 py-4">
+              <div key={`${person.name}-${i}`} className="flex w-[168px] flex-col gap-1 rounded-lg bg-[#f3eac0] px-3 py-4">
                 <p className="font-body text-lg font-bold leading-normal text-navy">{person.name}</p>
                 <p className="font-body text-base text-[#839794]">{person.title}</p>
               </div>

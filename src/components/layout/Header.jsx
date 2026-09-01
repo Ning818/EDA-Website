@@ -1,10 +1,28 @@
 import { NavLink } from 'react-router-dom'
 import edaLogo from '../../assets/images/eda-logo.png'
 
+// The four research themes shown on the Home page - reused here as the Research/Projects
+// dropdown items. Research links jump to that theme's anchor on the Research page (same
+// anchors ThemeShowcase already links to); Projects links go to the single Funded Projects
+// list, which isn't split by theme, so all four point at the same page.
+const RESEARCH_THEMES = ['VLSI-CAD', 'Bioinformatics', 'Smart City', 'Industry 4.0']
+
+function slug(theme) {
+  return theme.toLowerCase().replace(/[^a-z0-9]+/g, '-')
+}
+
 const NAV_LINKS = [
   { label: 'Home', to: '/' },
-  { label: 'Research', to: '/research' },
-  { label: 'Projects', to: '/research/funded-projects' },
+  {
+    label: 'Research',
+    to: '/research',
+    dropdown: RESEARCH_THEMES.map((theme) => ({ label: theme, to: `/research#${slug(theme)}` })),
+  },
+  {
+    label: 'Projects',
+    to: '/research/funded-projects',
+    dropdown: RESEARCH_THEMES.map((theme) => ({ label: theme, to: '/research/funded-projects' })),
+  },
   { label: 'Collaborations', to: '/collaborations' },
   { label: 'Teaching', to: '/teaching' },
 ]
@@ -20,24 +38,39 @@ export default function Header() {
 
         <nav className="hidden flex-wrap items-center gap-4 md:flex lg:gap-10">
           {NAV_LINKS.map((link) => (
-            <NavLink
-              key={link.to}
-              to={link.to}
-              end
-              className="group flex flex-col items-center gap-1 font-heading text-lg font-medium text-navy lg:text-2xl"
-            >
-              {({ isActive }) => (
-                <>
-                  {link.label}
-                  {/* Figma: underline grows 0 -> 2px on hover, 0.2s linear (ON_HOVER Smart Animate) */}
-                  <span
-                    className={`h-0 w-full origin-bottom bg-navy transition-[height] duration-200 ease-linear group-hover:h-[2px] ${
-                      isActive ? 'h-[2px]' : ''
-                    }`}
-                  />
-                </>
+            <div key={link.to} className="group relative">
+              <NavLink
+                to={link.to}
+                end
+                className="flex flex-col items-center gap-1 font-heading text-lg font-medium text-navy lg:text-2xl"
+              >
+                {({ isActive }) => (
+                  <>
+                    {link.label}
+                    {/* Figma: underline grows 0 -> 2px on hover, 0.2s linear (ON_HOVER Smart Animate) */}
+                    <span
+                      className={`h-0 w-full origin-bottom bg-navy transition-[height] duration-200 ease-linear group-hover:h-[2px] ${
+                        isActive ? 'h-[2px]' : ''
+                      }`}
+                    />
+                  </>
+                )}
+              </NavLink>
+
+              {link.dropdown && (
+                <div className="invisible absolute left-1/2 top-full z-20 w-56 -translate-x-1/2 pt-3 opacity-0 transition-[opacity,visibility] duration-200 ease-out group-hover:visible group-hover:opacity-100">
+                  <ul className="overflow-hidden rounded-lg bg-white py-2 shadow-lg ring-1 ring-black/10">
+                    {link.dropdown.map((item) => (
+                      <li key={item.label}>
+                        <NavLink to={item.to} className="block px-5 py-2.5 font-body text-base text-navy hover:bg-mint">
+                          {item.label}
+                        </NavLink>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
               )}
-            </NavLink>
+            </div>
           ))}
         </nav>
       </div>

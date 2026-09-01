@@ -58,8 +58,8 @@ export default function Header() {
               </NavLink>
 
               {link.dropdown && (
-                <div className="invisible absolute left-1/2 top-full z-20 w-56 -translate-x-1/2 pt-3 opacity-0 transition-[opacity,visibility] duration-200 ease-out group-hover:visible group-hover:opacity-100">
-                  <ul className="overflow-hidden rounded-lg bg-white py-2 shadow-lg ring-1 ring-black/10">
+                <div className="invisible absolute left-0 top-full z-20 w-56 pt-3 opacity-0 transition-[opacity,visibility] duration-300 ease-out group-hover:visible group-hover:opacity-100">
+                  <ul className="max-h-0 overflow-hidden bg-white shadow-lg ring-1 ring-black/10 transition-[max-height] duration-300 ease-out group-hover:max-h-[300px]">
                     {link.dropdown.map((item) => (
                       <li key={item.label}>
                         <NavLink to={item.to} className="block px-5 py-2.5 font-body text-base text-navy hover:bg-mint">

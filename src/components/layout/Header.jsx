@@ -76,11 +76,14 @@ export default function Header() {
                 )}
 
                 {link.dropdown && (
-                  <div className="invisible absolute left-0 top-full z-20 w-56 pt-3 opacity-0 transition-[opacity,visibility] duration-150 ease-out group-hover:visible group-hover:opacity-100">
-                    <ul className="max-h-0 overflow-hidden bg-white shadow-lg ring-1 ring-black/10 transition-[max-height] duration-150 ease-out group-hover:max-h-[300px]">
+                  <div className="invisible absolute left-0 top-full z-20 w-56 -translate-y-2 pt-3 opacity-0 transition-[opacity,visibility,transform] duration-200 ease-out group-hover:visible group-hover:translate-y-0 group-hover:opacity-100">
+                    <ul className="bg-mint shadow-lg">
                       {link.dropdown.map((item) => (
                         <li key={item.label}>
-                          <NavLink to={item.to} className="block px-5 py-2.5 font-body text-base text-navy hover:bg-mint">
+                          <NavLink
+                            to={item.to}
+                            className="block px-5 py-2.5 font-body text-base text-navy transition-colors duration-150 hover:bg-navy hover:text-mint"
+                          >
                             {item.label}
                           </NavLink>
                         </li>

@@ -49,7 +49,7 @@ export default function Header() {
                     {link.label}
                     {/* Figma: underline grows 0 -> 2px on hover, 0.2s linear (ON_HOVER Smart Animate) */}
                     <span
-                      className={`h-0 w-full origin-bottom bg-navy transition-[height] duration-200 ease-linear group-hover:h-[2px] ${
+                      className={`h-0 w-full origin-bottom bg-navy transition-[height] duration-100 ease-linear group-hover:h-[2px] ${
                         isActive ? 'h-[2px]' : ''
                       }`}
                     />
@@ -58,8 +58,8 @@ export default function Header() {
               </NavLink>
 
               {link.dropdown && (
-                <div className="invisible absolute left-0 top-full z-20 w-56 pt-3 opacity-0 transition-[opacity,visibility] duration-300 ease-out group-hover:visible group-hover:opacity-100">
-                  <ul className="max-h-0 overflow-hidden bg-white shadow-lg ring-1 ring-black/10 transition-[max-height] duration-300 ease-out group-hover:max-h-[300px]">
+                <div className="invisible absolute left-0 top-full z-20 w-56 pt-3 opacity-0 transition-[opacity,visibility] duration-150 ease-out group-hover:visible group-hover:opacity-100">
+                  <ul className="max-h-0 overflow-hidden bg-white shadow-lg ring-1 ring-black/10 transition-[max-height] duration-150 ease-out group-hover:max-h-[300px]">
                     {link.dropdown.map((item) => (
                       <li key={item.label}>
                         <NavLink to={item.to} className="block px-5 py-2.5 font-body text-base text-navy hover:bg-mint">

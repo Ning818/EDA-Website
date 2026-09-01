@@ -39,7 +39,7 @@ export default function FundedProjects() {
         flow and methodologies, highlighting tools that streamline the early design phases of RISC-V systems.
       </HighlightBand>
 
-      <FundedProjectsListSection title="Ended Projects" items={ENDED_PROJECTS} />
+      <FundedProjectsListSection title="Ended Projects" items={ENDED_PROJECTS} splitAt={6} />
     </main>
   )
 }

@@ -41,7 +41,7 @@ export default function Teaching() {
         collective.
       </PageIntroBand>
 
-      <div className="mx-auto flex max-w-[1440px] flex-col px-8 py-6 lg:flex-row lg:px-[120px]">
+      <div className="mx-auto flex max-w-[1440px] flex-col px-8 py-6 lg:flex-row lg:gap-6 lg:px-[120px]">
         <TeachingSidebar active="Professors" />
         <ProfessorGrid professors={PROFESSORS} />
       </div>

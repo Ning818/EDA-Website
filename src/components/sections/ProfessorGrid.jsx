@@ -12,7 +12,7 @@ function ProfessorCard({ photo, name, title }) {
 
 export default function ProfessorGrid({ professors }) {
   return (
-    <div className="flex flex-1 flex-wrap justify-center gap-6 p-6 lg:justify-start">
+    <div className="flex flex-1 flex-wrap justify-center gap-6 lg:justify-start">
       {professors.map((p, i) => (
         <ProfessorCard key={i} {...p} />
       ))}

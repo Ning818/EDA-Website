@@ -12,7 +12,7 @@ export default function ProjectCardsGrid({ title, projects }) {
   return (
     <section className="mx-auto max-w-[1440px] px-8 lg:px-[120px]">
       <h2 className="border-b border-[rgba(0,40,75,0.15)] py-2 font-heading text-4xl font-bold text-navy">{title}</h2>
-      <div className="flex flex-wrap justify-center gap-6 py-10">
+      <div className="flex flex-wrap justify-center gap-6 py-10 lg:justify-start">
         {projects.map((project, i) => (
           <ProjectCard key={i} {...project} />
         ))}

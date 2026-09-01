@@ -7,10 +7,12 @@ function ListItem({ code, description }) {
   )
 }
 
-export default function FundedProjectsListSection({ title, items }) {
-  const half = Math.ceil(items.length / 2)
-  const left = items.slice(0, half)
-  const right = items.slice(half)
+export default function FundedProjectsListSection({ title, items, splitAt }) {
+  // Figma's source list isn't split evenly (6 left / 10 right) — default to an
+  // even split only when the caller doesn't specify the real breakpoint.
+  const at = splitAt ?? Math.ceil(items.length / 2)
+  const left = items.slice(0, at)
+  const right = items.slice(at)
 
   return (
     <section className="mx-auto max-w-[1440px] px-8 pb-20 pt-10 lg:px-[120px]">

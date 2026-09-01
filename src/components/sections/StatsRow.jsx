@@ -1,7 +1,7 @@
 const STATS = [
   { value: 5, label: 'ONGOING' },
   { value: 30, label: 'ENDED' },
-  { value: 35, label: 'TOTAL' },
+  { value: 35, label: 'TOLTAL' },
 ]
 
 export default function StatsRow() {

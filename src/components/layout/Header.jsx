@@ -79,15 +79,18 @@ export default function Header() {
                   <div className="invisible absolute left-0 top-full z-20 w-56 pt-3 group-hover:visible">
                     <ul className="bg-mint shadow-lg">
                       {link.dropdown.map((item, i) => (
-                        <li key={item.label}>
-                          {/* Each item slides/fades in on its own, staggered after the one above it,
-                              so the menu reads as unfolding top-to-bottom instead of moving as one block. */}
+                        // Each row is collapsed to 0 height and grows open on its own delay, so the
+                        // blocks themselves appear one at a time top-to-bottom (the box grows with
+                        // them) rather than the whole box showing at once with text fading inside it.
+                        <li
+                          key={item.label}
+                          style={{ transitionDelay: `${i * 80}ms` }}
+                          className="max-h-0 overflow-hidden transition-[max-height] duration-300 ease-out group-hover:max-h-12"
+                        >
                           <NavLink
                             to={item.to}
-                            // Stagger only the entrance (opacity/transform); the hover color-swap
-                            // (background-color/color) stays instant regardless of item position.
-                            style={{ transitionDelay: `${i * 80}ms, ${i * 80}ms, 0ms, 0ms` }}
-                            className="block -translate-y-2 px-5 py-2.5 font-body text-base text-navy opacity-0 transition-[opacity,transform,background-color,color] duration-300 ease-out hover:bg-navy hover:text-mint group-hover:translate-y-0 group-hover:opacity-100"
+                            style={{ transitionDelay: `${i * 80}ms, 0ms, 0ms` }}
+                            className="block px-5 py-2.5 font-body text-base text-navy opacity-0 transition-[opacity,background-color,color] duration-300 ease-out hover:bg-navy hover:text-mint group-hover:opacity-100"
                           >
                             {item.label}
                           </NavLink>

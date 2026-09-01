@@ -22,8 +22,6 @@ const PEOPLE = [
   { name: 'Daniele Jahier Pagliari', title: 'Assoc. Prof.' },
   { name: 'Edoardo Patti', title: 'Assoc. Prof.' },
   { name: 'Enrico Macii', title: 'Full Prof.' },
-  { name: 'Francesco Ponzio', title: 'Asst. Prof.' },
-  { name: 'Gianvito Urgese', title: 'Assoc. Prof.' },
   { name: 'Alessio Burrello', title: 'Asst. Prof.' },
   { name: 'Luca Barbierato', title: 'Asst. Prof.' },
   { name: 'Santa Di Cataldo', title: 'Assoc. Prof.' },

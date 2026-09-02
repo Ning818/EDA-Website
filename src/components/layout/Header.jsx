@@ -47,12 +47,23 @@ export default function Header() {
       return
     }
     lastY.current = window.scrollY
+    // Scroll fires far more often than the display can paint (dozens of times per frame on some
+    // trackpads) - calling setHidden from every single event forces a React re-render each time,
+    // which is what made the hide/show feel janky rather than one clean slide. Coalescing to at
+    // most once per animation frame fixes that.
+    let ticking = false
     function handleScroll() {
-      const y = window.scrollY
-      const delta = y - lastY.current
-      if (Math.abs(delta) < 4) return // ignore tiny jitter
-      setHidden(y > 80 && delta > 0) // near the top: always show; else hide on scroll-down, show on scroll-up
-      lastY.current = y
+      if (ticking) return
+      ticking = true
+      requestAnimationFrame(() => {
+        const y = window.scrollY
+        const delta = y - lastY.current
+        if (Math.abs(delta) >= 4) {
+          setHidden(y > 80 && delta > 0) // near the top: always show; else hide on scroll-down, show on scroll-up
+          lastY.current = y
+        }
+        ticking = false
+      })
     }
     window.addEventListener('scroll', handleScroll, { passive: true })
     return () => window.removeEventListener('scroll', handleScroll)
@@ -88,6 +99,7 @@ export default function Header() {
         style={{
           transition: 'transform 300ms ease-in-out',
           transform: isHome && hidden ? 'translateY(-100%)' : 'translateY(0)',
+          willChange: isHome ? 'transform' : undefined,
         }}
       >
         <div className="mx-auto flex max-w-[1440px] flex-wrap items-center justify-between gap-4 px-6 py-3 lg:flex-nowrap lg:px-[120px]">

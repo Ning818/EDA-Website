@@ -84,7 +84,13 @@ export default function Header() {
   useLayoutEffect(() => {
     if (!isHome || !headerRef.current) return
     const el = headerRef.current
-    const update = () => setSpacerHeight(el.getBoundingClientRect().height)
+    const update = () => {
+      const height = el.getBoundingClientRect().height
+      setSpacerHeight(height)
+      // Exposed as a CSS custom property so Hero.jsx can size itself to exactly fill the rest of
+      // the viewport below the header (header height + hero height = 100vh on first load).
+      document.documentElement.style.setProperty('--header-h', `${height}px`)
+    }
     update()
     const observer = new ResizeObserver(update)
     observer.observe(el)

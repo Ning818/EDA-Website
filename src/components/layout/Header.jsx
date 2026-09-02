@@ -103,9 +103,16 @@ export default function Header() {
         }}
       >
         <div className="mx-auto flex max-w-[1440px] flex-wrap items-center justify-between gap-4 px-6 py-3 lg:flex-nowrap lg:px-[120px]">
-          <NavLink to="/" className="flex shrink-0 items-center gap-3 lg:gap-[30px]">
+          <NavLink to="/" className="flex shrink-0 items-center gap-2 lg:gap-3">
             <img src={edaLogo} alt="EDA Group logo" className="size-[44.8px] object-cover lg:size-[68.6px]" />
-            <span className="font-heading text-lg font-medium text-navy lg:text-2xl">EDA Group</span>
+            {/* Matches the nav links' own flex-col label+underline structure below (text +
+                gap-1 + a 2px-tall spacer) so both sit at the same visual height - centering the
+                outer row alone isn't enough, since the nav links' reserved underline space pulls
+                their text a few px higher than plain "EDA Group" text at the same box center. */}
+            <span className="flex flex-col items-center gap-1">
+              <span className="font-heading text-lg font-medium text-navy lg:text-2xl">EDA Group</span>
+              <span className="h-[2px] w-full" aria-hidden="true" />
+            </span>
           </NavLink>
 
           <nav className="hidden flex-wrap items-center gap-4 md:flex lg:gap-10">

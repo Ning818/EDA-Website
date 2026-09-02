@@ -2,30 +2,41 @@ import * as THREE from 'three'
 
 /**
  * Low-level shared step: walks a loaded model's meshes, deduplicates vertices by world-space
- * position, and deduplicates triangle edges. No centering/scaling, no particle sampling -
- * just the raw topology, reused by extractMeshGeometry.js (native-vertex wireframe, the brain)
- * and sampleEdgePoints.js (equidistant edge sampling, the theme backgrounds).
+ * position (keeping each vertex's world-space normal alongside it), and deduplicates triangle
+ * edges. No centering/scaling, no particle sampling - just the raw topology, reused by
+ * extractMeshGeometry.js (native-vertex wireframe, the brain) and sampleEdgePoints.js
+ * (equidistant edge sampling, the theme backgrounds).
  *
  * @param {THREE.Object3D} object - loaded model scene graph.
- * @returns {{ rawPositions: number[], edgePairs: number[] }} rawPositions is flat xyz triples in
- *   original (un-centered/un-scaled) world space; edgePairs is flat pairs of indices into it.
+ * @returns {{ rawPositions: number[], rawNormals: number[], edgePairs: number[] }}
+ *   rawPositions/rawNormals are flat xyz triples (un-centered/un-scaled world space, and unit
+ *   world-space direction respectively); edgePairs is flat pairs of indices into them.
  */
 export function extractMeshTopology(object) {
   object.updateMatrixWorld(true)
 
   const vertexIndex = new Map() // "x,y,z" -> index into rawPositions
   const rawPositions = []
+  const rawNormals = []
   const edgeSet = new Set()
   const edgePairs = []
 
   const v = new THREE.Vector3()
-  function vertexAt(posAttr, i, matrixWorld) {
+  const n = new THREE.Vector3()
+  const normalMatrix = new THREE.Matrix3()
+  function vertexAt(posAttr, normalAttr, i, matrixWorld) {
     v.fromBufferAttribute(posAttr, i).applyMatrix4(matrixWorld)
     const key = `${v.x.toFixed(5)},${v.y.toFixed(5)},${v.z.toFixed(5)}`
     let idx = vertexIndex.get(key)
     if (idx === undefined) {
       idx = rawPositions.length / 3
       rawPositions.push(v.x, v.y, v.z)
+      if (normalAttr) {
+        n.fromBufferAttribute(normalAttr, i).applyMatrix3(normalMatrix).normalize()
+        rawNormals.push(n.x, n.y, n.z)
+      } else {
+        rawNormals.push(0, 0, 1) // no normal data on this mesh - default to "faces the camera"
+      }
       vertexIndex.set(key, idx)
     }
     return idx
@@ -41,15 +52,17 @@ export function extractMeshTopology(object) {
   object.traverse((child) => {
     if (!child.isMesh || !child.geometry?.attributes?.position) return
     const posAttr = child.geometry.attributes.position
+    const normalAttr = child.geometry.attributes.normal
     const idxAttr = child.geometry.index
+    normalMatrix.getNormalMatrix(child.matrixWorld)
     const faceCount = idxAttr ? idxAttr.count / 3 : posAttr.count / 3
     for (let f = 0; f < faceCount; f++) {
       const ia = idxAttr ? idxAttr.getX(f * 3) : f * 3
       const ib = idxAttr ? idxAttr.getX(f * 3 + 1) : f * 3 + 1
       const ic = idxAttr ? idxAttr.getX(f * 3 + 2) : f * 3 + 2
-      const via = vertexAt(posAttr, ia, child.matrixWorld)
-      const vib = vertexAt(posAttr, ib, child.matrixWorld)
-      const vic = vertexAt(posAttr, ic, child.matrixWorld)
+      const via = vertexAt(posAttr, normalAttr, ia, child.matrixWorld)
+      const vib = vertexAt(posAttr, normalAttr, ib, child.matrixWorld)
+      const vic = vertexAt(posAttr, normalAttr, ic, child.matrixWorld)
       addEdge(via, vib)
       addEdge(vib, vic)
       addEdge(vic, via)
@@ -57,7 +70,7 @@ export function extractMeshTopology(object) {
   })
   if (rawPositions.length === 0) throw new Error('extractMeshTopology: no triangles found in model')
 
-  return { rawPositions, edgePairs }
+  return { rawPositions, rawNormals, edgePairs }
 }
 
 /** Shared centering/scaling step: centers rawPositions on its bbox and uniformly scales so the

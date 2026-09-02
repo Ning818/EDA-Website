@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import { useThree } from '@react-three/fiber'
-import { makeCircleTexture } from './makeCircleTexture'
+import { makeCircleTexture, makeRingTexture } from './makeCircleTexture'
 
 const VERTEX_SHADER = `
   attribute float size;
@@ -48,6 +48,10 @@ const FRAGMENT_SHADER = `
  *
  * Purely presentational - `positions`/`sizes`/`colors`/`normals`/`edgePositions` come from
  * extractMeshGeometry.js / sampleEdgePoints.js + particleColors.js.
+ *
+ * `hollow` swaps each particle's sprite from a filled disc to a stroked ring (transparent
+ * center) - the color still comes from the `colors` attribute either way, this only changes the
+ * dot's shape/mask.
  */
 export default function ParticleMesh({
   positions,
@@ -59,9 +63,10 @@ export default function ParticleMesh({
   edgeColor,
   edgeOpacity = 0.5,
   backOpacity = 1,
+  hollow = false,
 }) {
   const { size, camera } = useThree()
-  const circleTexture = useMemo(() => makeCircleTexture(), [])
+  const circleTexture = useMemo(() => (hollow ? makeRingTexture() : makeCircleTexture()), [hollow])
   const pixelScale = size.height / (2 * Math.tan((camera.fov * Math.PI) / 360))
 
   // Default: every point "faces the camera", so the back-fade effect is a no-op unless the

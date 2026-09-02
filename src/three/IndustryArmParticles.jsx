@@ -44,6 +44,7 @@ export default function IndustryArmParticles() {
         normals={normals}
         particleSize={PARTICLE_SIZE}
         backOpacity={BACK_OPACITY}
+        hollow
       />
     </group>
   )

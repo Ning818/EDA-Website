@@ -1,4 +1,4 @@
-import ParticlePlaceholder from '../ui/ParticlePlaceholder'
+import BrainScene from '../../three/BrainScene'
 
 export default function Hero() {
   return (
@@ -11,7 +11,7 @@ export default function Hero() {
           and Urban Studies and Planning (DIST) of Politecnico di Torino.
         </p>
       </div>
-      <ParticlePlaceholder label="Brain particle effect." className="h-[692px] w-full max-w-[615px] shrink-0" />
+      <BrainScene className="h-[692px] w-full max-w-[615px] shrink-0" />
     </section>
   )
 }

@@ -1,3 +1,4 @@
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { NavLink, useLocation } from 'react-router-dom'
 import edaLogo from '../../assets/images/eda-logo.png'
 
@@ -33,77 +34,132 @@ const NAV_LINKS = [
 
 export default function Header() {
   const { pathname } = useLocation()
+  const isHome = pathname === '/'
+
+  // On the Home page: hide the header on scroll-down (slides up and off the top), reveal it
+  // again on scroll-up (slides back down into view).
+  const [hidden, setHidden] = useState(false)
+  const lastY = useRef(0)
+
+  useEffect(() => {
+    if (!isHome) {
+      setHidden(false)
+      return
+    }
+    lastY.current = window.scrollY
+    function handleScroll() {
+      const y = window.scrollY
+      const delta = y - lastY.current
+      if (Math.abs(delta) < 4) return // ignore tiny jitter
+      setHidden(y > 80 && delta > 0) // near the top: always show; else hide on scroll-down, show on scroll-up
+      lastY.current = y
+    }
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [isHome])
+
+  // `position: fixed` takes the header out of normal flow, so a spacer of the same height is
+  // rendered in its place to keep page content from jumping up underneath it. Measured (rather
+  // than a guessed pixel value) since the header's height varies across breakpoints - e.g. the
+  // logo goes from 64px to 98px tall at the `lg` breakpoint.
+  //
+  // Note: `position: sticky` was tried first (no spacer needed at all), but sticky + a CSS
+  // transform/translate doesn't compose correctly in this environment - the class toggles
+  // correctly yet the element never visually moves. `fixed` + translate is solid, hence the
+  // spacer here.
+  const headerRef = useRef(null)
+  const [spacerHeight, setSpacerHeight] = useState(0)
+
+  useLayoutEffect(() => {
+    if (!isHome || !headerRef.current) return
+    const el = headerRef.current
+    const update = () => setSpacerHeight(el.getBoundingClientRect().height)
+    update()
+    const observer = new ResizeObserver(update)
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [isHome])
 
   return (
-    <header className="w-full bg-mint">
-      <div className="mx-auto flex max-w-[1440px] flex-wrap items-center justify-between gap-4 px-6 py-3 lg:flex-nowrap lg:px-[120px]">
-        <NavLink to="/" className="flex shrink-0 items-center gap-3 lg:gap-[30px]">
-          <img src={edaLogo} alt="EDA Group logo" className="size-16 object-cover lg:size-[98px]" />
-          <span className="font-heading text-2xl font-medium text-navy lg:text-[32px]">EDA Group</span>
-        </NavLink>
+    <>
+      <header
+        ref={headerRef}
+        className={`w-full bg-mint ${isHome ? 'fixed inset-x-0 top-0 z-50' : ''}`}
+        style={{
+          transition: 'transform 300ms ease-in-out',
+          transform: isHome && hidden ? 'translateY(-100%)' : 'translateY(0)',
+        }}
+      >
+        <div className="mx-auto flex max-w-[1440px] flex-wrap items-center justify-between gap-4 px-6 py-3 lg:flex-nowrap lg:px-[120px]">
+          <NavLink to="/" className="flex shrink-0 items-center gap-3 lg:gap-[30px]">
+            <img src={edaLogo} alt="EDA Group logo" className="size-16 object-cover lg:size-[98px]" />
+            <span className="font-heading text-2xl font-medium text-navy lg:text-[32px]">EDA Group</span>
+          </NavLink>
 
-        <nav className="hidden flex-wrap items-center gap-4 md:flex lg:gap-10">
-          {NAV_LINKS.map((link) => {
-            const isActive = pathname === link.to
-            const label = (
-              <>
-                {link.label}
-                {/* Underline fades in on hover (opacity 0 -> 1) instead of growing thicker */}
-                <span
-                  className={`h-[2px] w-full bg-navy opacity-0 transition-opacity duration-100 ease-linear group-hover:opacity-100 ${
-                    isActive ? 'opacity-100' : ''
-                  }`}
-                />
-              </>
-            )
+          <nav className="hidden flex-wrap items-center gap-4 md:flex lg:gap-10">
+            {NAV_LINKS.map((link) => {
+              const isActive = pathname === link.to
+              const label = (
+                <>
+                  {link.label}
+                  {/* Underline fades in on hover (opacity 0 -> 1) instead of growing thicker */}
+                  <span
+                    className={`h-[2px] w-full bg-navy opacity-0 transition-opacity duration-100 ease-linear group-hover:opacity-100 ${
+                      isActive ? 'opacity-100' : ''
+                    }`}
+                  />
+                </>
+              )
 
-            return (
-              <div key={link.to} className="group relative">
-                {/* Research/Projects have no page of their own to jump to - they only
-                    exist to host the dropdown below, so they aren't links. */}
-                {link.dropdown ? (
-                  <span className="flex cursor-default flex-col items-center gap-1 font-heading text-lg font-medium text-navy lg:text-2xl">
-                    {label}
-                  </span>
-                ) : (
-                  <NavLink
-                    to={link.to}
-                    end
-                    className="flex flex-col items-center gap-1 font-heading text-lg font-medium text-navy lg:text-2xl"
-                  >
-                    {label}
-                  </NavLink>
-                )}
+              return (
+                <div key={link.to} className="group relative">
+                  {/* Research/Projects have no page of their own to jump to - they only
+                      exist to host the dropdown below, so they aren't links. */}
+                  {link.dropdown ? (
+                    <span className="flex cursor-default flex-col items-center gap-1 font-heading text-lg font-medium text-navy lg:text-2xl">
+                      {label}
+                    </span>
+                  ) : (
+                    <NavLink
+                      to={link.to}
+                      end
+                      className="flex flex-col items-center gap-1 font-heading text-lg font-medium text-navy lg:text-2xl"
+                    >
+                      {label}
+                    </NavLink>
+                  )}
 
-                {link.dropdown && (
-                  <div className="invisible absolute left-0 top-full z-20 w-56 pt-3 group-hover:visible">
-                    <ul className="bg-mint shadow-lg">
-                      {link.dropdown.map((item, i) => (
-                        // Each row is collapsed to 0 height and grows open on its own delay, so the
-                        // blocks themselves appear one at a time top-to-bottom (the box grows with
-                        // them) rather than the whole box showing at once with text fading inside it.
-                        <li
-                          key={item.label}
-                          style={{ transitionDelay: `${i * 80}ms` }}
-                          className="max-h-0 overflow-hidden transition-[max-height] duration-300 ease-out group-hover:max-h-12"
-                        >
-                          <NavLink
-                            to={item.to}
-                            style={{ transitionDelay: `${i * 80}ms, 0ms, 0ms` }}
-                            className="block px-5 py-2.5 font-body text-base text-navy opacity-0 transition-[opacity,background-color,color] duration-300 ease-out hover:bg-navy hover:text-mint group-hover:opacity-100"
+                  {link.dropdown && (
+                    <div className="invisible absolute left-0 top-full z-20 w-56 pt-3 group-hover:visible">
+                      <ul className="bg-mint shadow-lg">
+                        {link.dropdown.map((item, i) => (
+                          // Each row is collapsed to 0 height and grows open on its own delay, so the
+                          // blocks themselves appear one at a time top-to-bottom (the box grows with
+                          // them) rather than the whole box showing at once with text fading inside it.
+                          <li
+                            key={item.label}
+                            style={{ transitionDelay: `${i * 80}ms` }}
+                            className="max-h-0 overflow-hidden transition-[max-height] duration-300 ease-out group-hover:max-h-12"
                           >
-                            {item.label}
-                          </NavLink>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-              </div>
-            )
-          })}
-        </nav>
-      </div>
-    </header>
+                            <NavLink
+                              to={item.to}
+                              style={{ transitionDelay: `${i * 80}ms, 0ms, 0ms` }}
+                              className="block px-5 py-2.5 font-body text-base text-navy opacity-0 transition-[opacity,background-color,color] duration-300 ease-out hover:bg-navy hover:text-mint group-hover:opacity-100"
+                            >
+                              {item.label}
+                            </NavLink>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              )
+            })}
+          </nav>
+        </div>
+      </header>
+      {isHome && <div style={{ height: spacerHeight }} aria-hidden="true" />}
+    </>
   )
 }

@@ -104,8 +104,8 @@ export default function Header() {
       >
         <div className="mx-auto flex max-w-[1440px] flex-wrap items-center justify-between gap-4 px-6 py-3 lg:flex-nowrap lg:px-[120px]">
           <NavLink to="/" className="flex shrink-0 items-center gap-3 lg:gap-[30px]">
-            <img src={edaLogo} alt="EDA Group logo" className="size-16 object-cover lg:size-[98px]" />
-            <span className="font-heading text-2xl font-medium text-navy lg:text-[32px]">EDA Group</span>
+            <img src={edaLogo} alt="EDA Group logo" className="size-[44.8px] object-cover lg:size-[68.6px]" />
+            <span className="font-heading text-lg font-medium text-navy lg:text-2xl">EDA Group</span>
           </NavLink>
 
           <nav className="hidden flex-wrap items-center gap-4 md:flex lg:gap-10">

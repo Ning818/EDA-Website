@@ -18,7 +18,7 @@ export default function ThemeShowcase({ theme, imageSide = 'left', visual: custo
   )
 
   return (
-    <section className="mx-auto flex max-w-[1440px] flex-col items-center gap-10 px-8 py-16 md:flex-row md:py-[60px] lg:px-[120px]">
+    <section className="mx-auto flex min-h-screen max-w-[1440px] flex-col items-center justify-center gap-10 px-8 py-16 md:flex-row md:py-[60px] lg:px-[120px]">
       {imageSide === 'left' ? (
         <>
           {visual}

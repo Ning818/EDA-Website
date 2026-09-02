@@ -5,8 +5,8 @@ import ParticlePlaceholder from '../ui/ParticlePlaceholder'
  * One of the four alternating "theme" rows on the homepage (VLSI-CAD, Bioinformatics,
  * Smart City, Industry 4.0). `imageSide` flips which side the visual sits on.
  */
-export default function ThemeShowcase({ theme, imageSide = 'left' }) {
-  const visual = (
+export default function ThemeShowcase({ theme, imageSide = 'left', visual: customVisual }) {
+  const visual = customVisual ?? (
     <ParticlePlaceholder label={`${theme} particle visual effect.`} className="h-[478px] w-full max-w-[531px] shrink-0" />
   )
 

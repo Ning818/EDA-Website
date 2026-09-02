@@ -135,14 +135,14 @@ export default function Header() {
                   {/* Research/Projects have no page of their own to jump to - they only
                       exist to host the dropdown below, so they aren't links. */}
                   {link.dropdown ? (
-                    <span className="flex cursor-default flex-col items-center gap-1 font-heading text-lg font-medium text-navy lg:text-2xl">
+                    <span className="flex cursor-default flex-col items-center gap-1 font-heading text-base font-medium text-navy lg:text-xl">
                       {label}
                     </span>
                   ) : (
                     <NavLink
                       to={link.to}
                       end
-                      className="flex flex-col items-center gap-1 font-heading text-lg font-medium text-navy lg:text-2xl"
+                      className="flex flex-col items-center gap-1 font-heading text-base font-medium text-navy lg:text-xl"
                     >
                       {label}
                     </NavLink>

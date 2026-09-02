@@ -12,7 +12,7 @@ import IndustryArmParticles from './IndustryArmParticles'
 export default function IndustryArmScene({ className }) {
   return (
     <div className={`${className ?? ''} relative`}>
-      <div className="pointer-events-none absolute left-1/2 top-1/2 aspect-square w-[135%] -translate-x-1/2 -translate-y-1/2">
+      <div className="pointer-events-none absolute left-1/2 top-1/2 aspect-square w-[350%] -translate-x-1/2 -translate-y-1/2">
         <Canvas camera={{ position: [0, 0, 6], fov: 45, near: 0.1, far: 100 }} gl={{ alpha: true, antialias: true }}>
           <Suspense fallback={null}>
             <IndustryArmParticles />

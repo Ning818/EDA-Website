@@ -10,6 +10,9 @@ const TARGET_EXTENT = 2.9
 const EDGE_SPACING = 0.045
 // Minimum distance between the hand's surface points (blue-noise thinned, see parseGLBLines.js).
 const MESH_SPACING = 0.04
+// Density eases up toward the chip the hand reaches for: spacing goes from MESH_SPACING (far, at the
+// wrist) down to this at the fingertips.
+const MESH_TIP_SPACING = 0.03
 const PARTICLE_SIZE = 0.03
 // Hand points on its far side (surface facing away from the camera - the part occluded by the
 // hand itself) blend this far toward white, so the near side reads clearly in front of it.
@@ -18,10 +21,11 @@ const HAND_BACK_WHITE_FADE = 0.6
 // set not already used by another scene. "亮色的芯片" (bright chip) reuses the shared highlight.
 const CHIP_COLOR = '#3fb0b8'
 const HIGHLIGHT_COLOR = '#e0a94a'
-// Matched to the user's fourth (chips7) Rhino perspective screenshot: the GLB's +z is the board's underside (hand sits
-// on the -z side), so flip 180deg about X first, then yaw 121deg about the board normal and tilt 50deg
-// from straight-down. Found by rendering candidates offline and comparing to the reference.
-const ORIENTATION = [0.4462873070420821, -0.7888101447220338, 0.3678282113142371, 0.20810718901109412]
+// Matched to the user's latest (chips8) Rhino perspective screenshot: the GLB's +z is the board's
+// underside (hand sits on the -z side), so flip 180deg about X first, then yaw 145deg about the board
+// normal and tilt 65deg from straight-down. Found by rendering candidates offline and comparing to
+// the reference (board edge slopes, hand pose).
+const ORIENTATION = [0.2536126990082286, -0.8043567179878038, 0.5124317441107494, 0.1615691083012645]
 
 /**
  * Particle-cloud rendering of the VLSI-CAD scene (chips.glb): a line-art motherboard/chips
@@ -33,7 +37,7 @@ export default function VLSICADParticles() {
   const gltf = useLoader(GLTFLoader, '/models/chips.glb')
 
   const { positions, sizes, colors, normals, normalMask } = useMemo(() => {
-    const geo = sampleGLBLinesAndMesh(gltf.scene, { targetExtent: TARGET_EXTENT, spacing: EDGE_SPACING, meshSpacing: MESH_SPACING })
+    const geo = sampleGLBLinesAndMesh(gltf.scene, { targetExtent: TARGET_EXTENT, spacing: EDGE_SPACING, meshSpacing: MESH_SPACING, meshTipSpacing: MESH_TIP_SPACING, tipGroup: '亮色的芯片' })
     const colors = colorByGroup(geo.groups, { '亮色的芯片': HIGHLIGHT_COLOR, '亮色的手': HIGHLIGHT_COLOR, '线框': CHIP_COLOR }, CHIP_COLOR)
     return { ...geo, colors }
   }, [gltf])
@@ -48,6 +52,7 @@ export default function VLSICADParticles() {
         normalMask={normalMask}
         particleSize={PARTICLE_SIZE}
         backWhiteFade={HAND_BACK_WHITE_FADE}
+        depthWrite
       />
     </group>
   )

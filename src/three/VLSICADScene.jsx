@@ -14,7 +14,7 @@ import VLSICADParticles from './VLSICADParticles'
 export default function VLSICADScene({ className }) {
   return (
     <div className={`${className ?? ''} relative`}>
-      <div className="absolute left-1/2 top-1/2 aspect-square w-[245%] -translate-x-1/2 -translate-y-1/2 cursor-grab active:cursor-grabbing">
+      <div className="absolute left-[calc(50%-57.5px)] top-1/2 aspect-square w-[245%] -translate-x-1/2 -translate-y-1/2 cursor-grab active:cursor-grabbing">
         <Canvas camera={{ position: [0, 0, 6], fov: 45, near: 0.1, far: 100 }} gl={{ alpha: true, antialias: true }}>
           <Suspense fallback={null}>
             <VLSICADParticles />

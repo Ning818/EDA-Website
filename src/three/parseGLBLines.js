@@ -97,10 +97,14 @@ function collectTriangles(scene) {
  * @param {object} opts
  * @param {number} opts.targetExtent
  * @param {number} opts.spacing - point spacing along lines.
- * @param {number} opts.meshSpacing - minimum distance between mesh surface points.
+ * @param {number} opts.meshSpacing - minimum distance between mesh surface points (at its sparsest).
+ * @param {number} [opts.meshTipSpacing] - if set (< meshSpacing), the mesh gets denser toward
+ *   `opts.tipGroup` (a line group, e.g. the chip a hand reaches for): spacing eases from
+ *   meshSpacing far away down to this right at the group, so fingertips read densest.
+ * @param {string} [opts.tipGroup]
  */
 export function sampleGLBLinesAndMesh(scene, opts) {
-  const { targetExtent, spacing, meshSpacing } = opts
+  const { targetExtent, spacing, meshSpacing, meshTipSpacing = meshSpacing, tipGroup } = opts
   const { chains, chainGroups } = chainsFromGLBScene(scene)
   const tris = collectTriangles(scene)
 
@@ -189,8 +193,32 @@ export function sampleGLBLinesAndMesh(scene, opts) {
 
   let seed = 20260924
   const rnd = () => { seed = (seed * 1664525 + 1013904223) >>> 0; return seed / 4294967296 }
-  const candidates = Math.ceil((6 * total) / (meshSpacing * meshSpacing))
+  const minSpacing = Math.min(meshSpacing, meshTipSpacing)
+  const candidates = Math.ceil((6 * total) / (minSpacing * minSpacing))
   const cell = meshSpacing
+
+  // Local spacing: eases from meshSpacing (far from the tip group) to meshTipSpacing (at it).
+  // "Near" is measured on the scaled tip-group points, normalized over the mesh's own extent.
+  let radiusAt = () => meshSpacing
+  if (tipGroup && meshTipSpacing < meshSpacing) {
+    const tip = []
+    for (let i = 0; i < lines.positions.length / 3; i++) if (lines.groups[i] === tipGroup) tip.push([lines.positions[i * 3], lines.positions[i * 3 + 1], lines.positions[i * 3 + 2]])
+    if (tip.length) {
+      const c = [0, 1, 2].map((k) => tip.reduce((a, q) => a + q[k], 0) / tip.length)
+      let dMin = Infinity, dMax = 0
+      for (const t of st) for (const q of [t.a, t.b, t.c]) {
+        const d = Math.hypot(q[0] - c[0], q[1] - c[1], q[2] - c[2])
+        if (d < dMin) dMin = d
+        if (d > dMax) dMax = d
+      }
+      radiusAt = (p) => {
+        const d = Math.hypot(p[0] - c[0], p[1] - c[1], p[2] - c[2])
+        const x = Math.min(1, Math.max(0, (d - dMin) / (dMax - dMin || 1)))
+        const w = x * x * (3 - 2 * x) // smoothstep: 0 at the tip, 1 far away
+        return meshTipSpacing + (meshSpacing - meshTipSpacing) * w
+      }
+    }
+  }
   const grid = new Map()
   const meshPts = [], meshGroups = [], meshNormals = []
   for (let n = 0; n < candidates && total > 0; n++) {
@@ -202,18 +230,20 @@ export function sampleGLBLinesAndMesh(scene, opts) {
     if (u + v > 1) { u = 1 - u; v = 1 - v }
     const p = [0, 1, 2].map((k) => t.a[k] + u * (t.b[k] - t.a[k]) + v * (t.c[k] - t.a[k]))
     const cx = Math.floor(p[0] / cell), cy = Math.floor(p[1] / cell), cz = Math.floor(p[2] / cell)
+    const rp = radiusAt(p)
     let ok = true
     for (let dx = -1; dx <= 1 && ok; dx++) for (let dy = -1; dy <= 1 && ok; dy++) for (let dz = -1; dz <= 1 && ok; dz++) {
       const list = grid.get(`${cx + dx},${cy + dy},${cz + dz}`)
       if (!list) continue
       for (const q of list) {
-        if ((q[0] - p[0]) ** 2 + (q[1] - p[1]) ** 2 + (q[2] - p[2]) ** 2 < meshSpacing * meshSpacing) { ok = false; break }
+        const need = (rp + q[3]) / 2
+        if ((q[0] - p[0]) ** 2 + (q[1] - p[1]) ** 2 + (q[2] - p[2]) ** 2 < need * need) { ok = false; break }
       }
     }
     if (!ok) continue
     const key = `${cx},${cy},${cz}`
     if (!grid.has(key)) grid.set(key, [])
-    grid.get(key).push(p)
+    grid.get(key).push([p[0], p[1], p[2], rp])
     meshPts.push(p[0], p[1], p[2])
     meshGroups.push(t.group)
     const w = 1 - u - v

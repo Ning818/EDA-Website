@@ -4,8 +4,9 @@ import * as THREE from 'three'
  * Low-level shared step: walks a loaded model's meshes, deduplicates vertices by world-space
  * position (keeping each vertex's world-space normal alongside it), and deduplicates triangle
  * edges. No centering/scaling, no particle sampling - just the raw topology, reused by
- * extractMeshGeometry.js (native-vertex wireframe, the brain) and sampleEdgePoints.js
- * (equidistant edge sampling, the theme backgrounds).
+ * extractMeshGeometry.js (native-vertex wireframe, the brain). For a model that's genuine line
+ * art rather than a triangulated mesh, see sampleLineStrips.js instead - it walks each line's own
+ * vertex chain directly, with no triangle topology to extract.
  *
  * @param {THREE.Object3D} object - loaded model scene graph.
  * @returns {{ rawPositions: number[], rawNormals: number[], edgePairs: number[] }}

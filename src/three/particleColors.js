@@ -41,3 +41,30 @@ export function flatColor(vertexCount, hex) {
   }
   return colors
 }
+
+/**
+ * Per-vertex color by an explicit group key per point (e.g. sampleLineStrips.js's `groups`, from
+ * a model split into named layers in the source app) - unlike colorByAnchors, this doesn't infer
+ * the grouping from position, it just looks up whatever key each point already carries.
+ *
+ * @param {(string|undefined)[]} groups - per-point group key, same length/order as positions.
+ * @param {Record<string, string>} colorMap - group key -> hex color.
+ * @param {string} fallbackHex - color for a point whose key isn't in colorMap (including undefined).
+ */
+export function colorByGroup(groups, colorMap, fallbackHex) {
+  const count = groups.length
+  const colors = new Float32Array(count * 3)
+  const cache = new Map()
+  for (let i = 0; i < count; i++) {
+    const key = groups[i]
+    let c = cache.get(key)
+    if (!c) {
+      c = new THREE.Color(colorMap[key] ?? fallbackHex)
+      cache.set(key, c)
+    }
+    colors[i * 3] = c.r
+    colors[i * 3 + 1] = c.g
+    colors[i * 3 + 2] = c.b
+  }
+  return colors
+}

@@ -12,8 +12,18 @@
   --color-placeholder: #d9d9d9;
 }
 
+/* Industry 4.0's particle background (IndustryArmScene) is intentionally oversized
+   (w-[245%]) and allowed to overflow its own section - without clipping it at the root,
+   that overflow inflates the whole document's scrollable width and shows a horizontal
+   scrollbar. Needs to be on both html and body: it's `html` that owns the page's scrollbar,
+   but `body`'s box is what actually contains the overflowing absolutely-positioned element. */
+html {
+  overflow-x: hidden;
+}
+
 body {
   margin: 0;
+  overflow-x: hidden;
   background: var(--color-mint);
   color: var(--color-navy);
   font-family: var(--font-body);

@@ -21,7 +21,8 @@ const EDGE_SPACING = 0.02
 // count barely moves (4942 at 48 segments vs. 4978 at 1000) - only the curve's own shape fidelity
 // improves.
 const CURVE_SEGMENTS = 1000
-const PARTICLE_SIZE = 0.028
+export const DNA_PARTICLE_SIZE = 0.028
+const PARTICLE_SIZE = DNA_PARTICLE_SIZE
 // Bioinformatics' theme accent from particle_brain_demo_logo_24.html's anchor set - the one
 // remaining anchor color not already claimed by Smart City ('#4a9db3') or Industry 4.0
 // ('#6a6fc4'). Used for the plain "DNA" layer; the "亮色DNA" (bright-color DNA) layer reuses
@@ -29,6 +30,13 @@ const PARTICLE_SIZE = 0.028
 // City's road network does.
 const DNA_COLOR = '#4ab47a'
 const HIGHLIGHT_COLOR = '#e0a94a'
+
+/** The DNA particle data, shared by the scene and the page-wide shared canvas. */
+export function buildDNACloud(text) {
+    const geo = sampleDXF(text, { targetExtent: TARGET_EXTENT, spacing: EDGE_SPACING, curveSegments: CURVE_SEGMENTS })
+    const colors = colorByGroup(geo.groups, { '亮色DNA': HIGHLIGHT_COLOR, DNA: DNA_COLOR }, DNA_COLOR)
+    return { ...geo, colors }
+}
 
 /**
  * Particle-cloud rendering of the DNA double-helix model, from a genuine-curve DXF source
@@ -44,11 +52,7 @@ const HIGHLIGHT_COLOR = '#e0a94a'
 export default function DNAParticles() {
   const text = useLoader(FileLoader, '/models/dna6.dxf', (loader) => loader.setResponseType('text'))
 
-  const { positions, sizes, colors } = useMemo(() => {
-    const geo = sampleDXF(text, { targetExtent: TARGET_EXTENT, spacing: EDGE_SPACING, curveSegments: CURVE_SEGMENTS })
-    const colors = colorByGroup(geo.groups, { '亮色DNA': HIGHLIGHT_COLOR, DNA: DNA_COLOR }, DNA_COLOR)
-    return { ...geo, colors }
-  }, [text])
+  const { positions, sizes, colors } = useMemo(() => buildDNACloud(text), [text])
 
   return <ParticleMesh positions={positions} sizes={sizes} colors={colors} particleSize={PARTICLE_SIZE} />
 }

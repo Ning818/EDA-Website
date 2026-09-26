@@ -5,6 +5,7 @@ import LinkedInSection from '../components/sections/LinkedInSection'
 import IndustryArmScene from '../three/IndustryArmScene'
 import SmartCityScene from '../three/SmartCityScene'
 import DNAScene from '../three/DNAScene'
+import ParticleCanvas from '../three/ParticleCanvas'
 import VLSICADScene from '../three/VLSICADScene'
 
 const THEMES = [
@@ -32,13 +33,16 @@ const THEMES = [
 
 export default function Home() {
   return (
-    <main>
+    <>
+      <ParticleCanvas />
+      <main className="relative z-10">
       <Hero />
       {THEMES.map((t) => (
         <ThemeShowcase key={t.theme} theme={t.theme} imageSide={t.imageSide} visual={t.visual} />
       ))}
       <YoutubeSpotlight />
       <LinkedInSection />
-    </main>
+      </main>
+    </>
   )
 }

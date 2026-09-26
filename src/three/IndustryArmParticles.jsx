@@ -17,7 +17,8 @@ const TARGET_EXTENT = 2.924
 // the source app happened to split its curves. Tuned to land in the same point-count range as the
 // other scenes (4337 here, vs. Smart City's 3678 and DNA's ~4900).
 const EDGE_SPACING = 0.035
-const PARTICLE_SIZE = 0.03
+export const ARM_PARTICLE_SIZE = 0.03
+const PARTICLE_SIZE = ARM_PARTICLE_SIZE
 // Industry 4.0's theme accent from particle_brain_demo_logo_24.html's anchor set (lab3), for the
 // plain "需要的边界" (needed boundary) layer. The "亮色的机械臂" (bright-color robotic arm) layer
 // reuses Smart City's ROAD_COLOR, same as DNA's "亮色DNA" layer does, so a highlighted arm section
@@ -36,7 +37,14 @@ const HIGHLIGHT_COLOR = '#e0a94a'
 // composition order, checked against a measured drag), model' = extra^-1 * model. For machinehandline4
 // the disc had to flatten out to match the new reference screenshot: a further 16deg rotation about X
 // (found by rendering candidates offline and comparing to the reference).
-const ORIENTATION = [0.6752496924215704, -0.17605708611673884, 0.01180120759056973, 0.7161721069771305]
+export const ARM_ORIENTATION = [0.6752496924215704, -0.17605708611673884, 0.01180120759056973, 0.7161721069771305]
+
+/** The robotic-arm particle data, shared by the scene and the page-wide shared canvas. */
+export function buildArmCloud(gltf) {
+    const geo = sampleGLBLines(gltf.scene, { targetExtent: TARGET_EXTENT, spacing: EDGE_SPACING })
+    const colors = colorByGroup(geo.groups, { '亮色的机械臂': HIGHLIGHT_COLOR, '需要的边界': ARM_COLOR }, ARM_COLOR)
+    return { ...geo, colors }
+}
 
 /**
  * Particle-cloud rendering of the Industry 4.0 robotic-arm model, from a line-strip GLB export
@@ -49,14 +57,10 @@ const ORIENTATION = [0.6752496924215704, -0.17605708611673884, 0.011801207590569
 export default function IndustryArmParticles() {
   const gltf = useLoader(GLTFLoader, '/models/industry-arm.glb')
 
-  const { positions, sizes, colors } = useMemo(() => {
-    const geo = sampleGLBLines(gltf.scene, { targetExtent: TARGET_EXTENT, spacing: EDGE_SPACING })
-    const colors = colorByGroup(geo.groups, { '亮色的机械臂': HIGHLIGHT_COLOR, '需要的边界': ARM_COLOR }, ARM_COLOR)
-    return { ...geo, colors }
-  }, [gltf])
+  const { positions, sizes, colors } = useMemo(() => buildArmCloud(gltf), [gltf])
 
   return (
-    <group quaternion={ORIENTATION}>
+    <group quaternion={ARM_ORIENTATION}>
       <ParticleMesh positions={positions} sizes={sizes} colors={colors} particleSize={PARTICLE_SIZE} />
     </group>
   )

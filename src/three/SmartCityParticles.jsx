@@ -18,7 +18,8 @@ const EDGE_SPACING = 0.035
 // Tessellation resolution for ARC/CIRCLE/SPLINE entities (points per full 360deg sweep, or per
 // the spline's whole parameter domain) - see parseDXF.js.
 const CURVE_SEGMENTS = 48
-const PARTICLE_SIZE = 0.03
+export const CITY_PARTICLE_SIZE = 0.03
+const PARTICLE_SIZE = CITY_PARTICLE_SIZE
 
 // smart-city9.dxf carries the same two named layers the earlier GLB attempt did: "road" and
 // "主题色建筑" (theme-color buildings). Anything on "road" gets ROAD_COLOR; everything else
@@ -37,7 +38,14 @@ const ROAD_COLOR = '#e0a94a'
 // further camera-azimuth adjustments on top of that reference angle (rotate the view to the right),
 // each computed via THREE.Quaternion as camera' = Ry(-deg) * camera, model' = camera'^-1: +15deg,
 // then +10deg more.
-const ORIENTATION = [0.3247750867958973, -0.06595604169337653, -0.022710486418313972, 0.9432153398707543]
+export const CITY_ORIENTATION = [0.3247750867958973, -0.06595604169337653, -0.022710486418313972, 0.9432153398707543]
+
+/** The Smart City particle data, shared by the scene and the page-wide shared canvas. */
+export function buildCityCloud(text) {
+    const geo = sampleDXF(text, { targetExtent: TARGET_EXTENT, spacing: EDGE_SPACING, curveSegments: CURVE_SEGMENTS })
+    const colors = colorByGroup(geo.groups, { road: ROAD_COLOR, '主题色建筑': BUILDING_COLOR }, BUILDING_COLOR)
+    return { ...geo, colors }
+}
 
 /**
  * Particle-cloud rendering of the Smart City model, from a genuine-curve DXF source rather than
@@ -53,14 +61,10 @@ const ORIENTATION = [0.3247750867958973, -0.06595604169337653, -0.02271048641831
 export default function SmartCityParticles() {
   const text = useLoader(FileLoader, '/models/smart-city9.dxf', (loader) => loader.setResponseType('text'))
 
-  const { positions, sizes, colors } = useMemo(() => {
-    const geo = sampleDXF(text, { targetExtent: TARGET_EXTENT, spacing: EDGE_SPACING, curveSegments: CURVE_SEGMENTS })
-    const colors = colorByGroup(geo.groups, { road: ROAD_COLOR, '主题色建筑': BUILDING_COLOR }, BUILDING_COLOR)
-    return { ...geo, colors }
-  }, [text])
+  const { positions, sizes, colors } = useMemo(() => buildCityCloud(text), [text])
 
   return (
-    <group quaternion={ORIENTATION}>
+    <group quaternion={CITY_ORIENTATION}>
       <ParticleMesh positions={positions} sizes={sizes} colors={colors} particleSize={PARTICLE_SIZE} />
     </group>
   )

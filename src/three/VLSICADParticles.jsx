@@ -13,7 +13,8 @@ const MESH_SPACING = 0.04
 // Density eases up toward the chip the hand reaches for: spacing goes from MESH_SPACING (far, at the
 // wrist) down to this at the fingertips.
 const MESH_TIP_SPACING = 0.03
-const PARTICLE_SIZE = 0.03
+export const VLSI_PARTICLE_SIZE = 0.03
+const PARTICLE_SIZE = VLSI_PARTICLE_SIZE
 // Hand points on its far side (surface facing away from the camera - the part occluded by the
 // hand itself) blend this far toward white, so the near side reads clearly in front of it.
 const HAND_BACK_WHITE_FADE = 0.6
@@ -25,7 +26,14 @@ const HIGHLIGHT_COLOR = '#e0a94a'
 // underside (hand sits on the -z side), so flip 180deg about X first, then yaw 145deg about the board
 // normal and tilt 65deg from straight-down. Found by rendering candidates offline and comparing to
 // the reference (board edge slopes, hand pose).
-const ORIENTATION = [0.2536126990082286, -0.8043567179878038, 0.5124317441107494, 0.1615691083012645]
+export const VLSI_ORIENTATION = [0.2536126990082286, -0.8043567179878038, 0.5124317441107494, 0.1615691083012645]
+
+/** The VLSI-CAD particle data, shared by the scene below and the scroll-driven morph overlay. */
+export function buildVLSICloud(gltf) {
+  const geo = sampleGLBLinesAndMesh(gltf.scene, { targetExtent: TARGET_EXTENT, spacing: EDGE_SPACING, meshSpacing: MESH_SPACING, meshTipSpacing: MESH_TIP_SPACING, tipGroup: '亮色的芯片' })
+  const colors = colorByGroup(geo.groups, { '亮色的芯片': HIGHLIGHT_COLOR, '亮色的手': HIGHLIGHT_COLOR, '线框': CHIP_COLOR }, CHIP_COLOR)
+  return { ...geo, colors }
+}
 
 /**
  * Particle-cloud rendering of the VLSI-CAD scene (chips.glb): a line-art motherboard/chips
@@ -36,14 +44,10 @@ const ORIENTATION = [0.2536126990082286, -0.8043567179878038, 0.5124317441107494
 export default function VLSICADParticles() {
   const gltf = useLoader(GLTFLoader, '/models/chips.glb')
 
-  const { positions, sizes, colors, normals, normalMask } = useMemo(() => {
-    const geo = sampleGLBLinesAndMesh(gltf.scene, { targetExtent: TARGET_EXTENT, spacing: EDGE_SPACING, meshSpacing: MESH_SPACING, meshTipSpacing: MESH_TIP_SPACING, tipGroup: '亮色的芯片' })
-    const colors = colorByGroup(geo.groups, { '亮色的芯片': HIGHLIGHT_COLOR, '亮色的手': HIGHLIGHT_COLOR, '线框': CHIP_COLOR }, CHIP_COLOR)
-    return { ...geo, colors }
-  }, [gltf])
+  const { positions, sizes, colors, normals, normalMask } = useMemo(() => buildVLSICloud(gltf), [gltf])
 
   return (
-    <group quaternion={ORIENTATION}>
+    <group quaternion={VLSI_ORIENTATION}>
       <ParticleMesh
         positions={positions}
         sizes={sizes}

@@ -18,7 +18,9 @@
    scrollbar. Needs to be on both html and body: it's `html` that owns the page's scrollbar,
    but `body`'s box is what actually contains the overflowing absolutely-positioned element. */
 html {
-  overflow-x: hidden;
+  /* `clip`, not `hidden`: hidden turns html/body into scroll containers, which breaks position: sticky
+     (the pinned theme sections) since sticky then sticks to a container that never scrolls. */
+  overflow-x: clip;
   /* Home's four theme sections snap to the viewport center (see ThemeShowcase's snap-center).
      `proximity` so the rest of the page (YouTube, LinkedIn, footer, other routes) scrolls freely. */
   scroll-snap-type: y proximity;
@@ -26,7 +28,7 @@ html {
 
 body {
   margin: 0;
-  overflow-x: hidden;
+  overflow-x: clip;
   background: var(--color-mint);
   color: var(--color-navy);
   font-family: var(--font-body);

@@ -12,16 +12,22 @@ const THEMES = [
   {
     theme: 'VLSI-CAD',
     imageSide: 'left',
+    dwell: 80, // vh of scroll the finished cloud holds still
+    gap: 200, // vh of scroll for the transition into the next theme
     visual: <VLSICADScene className="h-[478px] w-full max-w-[531px] shrink-0" />,
   },
   {
     theme: 'Bioinformatics',
     imageSide: 'right',
+    dwell: 80,
+    gap: 200,
     visual: <DNAScene className="h-[478px] w-full max-w-[531px] shrink-0" />,
   },
   {
     theme: 'Smart City',
     imageSide: 'left',
+    dwell: 80,
+    gap: 200,
     visual: <SmartCityScene className="h-[478px] w-full max-w-[531px] shrink-0" />,
   },
   {
@@ -37,8 +43,10 @@ export default function Home() {
       <ParticleCanvas />
       <main className="relative z-10">
       <Hero />
-      {THEMES.map((t) => (
-        <ThemeShowcase key={t.theme} theme={t.theme} imageSide={t.imageSide} visual={t.visual} />
+      {/* Empty scroll: the brain's move + regather + VLSI-CAD turn needs a long stretch, like every other transition. */}
+      <div aria-hidden style={{ height: '200vh' }} />
+      {THEMES.map((t, i) => (
+        <ThemeShowcase key={t.theme} theme={t.theme} imageSide={t.imageSide} visual={t.visual} dwell={t.dwell} gapAfter={i < THEMES.length - 1 ? (t.gap ?? 100) : 0} />
       ))}
       <YoutubeSpotlight />
       <LinkedInSection />

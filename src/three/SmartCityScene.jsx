@@ -10,7 +10,7 @@
 export default function SmartCityScene({ className }) {
   return (
     <div className={`${className ?? ''} relative`}>
-      <div data-cloud="city" className="absolute left-1/2 top-1/2 aspect-square w-[245%] -translate-x-1/2 -translate-y-1/2 pointer-events-none">
+      <div data-cloud="city" className="absolute left-1/2 top-[calc(50%-30px)] aspect-square w-[245%] -translate-x-1/2 -translate-y-1/2 pointer-events-none">
       </div>
     </div>
   )

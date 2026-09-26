@@ -1,27 +1,33 @@
 import { Suspense, useEffect, useMemo, useRef } from 'react'
 import * as THREE from 'three'
 import { Canvas, useFrame, useLoader } from '@react-three/fiber'
-import { FileLoader } from 'three'
+import gsap from 'gsap'
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { GLTFLoader } from 'three-stdlib'
 import { buildBrainCloud, BRAIN_PARTICLE_SIZE } from './BrainParticles'
 import { buildVLSICloud, VLSI_ORIENTATION, VLSI_PARTICLE_SIZE } from './VLSICADParticles'
 import { buildDNACloud, DNA_PARTICLE_SIZE } from './DNAParticles'
 import { buildCityCloud, CITY_ORIENTATION, CITY_PARTICLE_SIZE } from './SmartCityParticles'
 import { buildArmCloud, ARM_ORIENTATION, ARM_PARTICLE_SIZE } from './IndustryArmParticles'
+import { FileLoader } from 'three'
 import { matchClouds } from './morphMatch'
 import { makeCircleTexture } from './makeCircleTexture'
 import { brainState } from './cloudState'
 
 /*
- * One page-wide, fixed WebGL canvas that draws every section's particle cloud, so a cloud can
- * travel between sections (the brain scatters and regathers into the first theme's cloud) instead
- * of each section being its own canvas. Each cloud is placed on screen from a DOM "anchor" element
- * (data-cloud="...", the same box its old per-section canvas filled), and text/layout scrolls
- * normally on top of this canvas.
+ * One fixed, viewport-sized WebGL "stage" that the particle clouds live on. Page text scrolls over
+ * it normally, but the particles do NOT scroll with the sections: they always stay inside the one
+ * desktop screen and are driven by scroll progress instead. Right now only the first transition
+ * exists - the brain (hero, right side of the screen) scatters in place and regathers as the first
+ * theme's cloud (VLSI-CAD, left side of the screen); the other themes get added one at a time later.
+ *
+ * Where each cloud sits comes from a DOM "anchor" (data-cloud): only its x position and size are
+ * used live; its vertical position is taken as a fixed page coordinate, converted to a screen
+ * position for the moment it's the section in focus.
  *
  * Each cloud is drawn as if seen by the old per-section camera (position z=CAM looking at the
  * origin, 45deg fov): the vertex shader does that perspective itself in unit space, then places the
- * result in pixels around the anchor's center, so every cloud looks the same as before.
+ * result in pixels around the cloud's screen center, so every cloud looks the same as before.
  */
 
 const CAM = 6
@@ -30,17 +36,21 @@ const PX_PER_UNIT_PER_ANCHOR_PX = 1 / (2 * CAM * Math.tan((FOV * Math.PI) / 360)
 const SPIN_SPEED = 0.6 * ((2 * Math.PI) / 60) // rad/s: OrbitControls' autoRotateSpeed 0.6 (about 0.063 rad/s)
 const SWAY_YAW = 0.12, SWAY_PITCH = 0.09, SWAY_EASE = 14 // mouse sway of the four themes
 
-// Brain -> first-theme morph, learned from particle_brain_demo_logo_24.html: straight interpolation
-// plus a curl-noise displacement whose strength follows sin(pi * t) over progress 0.2..0.8 -
-// zero at both ends, so the start is the plain brain and the end lands exactly on the target,
-// but in between the cloud disperses along organic flow lines and regathers.
-const WAVE_LO = 0.2, WAVE_HI = 0.8
-const WAVE_AMP = 3.0 // x the brain's on-screen radius
-const WAVE_SCALE = 2.5 // noise feature size, x the brain's radius (bigger = lower frequency = smoother streams)
-// The cloud scatters in place around the brain, travels to the theme while scattered, and regathers
-// there: position/size/color follow smoothstep(TRAVEL_LO, TRAVEL_HI, progress), not progress itself.
-const TRAVEL_LO = 0.35, TRAVEL_HI = 0.65
-const NOISE_FLOW_SPEED = 0.12
+// Brain -> first-theme transition, learned from deepsouth-ai-3d-website.vercel.app and driven by a
+// GSAP ScrollTrigger timeline (see the useEffect in Clouds). In order:
+//   1. the brain spins horizontally while sliding to where the first theme's cloud sits,
+//   2. "destruction": every particle flies out in its own fixed random direction, in a straight line,
+//   3. collapse + morph at once: the particles come straight back (linear) while interpolating
+//      into the first theme's shape.
+// `t` are positions on the timeline (its total length is 1); the timeline is scrubbed by scroll.
+const SCRUB = 1.2 // seconds the animation takes to catch up with the scrollbar (smooths it)
+const SPIN_TURNS = 1 // extra full horizontal turns the brain makes while it moves
+// Brain -> VLSI-CAD: the brain slides to the middle of the screen (turning a full turn from wherever it currently faces),
+// scatters and regathers there as the VLSI-CAD cloud, then that cloud turns VLSI_TURNS full turns
+// while sliding left to its default place. It ends at its default angle, so at the moment it forms it
+// is already turned back by VLSI_TURNS turns (worked out backwards from the end pose).
+const VLSI_TURNS = 1
+const EXPLODE_DIST = 6 // how far particles fly, x the brain's on-screen radius
 
 const VERTEX = `
   attribute vec3 aPosB;
@@ -53,6 +63,7 @@ const VERTEX = `
   attribute float aMask;
   attribute float aMaskB;
   attribute float aFold;
+  attribute vec3 aRand;
   uniform mat3 uModelA;
   uniform mat3 uModelB;
   uniform vec2 uCA;
@@ -65,36 +76,11 @@ const VERTEX = `
   uniform float uBackB;
   uniform float uFoldA;
   uniform float uMorph;
-  uniform float uTime;
-  uniform float uWaveAmp;
-  uniform float uWaveScale;
+  uniform float uDestruct;
+  uniform float uExplodeDist;
   uniform float uCam;
   varying vec3 vColor;
 
-  vec3 hash3(vec3 p) {
-    p = vec3(dot(p, vec3(127.1, 311.7, 74.7)), dot(p, vec3(269.5, 183.3, 246.1)), dot(p, vec3(113.5, 271.9, 124.6)));
-    return -1.0 + 2.0 * fract(sin(p) * 43758.5453123);
-  }
-  float gnoise(vec3 p) {
-    vec3 i = floor(p), f = fract(p);
-    vec3 u = f * f * (3.0 - 2.0 * f);
-    return mix(
-      mix(mix(dot(hash3(i + vec3(0,0,0)), f - vec3(0,0,0)), dot(hash3(i + vec3(1,0,0)), f - vec3(1,0,0)), u.x),
-          mix(dot(hash3(i + vec3(0,1,0)), f - vec3(0,1,0)), dot(hash3(i + vec3(1,1,0)), f - vec3(1,1,0)), u.x), u.y),
-      mix(mix(dot(hash3(i + vec3(0,0,1)), f - vec3(0,0,1)), dot(hash3(i + vec3(1,0,1)), f - vec3(1,0,1)), u.x),
-          mix(dot(hash3(i + vec3(0,1,1)), f - vec3(0,1,1)), dot(hash3(i + vec3(1,1,1)), f - vec3(1,1,1)), u.x), u.y), u.z);
-  }
-  vec3 potential(vec3 p) {
-    return vec3(gnoise(p), gnoise(p + vec3(31.4, 17.7, 53.1)), gnoise(p + vec3(73.9, 11.3, 29.5)));
-  }
-  // Curl of a 3D noise potential: a divergence-free flow field (organic swirling streams).
-  vec3 curl(vec3 p) {
-    float e = 0.06;
-    vec3 dx = potential(p + vec3(e, 0, 0)) - potential(p - vec3(e, 0, 0));
-    vec3 dy = potential(p + vec3(0, e, 0)) - potential(p - vec3(0, e, 0));
-    vec3 dz = potential(p + vec3(0, 0, e)) - potential(p - vec3(0, 0, e));
-    return vec3(dy.z - dz.y, dz.x - dx.z, dx.y - dy.x) / (2.0 * e);
-  }
   // x,y = pixel offset from the viewport center, z = depth in pixels, w = point size in pixels.
   vec4 place(vec3 p, mat3 M, vec2 c, float sc, float base, float size) {
     vec3 r = M * p;
@@ -115,13 +101,12 @@ const VERTEX = `
     if (uMorph > 0.0) {
       vec4 b = place(aPosB, uModelB, uCB, uScaleB, uBaseB, aSizeB);
       vec3 colB = mix(aColB, vec3(1.0), whiteFade(aPosB, aNormalB, aMaskB, 0.0, uModelB, uBackB, 0.0));
-      float travel = smoothstep(${TRAVEL_LO.toFixed(2)}, ${TRAVEL_HI.toFixed(2)}, uMorph);
-      pos = mix(a.xyz, b.xyz, travel);
-      size = mix(a.w, b.w, travel);
-      col = mix(col, colB, travel);
-      float wave = sin(clamp((uMorph - ${WAVE_LO.toFixed(2)}) / ${(WAVE_HI - WAVE_LO).toFixed(2)}, 0.0, 1.0) * 3.14159265);
-      pos += curl(pos / uWaveScale + vec3(0.0, 0.0, uTime * ${NOISE_FLOW_SPEED.toFixed(2)})) * uWaveAmp * wave;
+      pos = mix(a.xyz, b.xyz, uMorph);
+      size = mix(a.w, b.w, uMorph);
+      col = mix(col, colB, uMorph);
     }
+    // Destruction: every particle straight out along its own fixed random direction.
+    pos += aRand * uExplodeDist * uDestruct;
     vColor = col;
     gl_PointSize = max(size, 0.0);
     gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
@@ -166,6 +151,13 @@ function makePoints(map, a, base, b) {
   g.setAttribute('aNormal', new THREE.BufferAttribute(new Float32Array(aNormals), 3))
   g.setAttribute('aMask', new THREE.BufferAttribute(new Float32Array(aMask), 1))
   g.setAttribute('aFold', new THREE.BufferAttribute(new Float32Array(a.foldWeights ?? new Float32Array(n)), 1))
+  const rand = new Float32Array(n * 3)
+  for (let i = 0; i < n; i++) {
+    // Uniform random direction, random length 0.35..1 (fixed per particle).
+    const z = Math.random() * 2 - 1, th = Math.random() * Math.PI * 2, r = Math.sqrt(1 - z * z), len = 0.35 + 0.65 * Math.random()
+    rand[i * 3] = r * Math.cos(th) * len; rand[i * 3 + 1] = r * Math.sin(th) * len; rand[i * 3 + 2] = z * len
+  }
+  g.setAttribute('aRand', new THREE.BufferAttribute(rand, 3))
   const t = b ?? { positions: a.positions, colors: a.colors, sizes: a.sizes, normals: aNormals, mask: aMask }
   g.setAttribute('aPosB', new THREE.BufferAttribute(new Float32Array(t.positions), 3))
   g.setAttribute('aColB', new THREE.BufferAttribute(new Float32Array(t.colors), 3))
@@ -182,7 +174,7 @@ function makePoints(map, a, base, b) {
       uScaleA: { value: 1 }, uScaleB: { value: 1 },
       uBaseA: { value: base.a }, uBaseB: { value: base.b ?? base.a },
       uBackA: { value: base.backA ?? 0 }, uBackB: { value: base.backB ?? 0 }, uFoldA: { value: base.foldA ?? 0 },
-      uMorph: { value: 0 }, uTime: { value: 0 }, uWaveAmp: { value: 0 }, uWaveScale: { value: 1 }, uCam: { value: CAM },
+      uMorph: { value: 0 }, uDestruct: { value: 0 }, uExplodeDist: { value: 0 }, uCam: { value: CAM },
     },
   })
   const obj = new THREE.Points(g, m)
@@ -190,53 +182,168 @@ function makePoints(map, a, base, b) {
   return obj
 }
 
-const _q = new THREE.Quaternion(), _m4 = new THREE.Matrix4(), _yAxis = new THREE.Vector3(0, 1, 0)
+const _q = new THREE.Quaternion(), _q2 = new THREE.Quaternion(), _m4 = new THREE.Matrix4(), _yAxis = new THREE.Vector3(0, 1, 0)
 function setModel(mat3, q) {
   _m4.makeRotationFromQuaternion(q)
   mat3.setFromMatrix4(_m4)
 }
 
+/**
+ * For a transition into a BIGGER cloud: the source cloud expanded to the target's point count. Each
+ * extra target point starts out as a size-0 copy of the source point it is matched to, so it grows
+ * out of the source shape instead of appearing from nowhere. `target`/`extra` come from
+ * matchClouds(bStage, aStage) (the bigger cloud first). Returns the expanded source plus the bigger
+ * cloud's own data in its original point order, as the morph target.
+ */
+function expandedSource(aCloud, bCloud, { target, extra }) {
+  const n = target.length
+  const src = { positions: new Float32Array(n * 3), colors: new Float32Array(n * 3), sizes: new Float32Array(n) }
+  for (let i = 0; i < n; i++) {
+    const j = target[i]
+    src.positions.set(aCloud.positions.subarray(j * 3, j * 3 + 3), i * 3)
+    src.colors.set(aCloud.colors.subarray(j * 3, j * 3 + 3), i * 3)
+    src.sizes[i] = extra[i] ? 0 : aCloud.sizes[j]
+  }
+  const tgt = {
+    positions: bCloud.positions, colors: bCloud.colors, sizes: bCloud.sizes,
+    normals: bCloud.normals ?? defaultNormals(n), mask: bCloud.normalMask ?? new Float32Array(n).fill(bCloud.normals ? 1 : 0),
+  }
+  return { src, tgt }
+}
+
+/** Matches `a` (bigger or equal, already in the stage frame) to `b` and returns b's data reordered to a's points. */
+function matchedTarget(aStage, bCloud, bStage) {
+  const { target, extra } = matchClouds(aStage, bStage)
+  const nA = aStage.length / 3
+  const t = {
+    positions: new Float32Array(nA * 3), colors: new Float32Array(nA * 3), sizes: new Float32Array(nA),
+    normals: new Float32Array(nA * 3), mask: new Float32Array(nA),
+  }
+  for (let i = 0; i < nA; i++) {
+    const j = target[i]
+    t.positions.set(bCloud.positions.subarray(j * 3, j * 3 + 3), i * 3) // unrotated; the B model matrix rotates it live
+    t.colors.set(bCloud.colors.subarray(j * 3, j * 3 + 3), i * 3)
+    t.sizes[i] = extra[i] ? 0 : bCloud.sizes[j]
+    if (bCloud.normals) t.normals.set(bCloud.normals.subarray(j * 3, j * 3 + 3), i * 3)
+    t.mask[i] = bCloud.normalMask ? bCloud.normalMask[j] : 0
+  }
+  return t
+}
+
+/**
+ * The scroll-scrubbed timeline for one transition: spin + slide, then explode, then collapse and
+ * morph at once (see the constants above). It runs while scroll goes from `start` to `end`.
+ */
+function transitionTimeline(anim, start, end) {
+  const tl = gsap.timeline({
+    defaults: { ease: 'none' },
+    scrollTrigger: { trigger: document.documentElement, start, end, scrub: SCRUB, invalidateOnRefresh: true },
+  })
+  // Timeline positions are fractions of the scroll range. The slide/spin gets the longest stretch so
+  // the turn is slow, and the new shape is fully formed by 0.92 - the last 8% is a pause on it.
+  tl.to(anim, { move: 1, spin: 1, duration: 0.45, ease: 'power2.inOut' }, 0) // 1. spin + slide (eased)
+  tl.to(anim, { destruct: 1, duration: 0.25 }, 0.45) // 2. straight-line explosion
+  tl.to(anim, { destruct: 0, duration: 0.18 }, 0.7) // 3a. collapse (faster)...
+  tl.to(anim, { morph: 1, duration: 0.22 }, 0.7) // 3b. ...while morphing into the next shape
+  tl.to({}, { duration: 0.08 }, 0.92) // hold on the finished shape
+  return tl
+}
+
+/**
+ * Brain -> VLSI-CAD (see VLSI_TURNS): `move` = brain turns a full turn (from its current angle) and slides to the screen middle; `destruct`/`morph`
+ * = scatter and regather there; `slide` (0->1) = the VLSI-CAD cloud slides to its own place while its
+ * `turn` (0->1, same timing) undoes its backwards-turned start angle.
+ */
+function brainTimeline(anim, start, end) {
+  const tl = gsap.timeline({
+    defaults: { ease: 'none' },
+    scrollTrigger: { trigger: document.documentElement, start, end, scrub: SCRUB, invalidateOnRefresh: true },
+  })
+  tl.to(anim, { move: 1, spin: 1, duration: 0.32, ease: 'power2.inOut' }, 0)
+  tl.to(anim, { destruct: 1, duration: 0.16 }, 0.32)
+  tl.to(anim, { destruct: 0, duration: 0.14 }, 0.48)
+  tl.to(anim, { morph: 1, duration: 0.18 }, 0.48)
+  tl.to(anim, { slide: 1, turn: 1, duration: 0.28, ease: 'power2.inOut' }, 0.66)
+  tl.to({}, { duration: 0.06 }, 0.94)
+  return tl
+}
+
+// Scroll positions for a theme section, whose content is pinned (sticky) for its whole dwell:
+// pinStart = the section's top reaches the top of the screen (its text is now centered and stays put),
+// pinEnd = the pin releases. A transition into a theme ends at its pinStart; the next one starts at pinEnd.
+const themeSection = (anchorName) => document.querySelector(`[data-cloud="${anchorName}"]`)?.closest('section')
+const pinStart = (anchorName) => () => {
+  const sec = themeSection(anchorName)
+  return sec ? Math.max(1, sec.getBoundingClientRect().top + window.scrollY) : 1
+}
+const pinEnd = (anchorName) => () => {
+  const sec = themeSection(anchorName)
+  return sec ? Math.max(1, sec.getBoundingClientRect().bottom + window.scrollY - window.innerHeight) : 1
+}
+
 function Clouds() {
   const brainGltf = useLoader(GLTFLoader, '/models/brain.glb')
   const chipsGltf = useLoader(GLTFLoader, '/models/chips.glb')
-  const armGltf = useLoader(GLTFLoader, '/models/industry-arm.glb')
   const dnaText = useLoader(FileLoader, '/models/dna6.dxf', (l) => l.setResponseType('text'))
+  const armGltf = useLoader(GLTFLoader, '/models/industry-arm.glb')
   const cityText = useLoader(FileLoader, '/models/smart-city9.dxf', (l) => l.setResponseType('text'))
   const sway = useRef({ tx: 0, ty: 0, x: 0, y: 0 })
   const anchors = useRef({})
+  // Animated by the ScrollTrigger timelines below; read every frame. One per transition.
+  const anim1 = useRef({ move: 0, spin: 0, slide: 0, turn: 0, destruct: 0, morph: 0 }) // brain -> VLSI-CAD
+  const anim2 = useRef({ move: 0, spin: 0, destruct: 0, morph: 0 }) // VLSI-CAD -> DNA
+  const anim3 = useRef({ move: 0, spin: 0, destruct: 0, morph: 0 }) // DNA -> Smart City
+  const anim4 = useRef({ move: 0, spin: 0, destruct: 0, morph: 0 }) // Smart City -> Industry 4.0
 
   const scene = useMemo(() => {
     const map = makeCircleTexture()
     const brain = buildBrainCloud(brainGltf)
     const vlsi = buildVLSICloud(chipsGltf)
+    const dna = buildDNACloud(dnaText)
+    const city = buildCityCloud(cityText)
+    const qCity = new THREE.Quaternion(...CITY_ORIENTATION)
+    const cityStage = rotated(city.positions, qCity).map((v) => v * 260)
+    const arm = buildArmCloud(armGltf)
+    const qArm = new THREE.Quaternion(...ARM_ORIENTATION)
+    const armStage = rotated(arm.positions, qArm).map((v) => v * 260)
+    // The arm has more points than the city: match the arm to the city and grow the extras out of it.
+    const ex4 = expandedSource(city, arm, matchClouds(armStage, cityStage))
     const qVlsi = new THREE.Quaternion(...VLSI_ORIENTATION)
+    const vlsiStage = rotated(vlsi.positions, qVlsi).map((v) => v * 260)
+    // Each transition matches the earlier cloud's points 1:1 to the next one's (the earlier one has
+    // more; its surplus shrinks away at the end).
+    const tgt1 = matchedTarget(brain.positions.map((v) => v * 140), vlsi, vlsiStage)
+    const tgt2 = matchedTarget(vlsiStage, dna, dna.positions.map((v) => v * 260))
+    const tgt3 = matchedTarget(dna.positions.map((v) => v * 260), city, cityStage)
+    return {
+      brain: makePoints(map, brain, { a: BRAIN_PARTICLE_SIZE, b: VLSI_PARTICLE_SIZE, backA: 0.7, foldA: 0.7, backB: 0.6 }, tgt1),
+      vlsi: makePoints(map, vlsi, { a: VLSI_PARTICLE_SIZE, backA: 0.6 }),
+      vlsiToDna: makePoints(map, vlsi, { a: VLSI_PARTICLE_SIZE, b: DNA_PARTICLE_SIZE, backA: 0.6 }, tgt2),
+      dnaToCity: makePoints(map, dna, { a: DNA_PARTICLE_SIZE, b: CITY_PARTICLE_SIZE }, tgt3),
+      dna: makePoints(map, dna, { a: DNA_PARTICLE_SIZE }),
+      city: makePoints(map, city, { a: CITY_PARTICLE_SIZE }),
+      cityToArm: makePoints(map, ex4.src, { a: CITY_PARTICLE_SIZE, b: ARM_PARTICLE_SIZE }, ex4.tgt),
+      arm: makePoints(map, arm, { a: ARM_PARTICLE_SIZE }),
+      qVlsi, qCity, qArm,
+    }
+  }, [brainGltf, chipsGltf, dnaText, cityText, armGltf])
 
-    // Match brain points to VLSI points 1:1 (brain has more; its surplus shrinks away at the end).
-    const vlsiPos = rotated(vlsi.positions, qVlsi)
-    const { target, extra } = matchClouds(brain.positions.map((v) => v * 140), vlsiPos.map((v) => v * 260))
-    const nA = brain.positions.length / 3
-    const tgt = {
-      positions: new Float32Array(nA * 3), colors: new Float32Array(nA * 3), sizes: new Float32Array(nA),
-      normals: new Float32Array(nA * 3), mask: new Float32Array(nA),
+  // Scroll-scrubbed timelines. Transition 1 runs from the top of the page until the first theme is
+  // pinned; transition 2 from when that theme's pin releases until the second theme is pinned. In
+  // between (the pin), nothing moves: text and particles hold still.
+  useEffect(() => {
+    gsap.registerPlugin(ScrollTrigger)
+    const tl1 = brainTimeline(anim1.current, 0, pinStart('vlsi'))
+    const tl2 = transitionTimeline(anim2.current, pinEnd('vlsi'), pinStart('dna'))
+    const tl3 = transitionTimeline(anim3.current, pinEnd('dna'), pinStart('city'))
+    const tl4 = transitionTimeline(anim4.current, pinEnd('city'), pinStart('arm'))
+    const refresh = () => ScrollTrigger.refresh()
+    window.addEventListener('load', refresh)
+    return () => {
+      window.removeEventListener('load', refresh)
+      for (const tl of [tl1, tl2, tl3, tl4]) { tl.scrollTrigger?.kill(); tl.kill() }
     }
-    for (let i = 0; i < nA; i++) {
-      const j = target[i]
-      tgt.positions.set(vlsi.positions.subarray(j * 3, j * 3 + 3), i * 3) // unrotated; uModelB rotates it live
-      tgt.colors.set(vlsi.colors.subarray(j * 3, j * 3 + 3), i * 3)
-      tgt.sizes[i] = extra[i] ? 0 : vlsi.sizes[j]
-      if (vlsi.normals) tgt.normals.set(vlsi.normals.subarray(j * 3, j * 3 + 3), i * 3)
-      tgt.mask[i] = vlsi.normalMask ? vlsi.normalMask[j] : 0
-    }
-    const list = [
-      { key: 'brain', obj: makePoints(map, brain, { a: BRAIN_PARTICLE_SIZE, b: VLSI_PARTICLE_SIZE, backA: 0.7, foldA: 0.7, backB: 0.6 }, tgt) },
-      { key: 'vlsi', obj: makePoints(map, vlsi, { a: VLSI_PARTICLE_SIZE, backA: 0.6 }), orient: VLSI_ORIENTATION, sway: true },
-      { key: 'dna', obj: makePoints(map, buildDNACloud(dnaText), { a: DNA_PARTICLE_SIZE }), sway: true },
-      { key: 'city', obj: makePoints(map, buildCityCloud(cityText), { a: CITY_PARTICLE_SIZE }), orient: CITY_ORIENTATION, sway: true },
-      { key: 'arm', obj: makePoints(map, buildArmCloud(armGltf), { a: ARM_PARTICLE_SIZE }), orient: ARM_ORIENTATION, sway: true },
-    ]
-    for (const c of list) if (c.orient) c.q = new THREE.Quaternion(...c.orient)
-    return { list, qVlsi }
-  }, [brainGltf, chipsGltf, armGltf, dnaText, cityText])
+  }, [])
 
   useEffect(() => {
     const onMove = (e) => {
@@ -262,57 +369,173 @@ function Clouds() {
     if (!brainState.dragging) brainState.yaw += SPIN_SPEED * delta
     const swayQ = new THREE.Quaternion().setFromEuler(new THREE.Euler(s.y, s.x, 0))
 
-    const rect = (name) => {
-      const el = anchorEl(name)
-      if (!el) return null
-      const r = el.getBoundingClientRect()
-      return { cx: r.left + r.width / 2 - vw / 2, cy: -(r.top + r.height / 2 - vh / 2), y: r.top + r.height / 2, scale: r.height * PX_PER_UNIT_PER_ANCHOR_PX }
-    }
-    const rBrain = rect('brain'), rVlsi = rect('vlsi')
-    // 0 while the brain is centered in the viewport, 1 once the first theme is.
-    let p = 0
-    if (rBrain && rVlsi) p = THREE.MathUtils.clamp((vh / 2 - rBrain.y) / (rVlsi.y - rBrain.y), 0, 1)
+    const elBrain = anchorEl('brain'), elVlsi = anchorEl('vlsi'), elDna = anchorEl('dna'), elCity = anchorEl('city'), elArm = anchorEl('arm')
+    const sec1 = elVlsi?.closest('section'), sec2 = elDna?.closest('section'), sec3 = elCity?.closest('section'), sec4 = elArm?.closest('section')
+    const all = [scene.brain, scene.vlsi, scene.vlsiToDna, scene.dna, scene.dnaToCity, scene.city, scene.cityToArm, scene.arm]
+    if (!elBrain || !elVlsi || !elDna || !elCity || !elArm || !sec4 || !sec1 || !sec2 || !sec3) { for (const o of all) o.visible = false; return }
 
-    for (const c of scene.list) {
-      const r = rect(c.key)
-      const u = c.obj.material.uniforms
-      if (!r) { c.obj.visible = false; continue }
-      u.uTime.value = state.clock.elapsedTime
-      u.uCA.value.set(r.cx, r.cy)
-      u.uScaleA.value = r.scale
-      if (c.key === 'brain') {
-        c.obj.visible = p < 0.999
-        _q.setFromAxisAngle(_yAxis, brainState.yaw)
-        setModel(u.uModelA.value, _q)
-        if (!rVlsi) { u.uMorph.value = 0; continue }
-        u.uMorph.value = p
-        u.uCB.value.set(rVlsi.cx, rVlsi.cy)
-        u.uScaleB.value = rVlsi.scale
-        _q.copy(swayQ).multiply(scene.qVlsi)
-        setModel(u.uModelB.value, _q)
-        const brainR = 1.98 * r.scale // model radius on screen (TARGET_EXTENT 3.96 / 2 units)
-        u.uWaveAmp.value = WAVE_AMP * brainR
-        u.uWaveScale.value = WAVE_SCALE * brainR
-      } else {
-        c.obj.visible = c.key === 'vlsi' ? p >= 0.999 : true
-        if (c.sway) _q.copy(swayQ)
-        else _q.identity()
-        if (c.q) _q.multiply(c.q)
-        setModel(u.uModelA.value, _q)
-      }
+    // Anchor geometry. The brain (hero, not pinned) is a fixed page coordinate, used at scroll 0. A theme
+    // anchor lives inside its pinned content, so its position on screen while pinned is just its offset
+    // inside that pinned block - independent of scroll.
+    const sy = window.scrollY
+    const size = (el) => el.getBoundingClientRect().height * PX_PER_UNIT_PER_ANCHOR_PX
+    const hero = elBrain.getBoundingClientRect()
+    const A = { x: hero.left + hero.width / 2, y: hero.top + sy + hero.height / 2, scale: size(elBrain) }
+    const pinned = (el) => {
+      const r = el.getBoundingClientRect()
+      const pin = el.closest('[data-pin]').getBoundingClientRect()
+      return { x: r.left + r.width / 2, y: r.top - pin.top + r.height / 2, scale: r.height * PX_PER_UNIT_PER_ANCHOR_PX }
+    }
+    const B1 = pinned(elVlsi), B2 = pinned(elDna), B3 = pinned(elCity), B4 = pinned(elArm)
+    const release4 = pinEnd('arm')()
+
+    // Screen centers of each cloud (x right, y up, from the viewport center). The last cloud rides up
+    // with the page once its pin releases (nothing follows it).
+    const scr = (P, up = 0) => ({ x: P.x - vw / 2, y: -(P.y - up - vh / 2) })
+    const cA = scr(A), c1 = scr(B1), c2 = scr(B2), c3 = scr(B3), c4 = scr(B4, Math.max(0, sy - release4))
+
+    const a1 = anim1.current, a2 = anim2.current, a3 = anim3.current, a4 = anim4.current
+    const done1 = a1.morph >= 0.999 && a1.destruct <= 0.001
+    const mid = { x: 0, y: c1.y } // middle of the screen, at the VLSI-CAD cloud's height
+    // VLSI-CAD's angle on the way in: default angle turned back by the turns still to come.
+    const vlsiYaw = (a1.turn - 1) * VLSI_TURNS * 2 * Math.PI
+    const started2 = a2.move > 0.001 || a2.destruct > 0.001 || a2.morph > 0.001
+    const done2 = a2.morph >= 0.999 && a2.destruct <= 0.001
+    const started3 = a3.destruct > 0.001 || a3.morph > 0.001 || a3.move > 0.001
+    const done3 = a3.morph >= 0.999 && a3.destruct <= 0.001
+    const started4 = a4.destruct > 0.001 || a4.morph > 0.001 || a4.move > 0.001
+    const done4 = a4.morph >= 0.999 && a4.destruct <= 0.001
+    const R0 = EXPLODE_DIST * 1.98 * A.scale // explosion distance for both transitions (x brain radius on screen)
+
+    // Transition 1: brain -> VLSI-CAD. The brain keeps its own size and shape and its current angle while it
+    // turns a full horizontal turn from its current angle while it slides to the middle of the screen, where it scatters and regathers as the VLSI-CAD cloud.
+    scene.brain.visible = !done1
+    {
+      const u = scene.brain.material.uniforms
+      _q.setFromAxisAngle(_yAxis, brainState.yaw + a1.spin * SPIN_TURNS * 2 * Math.PI)
+      setModel(u.uModelA.value, _q)
+      u.uCA.value.set(cA.x + (mid.x - cA.x) * a1.move, cA.y + (mid.y - cA.y) * a1.move)
+      u.uScaleA.value = A.scale
+      u.uMorph.value = a1.morph
+      u.uCB.value.set(mid.x, mid.y)
+      u.uScaleB.value = B1.scale
+      _q.copy(swayQ).multiply(scene.qVlsi)
+      _q2.setFromAxisAngle(_yAxis, vlsiYaw).multiply(_q)
+      setModel(u.uModelB.value, _q2)
+      u.uDestruct.value = a1.destruct
+      u.uExplodeDist.value = R0
+    }
+
+    // The VLSI-CAD cloud: turns while sliding left to its default place, then holds.
+    scene.vlsi.visible = done1 && !started2
+    {
+      const u = scene.vlsi.material.uniforms
+      u.uCA.value.set(mid.x + (c1.x - mid.x) * a1.slide, c1.y)
+      u.uScaleA.value = B1.scale
+      _q.copy(swayQ).multiply(scene.qVlsi)
+      _q2.setFromAxisAngle(_yAxis, vlsiYaw).multiply(_q)
+      setModel(u.uModelA.value, _q2)
+    }
+
+    // Transition 2: VLSI-CAD -> DNA.
+    scene.vlsiToDna.visible = done1 && started2 && !done2
+    {
+      const u = scene.vlsiToDna.material.uniforms
+      _q.copy(swayQ).multiply(scene.qVlsi)
+      _q2.setFromAxisAngle(_yAxis, a2.spin * SPIN_TURNS * 2 * Math.PI).multiply(_q)
+      setModel(u.uModelA.value, _q2)
+      u.uCA.value.set(c1.x + (c2.x - c1.x) * a2.move, c1.y + (c2.y - c1.y) * a2.move)
+      u.uScaleA.value = B1.scale
+      u.uMorph.value = a2.morph
+      u.uCB.value.set(c2.x, c2.y)
+      u.uScaleB.value = B2.scale
+      setModel(u.uModelB.value, swayQ)
+      u.uDestruct.value = a2.destruct
+      u.uExplodeDist.value = R0
+    }
+
+    // The DNA cloud once it has formed.
+    scene.dna.visible = done2 && !started3
+    {
+      const u = scene.dna.material.uniforms
+      u.uCA.value.set(c2.x, c2.y)
+      u.uScaleA.value = B2.scale
+      setModel(u.uModelA.value, swayQ)
+    }
+
+    // Transition 3: DNA -> Smart City. Same recipe as VLSI-CAD -> DNA: spin + slide first, then scatter and regather.
+    scene.dnaToCity.visible = done2 && started3 && !done3
+    {
+      const u = scene.dnaToCity.material.uniforms
+      _q2.setFromAxisAngle(_yAxis, a3.spin * SPIN_TURNS * 2 * Math.PI).multiply(swayQ)
+      setModel(u.uModelA.value, _q2)
+      u.uCA.value.set(c2.x + (c3.x - c2.x) * a3.move, c2.y + (c3.y - c2.y) * a3.move)
+      u.uScaleA.value = B2.scale
+      u.uMorph.value = a3.morph
+      u.uCB.value.set(c3.x, c3.y)
+      u.uScaleB.value = B3.scale
+      _q.copy(swayQ).multiply(scene.qCity)
+      setModel(u.uModelB.value, _q)
+      u.uDestruct.value = a3.destruct
+      u.uExplodeDist.value = R0
+    }
+
+    // The Smart City cloud once it has formed.
+    scene.city.visible = done3 && !started4
+    {
+      const u = scene.city.material.uniforms
+      u.uCA.value.set(c3.x, c3.y)
+      u.uScaleA.value = B3.scale
+      _q.copy(swayQ).multiply(scene.qCity)
+      setModel(u.uModelA.value, _q)
+    }
+
+    // Transition 4: Smart City -> Industry 4.0. The city spins a full turn about its own vertical axis
+    // (view angle unchanged), sliding to the arm's position; then it scatters and regathers as the arm.
+    scene.cityToArm.visible = done3 && started4 && !done4
+    {
+      const u = scene.cityToArm.material.uniforms
+      // Model-frame turn about the model's vertical axis through the cloud's center (the axis the
+      // bridge tower's axis was measured along, moved to the center): R = swayQ * qCity * Ry(theta).
+      _q2.copy(swayQ).multiply(scene.qCity).multiply(_q.setFromAxisAngle(_yAxis, a4.spin * SPIN_TURNS * 2 * Math.PI))
+      setModel(u.uModelA.value, _q2)
+      u.uCA.value.set(c3.x + (c4.x - c3.x) * a4.move, c3.y + (c4.y - c3.y) * a4.move)
+      u.uScaleA.value = B3.scale
+      u.uMorph.value = a4.morph
+      u.uCB.value.set(c4.x, c4.y)
+      u.uScaleB.value = B4.scale
+      _q.copy(swayQ).multiply(scene.qArm)
+      setModel(u.uModelB.value, _q)
+      u.uDestruct.value = a4.destruct
+      u.uExplodeDist.value = R0
+    }
+
+    // The Industry 4.0 arm cloud once it has formed.
+    scene.arm.visible = done4
+    {
+      const u = scene.arm.material.uniforms
+      u.uCA.value.set(c4.x, c4.y)
+      u.uScaleA.value = B4.scale
+      _q.copy(swayQ).multiply(scene.qArm)
+      setModel(u.uModelA.value, _q)
     }
   })
 
   return (
     <>
-      {scene.list.map((c) => (
-        <primitive key={c.key} object={c.obj} />
-      ))}
+      <primitive object={scene.brain} />
+      <primitive object={scene.vlsi} />
+      <primitive object={scene.vlsiToDna} />
+      <primitive object={scene.dna} />
+      <primitive object={scene.dnaToCity} />
+      <primitive object={scene.city} />
+      <primitive object={scene.cityToArm} />
+      <primitive object={scene.arm} />
     </>
   )
 }
 
-/** Mounted once on Home: the single fixed canvas all the section clouds are drawn on. */
+/** Mounted once on Home: the fixed, viewport-sized stage the particle clouds are drawn on. */
 export default function ParticleCanvas() {
   return (
     <div className="pointer-events-none fixed inset-0 z-0">

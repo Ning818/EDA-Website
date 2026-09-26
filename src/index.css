@@ -19,6 +19,9 @@
    but `body`'s box is what actually contains the overflowing absolutely-positioned element. */
 html {
   overflow-x: hidden;
+  /* Home's four theme sections snap to the viewport center (see ThemeShowcase's snap-center).
+     `proximity` so the rest of the page (YouTube, LinkedIn, footer, other routes) scrolls freely. */
+  scroll-snap-type: y proximity;
 }
 
 body {

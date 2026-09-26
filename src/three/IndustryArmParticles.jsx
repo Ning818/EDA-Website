@@ -6,10 +6,10 @@ import { colorByGroup } from './particleColors'
 import ParticleMesh from './ParticleMesh'
 
 // Largest bounding-box axis of the model, after centering, in world units. Two successive 5%
-// shrinks from the other DXF-sourced scenes' 3.6 (3.6 -> 3.42 -> 3.249), per request -
+// shrinks from the other DXF-sourced scenes' 3.6 (3.6 -> 3.42 -> 3.249 -> 2.924, the last a further 10%), per request -
 // resampleChains centers the model on its own bounding-box center first, so this scales it down
 // toward that center rather than shifting it.
-const TARGET_EXTENT = 3.249
+const TARGET_EXTENT = 2.924
 // Target distance between consecutive points along a line segment (same units as TARGET_EXTENT).
 // Most of this GLB's ~800 line meshes are already just 2-point segments (Rhino exported every
 // curve pre-split); resampleChains (sampleLineStrips.js) represents each one shorter than this
@@ -33,8 +33,10 @@ const HIGHLIGHT_COLOR = '#e0a94a'
 // each time, dragging that same live view by the target amount from a fresh (camera-identity)
 // load and composing the resulting quaternion onto the current base. Last step (+5deg yaw right,
 // +5deg pitch down, then another +5deg pitch down, then +2deg yaw left) computed directly as extra = Ry(-5deg)*Rx(-5deg) (OrbitControls' own camera
-// composition order, checked against a measured drag), model' = extra^-1 * model.
-const ORIENTATION = [0.5690063158835369, -0.17270130000163825, 0.036188769670391675, 0.8031789628794647]
+// composition order, checked against a measured drag), model' = extra^-1 * model. For machinehandline4
+// the disc had to flatten out to match the new reference screenshot: a further 16deg rotation about X
+// (found by rendering candidates offline and comparing to the reference).
+const ORIENTATION = [0.6752496924215704, -0.17605708611673884, 0.01180120759056973, 0.7161721069771305]
 
 /**
  * Particle-cloud rendering of the Industry 4.0 robotic-arm model, from a line-strip GLB export

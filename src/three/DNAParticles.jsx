@@ -6,7 +6,7 @@ import { colorByGroup } from './particleColors'
 import ParticleMesh from './ParticleMesh'
 
 // Largest bounding-box axis of the model, after centering, in world units.
-const TARGET_EXTENT = 3.6
+const TARGET_EXTENT = 3.24 // 10% smaller than the other DXF scenes' 3.6
 // Target distance between consecutive points along a curve segment (same units as
 // TARGET_EXTENT) - see parseDXF.js / sampleLineStrips.js. Picked to land in the same point-count
 // range as the other scenes (~4900 here, vs. Industry Arm's 3720 and Brain's 4996).
@@ -32,8 +32,8 @@ const HIGHLIGHT_COLOR = '#e0a94a'
 
 /**
  * Particle-cloud rendering of the DNA double-helix model, from a genuine-curve DXF source
- * (dna5.dxf: 14 SPLINE entities for the backbone strands + 216 LINE entities for the base-pair
- * rungs, split across two layers - "DNA" (181 entities) and "亮色DNA"/bright-color DNA (49
+ * (dna6.dxf: 14 SPLINE entities for the backbone strands + 197 LINE entities for the base-pair
+ * rungs, split across two layers - "DNA" (171 entities) and "亮色DNA"/bright-color DNA (40
  * entities, one strand singled out) - rather than the dna.fbx mesh this scene started with. Same
  * DXF pipeline as Smart City's (parseDXF.js's curve evaluation + sampleLineStrips.js's
  * resampleChains for even point spacing), reused as-is since it's already format-agnostic, colored
@@ -42,7 +42,7 @@ const HIGHLIGHT_COLOR = '#e0a94a'
  * facing fade here - same as Smart City/Industry Arm.
  */
 export default function DNAParticles() {
-  const text = useLoader(FileLoader, '/models/dna5.dxf', (loader) => loader.setResponseType('text'))
+  const text = useLoader(FileLoader, '/models/dna6.dxf', (loader) => loader.setResponseType('text'))
 
   const { positions, sizes, colors } = useMemo(() => {
     const geo = sampleDXF(text, { targetExtent: TARGET_EXTENT, spacing: EDGE_SPACING, curveSegments: CURVE_SEGMENTS })

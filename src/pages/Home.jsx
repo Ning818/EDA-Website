@@ -33,6 +33,7 @@ const THEMES = [
   {
     theme: 'Industry 4.0',
     imageSide: 'right',
+    gap: 500, // vh of scroll for the arm's closing turn, its change into the circuit board, and a hold on it
     visual: <IndustryArmScene className="h-[478px] w-full max-w-[531px] shrink-0" />,
   },
 ]
@@ -46,7 +47,7 @@ export default function Home() {
       {/* Empty scroll: the brain's move + regather + VLSI-CAD turn needs a long stretch, like every other transition. */}
       <div aria-hidden style={{ height: '200vh' }} />
       {THEMES.map((t, i) => (
-        <ThemeShowcase key={t.theme} theme={t.theme} imageSide={t.imageSide} visual={t.visual} dwell={t.dwell} gapAfter={i < THEMES.length - 1 ? (t.gap ?? 100) : 0} />
+        <ThemeShowcase key={t.theme} theme={t.theme} imageSide={t.imageSide} visual={t.visual} dwell={t.dwell} gapAfter={t.gap ?? 100} />
       ))}
       <YoutubeSpotlight />
       <LinkedInSection />

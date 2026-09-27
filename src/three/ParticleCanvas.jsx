@@ -9,6 +9,7 @@ import { buildVLSICloud, VLSI_ORIENTATION, VLSI_PARTICLE_SIZE } from './VLSICADP
 import { buildDNACloud, DNA_PARTICLE_SIZE } from './DNAParticles'
 import { buildCityCloud, CITY_ORIENTATION, CITY_PARTICLE_SIZE } from './SmartCityParticles'
 import { buildArmCloud, ARM_ORIENTATION, ARM_PARTICLE_SIZE } from './IndustryArmParticles'
+import { buildCircuitCloud, CIRCUIT_W, CIRCUIT_H, CIRCUIT_UNIT } from './CircuitParticles'
 import { FileLoader } from 'three'
 import { matchClouds } from './morphMatch'
 import { makeCircleTexture } from './makeCircleTexture'
@@ -50,6 +51,12 @@ const SPIN_TURNS = 1 // extra full horizontal turns the brain makes while it mov
 // while sliding left to its default place. It ends at its default angle, so at the moment it forms it
 // is already turned back by VLSI_TURNS turns (worked out backwards from the end pose).
 const VLSI_TURNS = 1
+const ARM_EXIT_SCREENS = 2 // scroll length (in screens) of the arm's closing turn
+// Industry 4.0 arm -> full-screen circuit board: after the closing turn the arm scatters in place and
+// regathers as a generated PCB layout (CircuitParticles.js) stretched to cover the screen.
+const CIRCUIT_SCREENS = 2 // scroll length of the arm -> circuit change
+const CIRCUIT_PARTICLE_SIZE = 0.075 // x CIRCUIT_UNIT*cover px, about the same dot size as the other clouds
+const ARM_PX = 235 // rough px per model unit of the arm on screen, only used to line up the point matching
 const EXPLODE_DIST = 6 // how far particles fly, x the brain's on-screen radius
 
 const VERTEX = `
@@ -293,6 +300,8 @@ function Clouds() {
   const anim1 = useRef({ move: 0, spin: 0, slide: 0, turn: 0, destruct: 0, morph: 0 }) // brain -> VLSI-CAD
   const anim2 = useRef({ move: 0, spin: 0, destruct: 0, morph: 0 }) // VLSI-CAD -> DNA
   const anim3 = useRef({ move: 0, spin: 0, destruct: 0, morph: 0 }) // DNA -> Smart City
+  const anim6 = useRef({ destruct: 0, morph: 0 }) // arm -> circuit board
+  const anim5 = useRef({ move: 0, spin: 0 }) // Industry 4.0 arm's closing turn (slides left while turning)
   const anim4 = useRef({ move: 0, spin: 0, destruct: 0, morph: 0 }) // Smart City -> Industry 4.0
 
   const scene = useMemo(() => {
@@ -308,6 +317,11 @@ function Clouds() {
     const armStage = rotated(arm.positions, qArm).map((v) => v * 260)
     // The arm has more points than the city: match the arm to the city and grow the extras out of it.
     const ex4 = expandedSource(city, arm, matchClouds(armStage, cityStage))
+    const circuit = buildCircuitCloud()
+    // Match in screen px: the arm as it will sit (centered, at its on-screen size) vs the board.
+    const arm4px = armStage.map((v) => (v / 260) * ARM_PX)
+    const circuitPx = circuit.positions.map((v) => v * CIRCUIT_UNIT)
+    const ex6 = expandedSource(arm, circuit, matchClouds(circuitPx, arm4px))
     const qVlsi = new THREE.Quaternion(...VLSI_ORIENTATION)
     const vlsiStage = rotated(vlsi.positions, qVlsi).map((v) => v * 260)
     // Each transition matches the earlier cloud's points 1:1 to the next one's (the earlier one has
@@ -324,6 +338,8 @@ function Clouds() {
       city: makePoints(map, city, { a: CITY_PARTICLE_SIZE }),
       cityToArm: makePoints(map, ex4.src, { a: CITY_PARTICLE_SIZE, b: ARM_PARTICLE_SIZE }, ex4.tgt),
       arm: makePoints(map, arm, { a: ARM_PARTICLE_SIZE }),
+      armToCircuit: makePoints(map, ex6.src, { a: ARM_PARTICLE_SIZE, b: CIRCUIT_PARTICLE_SIZE }, ex6.tgt),
+      circuit: makePoints(map, circuit, { a: CIRCUIT_PARTICLE_SIZE }),
       qVlsi, qCity, qArm,
     }
   }, [brainGltf, chipsGltf, dnaText, cityText, armGltf])
@@ -337,11 +353,30 @@ function Clouds() {
     const tl2 = transitionTimeline(anim2.current, pinEnd('vlsi'), pinStart('dna'))
     const tl3 = transitionTimeline(anim3.current, pinEnd('dna'), pinStart('city'))
     const tl4 = transitionTimeline(anim4.current, pinEnd('city'), pinStart('arm'))
+    const tl6 = gsap.timeline({
+      defaults: { ease: 'none' },
+      scrollTrigger: {
+        trigger: document.documentElement,
+        start: () => pinEnd('arm')() + ARM_EXIT_SCREENS * window.innerHeight,
+        end: () => pinEnd('arm')() + (ARM_EXIT_SCREENS + CIRCUIT_SCREENS) * window.innerHeight,
+        scrub: SCRUB, invalidateOnRefresh: true,
+      },
+    })
+    tl6.to(anim6.current, { destruct: 1, duration: 0.35 }, 0)
+    tl6.to(anim6.current, { destruct: 0, duration: 0.25 }, 0.35)
+    tl6.to(anim6.current, { morph: 1, duration: 0.3 }, 0.35)
+    tl6.to({}, { duration: 0.35 }, 0.65)
+    const tl5 = gsap.timeline({
+      defaults: { ease: 'none' },
+      scrollTrigger: { trigger: document.documentElement, start: pinEnd('arm'), end: () => pinEnd('arm')() + ARM_EXIT_SCREENS * window.innerHeight, scrub: SCRUB, invalidateOnRefresh: true },
+    })
+    tl5.to(anim5.current, { move: 1, spin: 1, duration: 0.92, ease: 'power2.inOut' })
+    tl5.to({}, { duration: 0.08 })
     const refresh = () => ScrollTrigger.refresh()
     window.addEventListener('load', refresh)
     return () => {
       window.removeEventListener('load', refresh)
-      for (const tl of [tl1, tl2, tl3, tl4]) { tl.scrollTrigger?.kill(); tl.kill() }
+      for (const tl of [tl1, tl2, tl3, tl4, tl5, tl6]) { tl.scrollTrigger?.kill(); tl.kill() }
     }
   }, [])
 
@@ -371,7 +406,7 @@ function Clouds() {
 
     const elBrain = anchorEl('brain'), elVlsi = anchorEl('vlsi'), elDna = anchorEl('dna'), elCity = anchorEl('city'), elArm = anchorEl('arm')
     const sec1 = elVlsi?.closest('section'), sec2 = elDna?.closest('section'), sec3 = elCity?.closest('section'), sec4 = elArm?.closest('section')
-    const all = [scene.brain, scene.vlsi, scene.vlsiToDna, scene.dna, scene.dnaToCity, scene.city, scene.cityToArm, scene.arm]
+    const all = [scene.brain, scene.vlsi, scene.vlsiToDna, scene.dna, scene.dnaToCity, scene.city, scene.cityToArm, scene.arm, scene.armToCircuit, scene.circuit]
     if (!elBrain || !elVlsi || !elDna || !elCity || !elArm || !sec4 || !sec1 || !sec2 || !sec3) { for (const o of all) o.visible = false; return }
 
     // Anchor geometry. The brain (hero, not pinned) is a fixed page coordinate, used at scroll 0. A theme
@@ -387,14 +422,12 @@ function Clouds() {
       return { x: r.left + r.width / 2, y: r.top - pin.top + r.height / 2, scale: r.height * PX_PER_UNIT_PER_ANCHOR_PX }
     }
     const B1 = pinned(elVlsi), B2 = pinned(elDna), B3 = pinned(elCity), B4 = pinned(elArm)
-    const release4 = pinEnd('arm')()
 
-    // Screen centers of each cloud (x right, y up, from the viewport center). The last cloud rides up
-    // with the page once its pin releases (nothing follows it).
+    // Screen centers of each cloud (x right, y up, from the viewport center). 
     const scr = (P, up = 0) => ({ x: P.x - vw / 2, y: -(P.y - up - vh / 2) })
-    const cA = scr(A), c1 = scr(B1), c2 = scr(B2), c3 = scr(B3), c4 = scr(B4, Math.max(0, sy - release4))
+    const cA = scr(A), c1 = scr(B1), c2 = scr(B2), c3 = scr(B3), c4 = scr(B4)
 
-    const a1 = anim1.current, a2 = anim2.current, a3 = anim3.current, a4 = anim4.current
+    const a1 = anim1.current, a2 = anim2.current, a3 = anim3.current, a4 = anim4.current, a5 = anim5.current, a6 = anim6.current
     const done1 = a1.morph >= 0.999 && a1.destruct <= 0.001
     const mid = { x: 0, y: c1.y } // middle of the screen, at the VLSI-CAD cloud's height
     // VLSI-CAD's angle on the way in: default angle turned back by the turns still to come.
@@ -405,6 +438,9 @@ function Clouds() {
     const done3 = a3.morph >= 0.999 && a3.destruct <= 0.001
     const started4 = a4.destruct > 0.001 || a4.morph > 0.001 || a4.move > 0.001
     const done4 = a4.morph >= 0.999 && a4.destruct <= 0.001
+    const started6 = a6.destruct > 0.001 || a6.morph > 0.001
+    const done6 = a6.morph >= 0.999 && a6.destruct <= 0.001
+    const cover = Math.max(vw / CIRCUIT_W, vh / CIRCUIT_H)
     const R0 = EXPLODE_DIST * 1.98 * A.scale // explosion distance for both transitions (x brain radius on screen)
 
     // Transition 1: brain -> VLSI-CAD. The brain keeps its own size and shape and its current angle while it
@@ -511,13 +547,41 @@ function Clouds() {
     }
 
     // The Industry 4.0 arm cloud once it has formed.
-    scene.arm.visible = done4
+    scene.arm.visible = done4 && !started6
     {
       const u = scene.arm.material.uniforms
-      u.uCA.value.set(c4.x, c4.y)
+      // Closing turn: once the arm's pin releases, it turns a full turn while sliding to the middle of the screen.
+      u.uCA.value.set(c4.x + (0 - c4.x) * a5.move, c4.y)
       u.uScaleA.value = B4.scale
       _q.copy(swayQ).multiply(scene.qArm)
-      setModel(u.uModelA.value, _q)
+      _q2.setFromAxisAngle(_yAxis, a5.spin * SPIN_TURNS * 2 * Math.PI).multiply(_q)
+      setModel(u.uModelA.value, _q2)
+    }
+
+    // Arm -> circuit board: scatter in place, regather as a PCB layout that covers the whole screen.
+    scene.armToCircuit.visible = done4 && started6 && !done6
+    {
+      const u = scene.armToCircuit.material.uniforms
+      _q.copy(swayQ).multiply(scene.qArm)
+      _q2.setFromAxisAngle(_yAxis, a5.spin * SPIN_TURNS * 2 * Math.PI).multiply(_q)
+      setModel(u.uModelA.value, _q2)
+      u.uCA.value.set(c4.x * (1 - a5.move), c4.y)
+      u.uScaleA.value = B4.scale
+      u.uMorph.value = a6.morph
+      u.uCB.value.set(0, 0)
+      u.uScaleB.value = CIRCUIT_UNIT * cover
+      setModel(u.uModelB.value, _q.identity())
+      u.uDestruct.value = a6.destruct
+      u.uExplodeDist.value = R0
+    }
+
+    // The circuit board once it has formed.
+    scene.circuit.visible = done6
+    {
+      const u = scene.circuit.material.uniforms
+      u.uCA.value.set(0, 0)
+      u.uScaleA.value = CIRCUIT_UNIT * cover
+      setModel(u.uModelA.value, _q.identity())
     }
   })
 
@@ -531,6 +595,8 @@ function Clouds() {
       <primitive object={scene.city} />
       <primitive object={scene.cityToArm} />
       <primitive object={scene.arm} />
+      <primitive object={scene.armToCircuit} />
+      <primitive object={scene.circuit} />
     </>
   )
 }

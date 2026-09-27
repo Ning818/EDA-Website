@@ -7,9 +7,9 @@ import { GLTFLoader } from 'three-stdlib'
 import { buildBrainCloud, BRAIN_PARTICLE_SIZE } from './BrainParticles'
 import { buildVLSICloud, VLSI_ORIENTATION, VLSI_PARTICLE_SIZE } from './VLSICADParticles'
 import { buildDNACloud, DNA_PARTICLE_SIZE } from './DNAParticles'
-import { buildCityCloud, CITY_ORIENTATION, CITY_PARTICLE_SIZE } from './SmartCityParticles'
+import { buildCityCloud, CITY_ORIENTATION, CITY_PIVOT, CITY_PARTICLE_SIZE } from './SmartCityParticles'
 import { buildArmCloud, ARM_ORIENTATION, ARM_PARTICLE_SIZE } from './IndustryArmParticles'
-import { buildCircuitCloud, CIRCUIT_W, CIRCUIT_H, CIRCUIT_UNIT } from './CircuitParticles'
+import { buildCircuitCloud, updateCircuitFlow, CIRCUIT_W, CIRCUIT_H, CIRCUIT_UNIT } from './CircuitParticles'
 import { FileLoader } from 'three'
 import { matchClouds } from './morphMatch'
 import { makeCircleTexture } from './makeCircleTexture'
@@ -32,6 +32,7 @@ import { brainState } from './cloudState'
  */
 
 const CAM = 6
+const CITY_PIVOT_VEC = new THREE.Vector3(...CITY_PIVOT) // Smart City's rotation axis (SmartCityParticles.jsx)
 const FOV = 45
 const PX_PER_UNIT_PER_ANCHOR_PX = 1 / (2 * CAM * Math.tan((FOV * Math.PI) / 360))
 const SPIN_SPEED = 0.6 * ((2 * Math.PI) / 60) // rad/s: OrbitControls' autoRotateSpeed 0.6 (about 0.063 rad/s)
@@ -51,10 +52,10 @@ const SPIN_TURNS = 1 // extra full horizontal turns the brain makes while it mov
 // while sliding left to its default place. It ends at its default angle, so at the moment it forms it
 // is already turned back by VLSI_TURNS turns (worked out backwards from the end pose).
 const VLSI_TURNS = 1
-const ARM_EXIT_SCREENS = 2 // scroll length (in screens) of the arm's closing turn
+export const ARM_EXIT_SCREENS = 2 // scroll length (in screens) of the arm's closing turn
 // Industry 4.0 arm -> full-screen circuit board: after the closing turn the arm scatters in place and
 // regathers as a generated PCB layout (CircuitParticles.js) stretched to cover the screen.
-const CIRCUIT_SCREENS = 2 // scroll length of the arm -> circuit change
+export const CIRCUIT_SCREENS = 2 // scroll length of the arm -> circuit change
 const CIRCUIT_PARTICLE_SIZE = 0.075 // x CIRCUIT_UNIT*cover px, about the same dot size as the other clouds
 const ARM_PX = 235 // rough px per model unit of the arm on screen, only used to line up the point matching
 const EXPLODE_DIST = 6 // how far particles fly, x the brain's on-screen radius
@@ -86,11 +87,12 @@ const VERTEX = `
   uniform float uDestruct;
   uniform float uExplodeDist;
   uniform float uCam;
+  uniform vec3 uOffA; // A's rotation-pivot compensation (unit space, added after the model rotation)
   varying vec3 vColor;
 
   // x,y = pixel offset from the viewport center, z = depth in pixels, w = point size in pixels.
-  vec4 place(vec3 p, mat3 M, vec2 c, float sc, float base, float size) {
-    vec3 r = M * p;
+  vec4 place(vec3 p, mat3 M, vec3 off, vec2 c, float sc, float base, float size) {
+    vec3 r = M * p + off;
     float k = uCam / (uCam - r.z);
     return vec4(c + r.xy * sc * k, r.z * sc, size * base * sc * k);
   }
@@ -101,12 +103,12 @@ const VERTEX = `
     return max(facing >= 0.0 ? 0.0 : back, fold * foldFade);
   }
   void main() {
-    vec4 a = place(position, uModelA, uCA, uScaleA, uBaseA, aSize);
+    vec4 a = place(position, uModelA, uOffA, uCA, uScaleA, uBaseA, aSize);
     vec3 col = mix(aCol, vec3(1.0), whiteFade(position, aNormal, aMask, aFold, uModelA, uBackA, uFoldA));
     vec3 pos = a.xyz;
     float size = a.w;
     if (uMorph > 0.0) {
-      vec4 b = place(aPosB, uModelB, uCB, uScaleB, uBaseB, aSizeB);
+      vec4 b = place(aPosB, uModelB, vec3(0.0), uCB, uScaleB, uBaseB, aSizeB);
       vec3 colB = mix(aColB, vec3(1.0), whiteFade(aPosB, aNormalB, aMaskB, 0.0, uModelB, uBackB, 0.0));
       pos = mix(a.xyz, b.xyz, uMorph);
       size = mix(a.w, b.w, uMorph);
@@ -182,6 +184,7 @@ function makePoints(map, a, base, b) {
       uBaseA: { value: base.a }, uBaseB: { value: base.b ?? base.a },
       uBackA: { value: base.backA ?? 0 }, uBackB: { value: base.backB ?? 0 }, uFoldA: { value: base.foldA ?? 0 },
       uMorph: { value: 0 }, uDestruct: { value: 0 }, uExplodeDist: { value: 0 }, uCam: { value: CAM },
+      uOffA: { value: new THREE.Vector3() },
     },
   })
   const obj = new THREE.Points(g, m)
@@ -189,7 +192,7 @@ function makePoints(map, a, base, b) {
   return obj
 }
 
-const _q = new THREE.Quaternion(), _q2 = new THREE.Quaternion(), _m4 = new THREE.Matrix4(), _yAxis = new THREE.Vector3(0, 1, 0)
+const _q = new THREE.Quaternion(), _q2 = new THREE.Quaternion(), _q3 = new THREE.Quaternion(), _m4 = new THREE.Matrix4(), _yAxis = new THREE.Vector3(0, 1, 0), _v = new THREE.Vector3()
 function setModel(mat3, q) {
   _m4.makeRotationFromQuaternion(q)
   mat3.setFromMatrix4(_m4)
@@ -283,7 +286,7 @@ const pinStart = (anchorName) => () => {
   const sec = themeSection(anchorName)
   return sec ? Math.max(1, sec.getBoundingClientRect().top + window.scrollY) : 1
 }
-const pinEnd = (anchorName) => () => {
+export const pinEnd = (anchorName) => () => {
   const sec = themeSection(anchorName)
   return sec ? Math.max(1, sec.getBoundingClientRect().bottom + window.scrollY - window.innerHeight) : 1
 }
@@ -293,7 +296,7 @@ function Clouds() {
   const chipsGltf = useLoader(GLTFLoader, '/models/chips.glb')
   const dnaText = useLoader(FileLoader, '/models/dna6.dxf', (l) => l.setResponseType('text'))
   const armGltf = useLoader(GLTFLoader, '/models/industry-arm.glb')
-  const cityText = useLoader(FileLoader, '/models/smart-city9.dxf', (l) => l.setResponseType('text'))
+  const cityText = useLoader(FileLoader, '/models/smart-city13.dxf', (l) => l.setResponseType('text'))
   const sway = useRef({ tx: 0, ty: 0, x: 0, y: 0 })
   const anchors = useRef({})
   // Animated by the ScrollTrigger timelines below; read every frame. One per transition.
@@ -340,6 +343,7 @@ function Clouds() {
       arm: makePoints(map, arm, { a: ARM_PARTICLE_SIZE }),
       armToCircuit: makePoints(map, ex6.src, { a: ARM_PARTICLE_SIZE, b: CIRCUIT_PARTICLE_SIZE }, ex6.tgt),
       circuit: makePoints(map, circuit, { a: CIRCUIT_PARTICLE_SIZE }),
+      circuitFlowGroups: circuit.flowGroups,
       qVlsi, qCity, qArm,
     }
   }, [brainGltf, chipsGltf, dnaText, cityText, armGltf])
@@ -531,10 +535,15 @@ function Clouds() {
     scene.cityToArm.visible = done3 && started4 && !done4
     {
       const u = scene.cityToArm.material.uniforms
-      // Model-frame turn about the model's vertical axis through the cloud's center (the axis the
-      // bridge tower's axis was measured along, moved to the center): R = swayQ * qCity * Ry(theta).
-      _q2.copy(swayQ).multiply(scene.qCity).multiply(_q.setFromAxisAngle(_yAxis, a4.spin * SPIN_TURNS * 2 * Math.PI))
+      // Model-frame turn about the model's vertical axis through CITY_PIVOT (SmartCityParticles.jsx -
+      // the big roundabout's own center on the "亮色road" layer), not the cloud's bounding-box center:
+      // R0 = swayQ * qCity (resting orientation), R = R0 * Ry(theta) (with the turn); uOffA carries the
+      // translation a pivoted rotation needs on top of a pure origin-centered one (R0*P - R*P, so a
+      // point at the pivot itself doesn't move).
+      _q.copy(swayQ).multiply(scene.qCity) // R0
+      _q2.copy(_q).multiply(_q3.setFromAxisAngle(_yAxis, a4.spin * SPIN_TURNS * 2 * Math.PI)) // R
       setModel(u.uModelA.value, _q2)
+      u.uOffA.value.copy(CITY_PIVOT_VEC).applyQuaternion(_q).sub(_v.copy(CITY_PIVOT_VEC).applyQuaternion(_q2))
       u.uCA.value.set(c3.x + (c4.x - c3.x) * a4.move, c3.y + (c4.y - c3.y) * a4.move)
       u.uScaleA.value = B3.scale
       u.uMorph.value = a4.morph
@@ -575,13 +584,20 @@ function Clouds() {
       u.uExplodeDist.value = R0
     }
 
-    // The circuit board once it has formed.
+    // The circuit board once it has formed. A few whole bus lines' own points slide along their line
+    // (updateCircuitFlow, writing straight into this geometry's own position buffer) for a "current
+    // flowing" feel - no separate glow layer, just some of the board's own particles moving.
     scene.circuit.visible = done6
     {
       const u = scene.circuit.material.uniforms
       u.uCA.value.set(0, 0)
       u.uScaleA.value = CIRCUIT_UNIT * cover
       setModel(u.uModelA.value, _q.identity())
+      if (done6 && scene.circuitFlowGroups?.length) {
+        const posAttr = scene.circuit.geometry.attributes.position
+        updateCircuitFlow(scene.circuitFlowGroups, posAttr.array, state.clock.elapsedTime)
+        posAttr.needsUpdate = true
+      }
     }
   })
 

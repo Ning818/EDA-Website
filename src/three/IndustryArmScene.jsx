@@ -17,8 +17,9 @@ export default function IndustryArmScene({ className }) {
           NDC screen extent (not just this oversized canvas's own bounding box, which is mostly
           transparent) that at 45% the model's right side ran ~40-80px past the viewport edge;
           30% pulls it back to a roughly constant ~25-40px margin across that whole range, without
-          pushing its left side (the claw) into the text links to its left. */}
-      <div data-cloud="arm" className="absolute left-[calc(31.94%+20px)] top-1/2 aspect-square w-[245%] -translate-x-1/2 -translate-y-1/2 pointer-events-none">
+          pushing its left side (the claw) into the text links to its left. top-[calc(50%+20px)]:
+          nudged 10px down from box-center, then another 10px the same way, per request. */}
+      <div data-cloud="arm" className="absolute left-[calc(31.94%+20px)] top-[calc(50%+20px)] aspect-square w-[245%] -translate-x-1/2 -translate-y-1/2 pointer-events-none">
       </div>
     </div>
   )

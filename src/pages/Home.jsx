@@ -7,6 +7,7 @@ import SmartCityScene from '../three/SmartCityScene'
 import DNAScene from '../three/DNAScene'
 import ParticleCanvas from '../three/ParticleCanvas'
 import VLSICADScene from '../three/VLSICADScene'
+import CircuitChipCards from '../components/sections/CircuitChipCards'
 
 const THEMES = [
   {
@@ -42,6 +43,7 @@ export default function Home() {
   return (
     <>
       <ParticleCanvas />
+      <CircuitChipCards />
       <main className="relative z-10">
       <Hero />
       {/* Empty scroll: the brain's move + regather + VLSI-CAD turn needs a long stretch, like every other transition. */}

@@ -304,6 +304,44 @@ export function rejectOutlierChains(chains, chainGroups) {
 }
 
 /**
+ * Drops chains that are geometric duplicates of an earlier one - the same curve traced twice (e.g. a
+ * copy-paste slip, or two layers' worth of the same detail line) in the source CAD file. Unlike
+ * resampleChains' own dedup pass (which only merges individual sampled *points* that land on top of
+ * each other, e.g. two chains sharing an endpoint), this runs on the raw chains *before* sampling:
+ * two duplicate chains each get independently sampled at even spacing along their own length, so
+ * unless the two copies' sample phases happen to coincide exactly, their points *don't* collide and
+ * the point-level dedup can't catch them - the curve just silently gets roughly double the point
+ * density of every other curve of the same length, which is what actually flagged this (some
+ * buildings reading as noticeably denser than others with no visible reason).
+ *
+ * A chain is a duplicate of an earlier one when they have the same length and the same endpoints
+ * (in either direction) and midpoint, each within `tol` - cheap and exact for the straight LINE
+ * entities this has been found on; a duplicated curved entity would need a closer-than-endpoints
+ * check, not implemented here since it hasn't come up.
+ */
+export function dedupeChains(chains, chainGroups, tol = 0.05) {
+  const sig = (c) => {
+    const n = c.length / 3
+    const mi = Math.floor(n / 2)
+    let len = 0
+    for (let k = 0; k + 1 < n; k++) len += Math.hypot(c[(k + 1) * 3] - c[k * 3], c[(k + 1) * 3 + 1] - c[k * 3 + 1], c[(k + 1) * 3 + 2] - c[k * 3 + 2])
+    return { p0: [c[0], c[1], c[2]], p1: [c[(n - 1) * 3], c[(n - 1) * 3 + 1], c[(n - 1) * 3 + 2]], mid: [c[mi * 3], c[mi * 3 + 1], c[mi * 3 + 2]], len }
+  }
+  const near = (a, b) => Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]) < tol
+  const sigs = chains.map(sig)
+  const keptChains = [], keptGroups = [], keptSigs = []
+  let dropped = 0
+  for (let i = 0; i < chains.length; i++) {
+    const s = sigs[i]
+    const isDup = keptSigs.some((k) => Math.abs(k.len - s.len) < tol && near(k.mid, s.mid) &&
+      ((near(k.p0, s.p0) && near(k.p1, s.p1)) || (near(k.p0, s.p1) && near(k.p1, s.p0))))
+    if (isDup) { dropped++; continue }
+    keptChains.push(chains[i]); keptGroups.push(chainGroups[i]); keptSigs.push(s)
+  }
+  return { chains: keptChains, chainGroups: keptGroups, dropped }
+}
+
+/**
  * One-call convenience: parses a DXF file's text straight into a resampled particle cloud - the
  * DXF counterpart to sampleLineStrips.js's GLB path, sharing its resampleChains() core.
  * @param {string} text - raw .dxf file contents.
@@ -312,11 +350,13 @@ export function rejectOutlierChains(chains, chainGroups) {
  * @param {number} opts.spacing - see resampleChains in sampleLineStrips.js.
  * @param {number} [opts.curveSegments] - see parseDXFToChains.
  * @param {boolean} [opts.rejectOutliers] - see rejectOutlierChains. Off by default.
+ * @param {boolean} [opts.dedupeChains] - see dedupeChains above. Off by default.
  * @returns {{ positions: Float32Array, sizes: Float32Array, groups: (string|null)[] }}
  */
 export function sampleDXF(text, opts) {
-  const { targetExtent, spacing, curveSegments, rejectOutliers = false } = opts
+  const { targetExtent, spacing, curveSegments, rejectOutliers = false, dedupeChains: dedupe = false } = opts
   let { chains, chainGroups } = parseDXFToChains(text, { curveSegments })
   if (rejectOutliers) ({ chains, chainGroups } = rejectOutlierChains(chains, chainGroups))
+  if (dedupe) ({ chains, chainGroups } = dedupeChains(chains, chainGroups))
   return resampleChains(chains, chainGroups, { targetExtent, spacing })
 }

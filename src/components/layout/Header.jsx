@@ -101,7 +101,7 @@ export default function Header() {
     <>
       <header
         ref={headerRef}
-        className={`w-full bg-mint ${isHome ? 'fixed inset-x-0 top-0 z-50' : ''}`}
+        className={`w-full bg-mint/30 backdrop-blur-sm ${isHome ? 'fixed inset-x-0 top-0 z-50' : ''}`}
         style={{
           transition: 'transform 300ms ease-in-out',
           transform: isHome && hidden ? 'translateY(-100%)' : 'translateY(0)',

@@ -1,10 +1,8 @@
 import { useMemo } from 'react'
 import { useLoader } from '@react-three/fiber'
 import { FileLoader } from 'three'
-import { GLTFLoader } from 'three-stdlib'
 import * as THREE from 'three'
 import { sampleDXF } from './parseDXF'
-import { collectTriangles } from './parseGLBLines'
 import { colorByGroup } from './particleColors'
 import ParticleMesh from './ParticleMesh'
 
@@ -26,22 +24,18 @@ const TARGET_EXTENT = 2.2
 // 的点距离增大一点") - a modest step toward that danger zone, not all the way to it.
 const EDGE_SPACING = 0.02
 const CURVE_SEGMENTS = 48
-export const SOCIAL_PARTICLE_SIZE = 0.03 // same as VLSI_PARTICLE_SIZE/CITY_PARTICLE_SIZE/ARM_PARTICLE_SIZE
-// How many mesh-surface fill points to spread across the 5 chip boxes' faces (social-media-light.glb -
-// see sampleMeshFill), area-weighted per box. Modest relative to the ~2900 curve points so the
-// fill reads as shading under the crisp wireframe, not a competing layer of its own.
-const MESH_FILL_COUNT = 700
+export const SOCIAL_PARTICLE_SIZE = 0.025 // smaller than VLSI_PARTICLE_SIZE/CITY_PARTICLE_SIZE/ARM_PARTICLE_SIZE's
+// shared 0.03 per request ("粒子小一点", tuned to 0.025) - this cloud's point density is much higher
+// than those scenes' at the same on-screen scale, so smaller particles read more cleanly here.
 
-// Each of social-media.dxf's 6 layers gets one of the site's own particle-cloud accent colors (not
+// Each of social-media4.dxf's layers gets one of the site's own particle-cloud accent colors (not
 // arbitrary new ones) - reused from DNAParticles.jsx/IndustryArmParticles.jsx/SmartCityParticles.jsx/
 // VLSICADParticles.jsx so this scene reads as part of the same established palette. Different source
-// layers -> different colors, per request. A satellite chip's own avatar-icon curve shares its chip's
-// layer (there's no separate per-icon layer in the DXF), so it naturally matches its chip's color;
-// the central chip's molecule-diagram curve has its own layer ("中心芯片上面的图案"), so it gets its
-// own contrasting color instead.
+// layers -> different colors, per request. Each chip's own picture-pattern layer ("...上的图案")
+// shares that chip's own true color - no separate lightened variant (per explicit correction this
+// session: "面向镜头的粒子保持原色" - full color is the only state these ever need, since they have
+// no "背面" counterpart - see below).
 const CENTER_COLOR = '#4a9db3' // Smart City's building teal (BUILDING_COLOR)
-const CENTER_PATTERN_COLOR = '#89bfce' // CENTER_COLOR lightened ~35% toward white - a shade lighter
-// than the chip itself, not near-white (too pale to read against the chip, per feedback)
 const SAT2_COLOR = '#6a6fc4' // Industry Arm's ARM_COLOR - a callback since this scene follows the arm
 const SAT3_COLOR = '#e0a94a' // the shared highlight/amber used across DNA, Smart City, Arm and VLSI-CAD
 const SAT4_COLOR = '#4ab47a' // DNA's DNA_COLOR
@@ -49,12 +43,34 @@ const TRACE_COLOR = '#002843' // the site's own navy (nav bar, footer) - the pin
 // structural/chrome rather than another themed accent
 const GROUP_COLORS = {
   '中心芯片-颜色1': CENTER_COLOR,
-  '中心芯片上面的图案': CENTER_PATTERN_COLOR,
+  '中心芯片的侧纹路': CENTER_COLOR,
+  '中心芯片上面的图案': CENTER_COLOR,
   '次级芯片-颜色2': SAT2_COLOR,
+  '次级芯片-颜色2上的图案': SAT2_COLOR,
   '次级芯片-颜色3': SAT3_COLOR,
+  '次级芯片-颜色3上的图案': SAT3_COLOR,
   '次级芯片-颜色4': SAT4_COLOR,
+  '次级芯片-颜色4上的图案': SAT4_COLOR,
   '用于连接电路板线路的起始线': TRACE_COLOR,
 }
+
+// social-media4.dxf pairs most structural layers with a manually-authored "...背面" twin (e.g.
+// "中心芯片-颜色1" / "中心芯片-颜色1背面") - the user has already decided, line by line in Rhino,
+// which curves sit on a face turned away from the established camera. Rather than re-deriving that
+// from geometry (every attempt at computing it this session kept landing on self-consistent-but-wrong
+// answers - see this file's git history), trust that labeling directly: a "...背面" layer always
+// renders lightened, a plain layer always renders at full color, independent of any camera/normal
+// math. BACK_LIGHTEN matches the visual strength of this scene's own established backA (0.6, the
+// same fade amount VLSI-CAD's hand mesh and the brain's own back-facing points use).
+const BACK_LIGHTEN = 0.6
+const BACK_SUFFIX = '背面'
+function lighten(hex, amount) {
+  const c = new THREE.Color(hex)
+  c.lerp(new THREE.Color('#ffffff'), amount)
+  return `#${c.getHexString()}`
+}
+const FULL_GROUP_COLORS = { ...GROUP_COLORS }
+for (const [g, c] of Object.entries(GROUP_COLORS)) FULL_GROUP_COLORS[g + BACK_SUFFIX] = lighten(c, BACK_LIGHTEN)
 
 // True isometric (elevation = asin(1/sqrt(3)) ~= 35.264deg, the standard "equal angle" camera).
 // Combined with makePoints' `orthographic` option (ParticleCanvas.jsx) for a true flat isometric
@@ -89,202 +105,43 @@ const SOCIAL_PITCH = -Math.asin(1 / Math.sqrt(3))
 const SOCIAL_YAW = (330 * Math.PI) / 180
 export const SOCIAL_ORIENTATION = new THREE.Quaternion().setFromEuler(new THREE.Euler(SOCIAL_PITCH, SOCIAL_YAW, 0, 'XYZ')).toArray()
 
-// Maps a point OR a direction/normal (the mapping is purely linear, no translation term) from
-// social-media-light.glb's own local space into social-media3.dxf's raw coordinate space, so a
-// mesh-sampled fill point can be run through the exact same center/scale/mirror/swap pipeline the
-// curve cloud already uses below and land in precisely the same place. Derived by comparing the two
-// files' own central-chip box: the GLB's is 1x0.2x1 at local (6.1989,0.1,-4.2317), the DXF's is
-// 100x20x100 at (619.89,423.17,10) - a clean x100 scale with GLB's Y (glTF's own up) corresponding
-// to DXF's Z (its "up"), and GLB's Z to DXF's Y negated (confirmed against a second chip's center
-// independently, not just the one used to derive it).
-function glbToDxf(x, y, z) {
-  const s = 100
-  return [x * s, -z * s, y * s]
+/** Reorders a sampleDXF() result so every "...背面" point comes before every non-背面 point, leaving
+ * positions/sizes/groups in sync. Used together with this cloud's own dedicated depthTest:false draw
+ * pass (see ParticleCanvas.jsx's `social`) - with depth testing off, whichever point is submitted
+ * *last* simply paints over anything already there at that pixel, so front points need to come after
+ * every 背面 point in the buffer to reliably win, regardless of either point's own real (and, for this
+ * manually-labeled DXF, not reliably camera-accurate) 3D depth. */
+function reorderBackFirst(geo) {
+  const count = geo.positions.length / 3
+  const order = []
+  for (let i = 0; i < count; i++) if (geo.groups[i]?.endsWith(BACK_SUFFIX)) order.push(i)
+  for (let i = 0; i < count; i++) if (!geo.groups[i]?.endsWith(BACK_SUFFIX)) order.push(i)
+  const positions = new Float32Array(count * 3)
+  const sizes = new Float32Array(count)
+  const groups = new Array(count)
+  for (let k = 0; k < count; k++) {
+    const i = order[k]
+    positions.set(geo.positions.subarray(i * 3, i * 3 + 3), k * 3)
+    sizes[k] = geo.sizes[i]
+    groups[k] = geo.groups[i]
+  }
+  return { positions, sizes, groups, transform: geo.transform }
 }
 
-/** social-media-light.glb's triangles (its 5 chip boxes), converted into the DXF curve cloud's own
- * FINAL (already centered/scaled by `transform`, from sampleDXF's resampleChains - see
- * buildSocialMediaCloud) coordinate space - shared by both sampleMeshFill (the surface-fill points)
- * and nearestTriangleNormal (looking up which real 3D face a curve point actually sits on, below).
- * Position: raw GLB -> raw DXF units (glbToDxf) -> the curve cloud's own centered/scaled space (same
- * `(x-center)*scale` resampleChains itself applies - see sampleLineStrips.js), so this lines up
- * exactly with the curve points' own coordinate space. Normal: glbToDxf alone (no center/scale) -
- * it's a linear map composed of a uniform scale and an orthogonal axis permutation+reflection, so
- * applying it directly to a direction vector (rather than via an inverse-transpose) is already
- * correct, and the subsequent normalize() absorbs the uniform scale factor regardless. */
-function collectTrianglesInCloudSpace(gltfScene, transform) {
-  const [cx, cy, cz] = transform.center
-  const { scale } = transform
-  const toCloud = (p) => {
-    const [rx, ry, rz] = glbToDxf(p[0], p[1], p[2])
-    return [(rx - cx) * scale, (ry - cy) * scale, (rz - cz) * scale]
-  }
-  // Flips ONLY the box's own height axis (GLB Y, i.e. DXF Z, i.e. "top vs bottom") - NOT a blanket
-  // negation of the whole vector. Verified numerically (checking the box's own 4 real corner
-  // positions against this scene's established SOCIAL_ORIENTATION+mirror, with zero involvement of
-  // this normal code) that the box's geometrically nearest corner is adjacent to 2 *specific* side
-  // walls; a full negation flipped those 2 side walls' own facing to the wrong sign along with fixing
-  // top/bottom, because it also negates the horizontal (GLB X/Z) components that correctly already
-  // picked out the near walls. Negating only `y` here (before glbToDxf) negates just its 3rd output
-  // component (DXF Z depends solely on GLB y; DXF X/Y depend solely on GLB x/z - glbToDxf keeps the
-  // axes separate, so this leaves the side-wall-determining components untouched) - confirmed this
-  // keeps the verified-correct near/far side walls intact while still making the box's artwork-
-  // bearing top face (DXF Z=max, where the molecule diagram and every avatar icon actually live -
-  // confirmed by checking those curves' own raw DXF Z) read as camera-facing instead of its blank
-  // underside.
-  const toDir = (v) => {
-    const [dx, dy, dz] = glbToDxf(v[0], -v[1], v[2])
-    const l = Math.hypot(dx, dy, dz) || 1
-    return [dx / l, dy / l, dz / l]
-  }
-  return collectTriangles(gltfScene)
-    .filter((t) => t.na) // only faces with real normals
-    .map((t) => ({
-      group: t.group,
-      a: toCloud(t.a), b: toCloud(t.b), c: toCloud(t.c),
-      normal: toDir([(t.na[0] + t.nb[0] + t.nc[0]) / 3, (t.na[1] + t.nb[1] + t.nc[1]) / 3, (t.na[2] + t.nb[2] + t.nc[2]) / 3]),
-    }))
-}
+/** The social-media particle data, shared by the scene below and the scroll-driven morph overlay.
+ * Pure line art now (per request, both the satellites' and the main chip's own random mesh-surface
+ * fill points have been removed entirely) - every point comes straight from social-media4.dxf's own
+ * curves, with no social-media-light.glb mesh sampling involved at all. */
+export function buildSocialMediaCloud(text) {
+  const geo = reorderBackFirst(sampleDXF(text, { targetExtent: TARGET_EXTENT, spacing: EDGE_SPACING, curveSegments: CURVE_SEGMENTS, dedupeChains: true }))
+  const n = geo.positions.length / 3
+  const positions = new Float32Array(geo.positions)
 
-/** Area-weighted random surface points (no blue-noise thinning, unlike parseGLBLines.js's own
- * sampleGLBLinesAndMesh) since these are plain boxes, not a complex organic shape. `tris` already in
- * the curve cloud's own coordinate space (collectTrianglesInCloudSpace). */
-function sampleMeshFill(tris, count) {
-  const areas = tris.map((t) => {
-    const ux = t.b[0] - t.a[0], uy = t.b[1] - t.a[1], uz = t.b[2] - t.a[2]
-    const vx = t.c[0] - t.a[0], vy = t.c[1] - t.a[1], vz = t.c[2] - t.a[2]
-    return 0.5 * Math.hypot(uy * vz - uz * vy, uz * vx - ux * vz, ux * vy - uy * vx)
-  })
-  const cumulative = []
-  let total = 0
-  for (const a of areas) { total += a; cumulative.push(total) }
-  let seed = 20261001
-  const rnd = () => { seed = (seed * 1664525 + 1013904223) >>> 0; return seed / 4294967296 }
-  const positions = [], normals = [], groups = []
-  for (let n = 0; n < count && total > 0; n++) {
-    const r = rnd() * total
-    let lo = 0, hi = cumulative.length - 1
-    while (lo < hi) { const mid = (lo + hi) >> 1; if (cumulative[mid] < r) lo = mid + 1; else hi = mid }
-    const t = tris[lo]
-    let u = rnd(), v = rnd()
-    if (u + v > 1) { u = 1 - u; v = 1 - v }
-    const w = 1 - u - v
-    for (let k = 0; k < 3; k++) positions.push(w * t.a[k] + u * t.b[k] + v * t.c[k])
-    normals.push(...t.normal)
-    groups.push(t.group)
-  }
-  return { positions, normals, groups }
-}
-
-/** Closest point on triangle ABC to point P (Ericson, "Real-Time Collision Detection" 5.1.5) -
- * handles all 7 Voronoi regions (3 vertices, 3 edges, the face) so it's exact everywhere, not just
- * near the face's interior. Arrays, not THREE.Vector3 - this runs per curve-point x per-triangle
- * (thousands x dozens) and avoiding object allocation keeps it cheap. */
-function closestPointOnTriangle(p, a, b, c) {
-  const abx = b[0] - a[0], aby = b[1] - a[1], abz = b[2] - a[2]
-  const acx = c[0] - a[0], acy = c[1] - a[1], acz = c[2] - a[2]
-  const apx = p[0] - a[0], apy = p[1] - a[1], apz = p[2] - a[2]
-  const d1 = abx * apx + aby * apy + abz * apz
-  const d2 = acx * apx + acy * apy + acz * apz
-  if (d1 <= 0 && d2 <= 0) return a
-
-  const bpx = p[0] - b[0], bpy = p[1] - b[1], bpz = p[2] - b[2]
-  const d3 = abx * bpx + aby * bpy + abz * bpz
-  const d4 = acx * bpx + acy * bpy + acz * bpz
-  if (d3 >= 0 && d4 <= d3) return b
-
-  const vc = d1 * d4 - d3 * d2
-  if (vc <= 0 && d1 >= 0 && d3 <= 0) {
-    const t = d1 / (d1 - d3)
-    return [a[0] + abx * t, a[1] + aby * t, a[2] + abz * t]
-  }
-
-  const cpx = p[0] - c[0], cpy = p[1] - c[1], cpz = p[2] - c[2]
-  const d5 = abx * cpx + aby * cpy + abz * cpz
-  const d6 = acx * cpx + acy * cpy + acz * cpz
-  if (d6 >= 0 && d5 <= d6) return c
-
-  const vb = d5 * d2 - d1 * d6
-  if (vb <= 0 && d2 >= 0 && d6 <= 0) {
-    const t = d2 / (d2 - d6)
-    return [a[0] + acx * t, a[1] + acy * t, a[2] + acz * t]
-  }
-
-  const va = d3 * d6 - d5 * d4
-  if (va <= 0 && d4 - d3 >= 0 && d5 - d6 >= 0) {
-    const t = (d4 - d3) / (d4 - d3 + (d5 - d6))
-    return [b[0] + (c[0] - b[0]) * t, b[1] + (c[1] - b[1]) * t, b[2] + (c[2] - b[2]) * t]
-  }
-
-  const denom = 1 / (va + vb + vc)
-  const v = vb * denom, w = vc * denom
-  return [a[0] + abx * v + acx * w, a[1] + aby * v + acy * w, a[2] + abz * v + acz * w]
-}
-
-/** Which real 3D chip-box face a given curve point (already in the cloud's final coordinate space)
- * actually sits on, by genuine closest-surface-point distance (not just nearest triangle centroid -
- * a box's top face is much wider than it is tall, so a point near a top-face corner can sit closer
- * in straight-line distance to a side wall's centroid than to its own top face's; testing the real
- * closest point on every triangle avoids that misclassification). Brute-force over all ~60 triangles
- * per point - cheap enough for a one-time useMemo build (a few thousand points x a few dozen
- * triangles). Returns that triangle's own face normal. */
-function nearestTriangleNormal(p, tris) {
-  let bestD2 = Infinity, bestNormal = tris[0]?.normal ?? [0, 0, 1]
-  for (const t of tris) {
-    const q = closestPointOnTriangle(p, t.a, t.b, t.c)
-    const dx = p[0] - q[0], dy = p[1] - q[1], dz = p[2] - q[2]
-    const d2 = dx * dx + dy * dy + dz * dz
-    if (d2 < bestD2) { bestD2 = d2; bestNormal = t.normal }
-  }
-  return bestNormal
-}
-
-/** The social-media particle data, shared by the scene below and the scroll-driven morph overlay. */
-export function buildSocialMediaCloud(text, gltf) {
-  const geo = sampleDXF(text, { targetExtent: TARGET_EXTENT, spacing: EDGE_SPACING, curveSegments: CURVE_SEGMENTS, dedupeChains: true })
-  const baseCount = geo.positions.length / 3
-
-  const tris = gltf ? collectTrianglesInCloudSpace(gltf.scene, geo.transform) : []
-  // Mesh-surface fill (social-media-light.glb), in the SAME coordinate space as the curves above -
-  // appended as extra points before the shared mirror/swap transform runs, so one pass handles both.
-  const fill = tris.length ? sampleMeshFill(tris, MESH_FILL_COUNT) : { positions: [], normals: [], groups: [] }
-  const fillCount = fill.positions.length / 3
-
-  const n = baseCount + fillCount
-  const positions = new Float32Array(n * 3)
-  const colors = new Float32Array(n * 3)
-  const sizes = new Float32Array(n)
-  const normals = new Float32Array(n * 3)
-  const normalMask = new Float32Array(n) // 1 wherever a real face normal was found (both the curve
-  // points, below, and the mesh fill points) - those fade toward white when that face faces away
-  // from the camera, same as the brain/VLSI-CAD clouds' own back-facing points. 0 (default) only for
-  // a curve point when gltf wasn't supplied at all (the no-mesh-data fallback).
-  positions.set(geo.positions, 0)
-  sizes.set(geo.sizes, 0)
-  positions.set(fill.positions, baseCount * 3)
-  normals.set(fill.normals, baseCount * 3)
-  normalMask.fill(1, baseCount)
-  for (let i = 0; i < fillCount; i++) sizes[baseCount + i] = 0.9 // close to the curve points' own ~0.82-1.18
-
-  // Each curve point (the molecule diagram, the avatar icons, the pin-hatch ticks) is drawn directly
-  // on some chip box's real surface, so - unlike treating them as always front-facing - look up which
-  // face it actually sits on (nearestTriangleNormal) and use that face's own normal, the same way a
-  // mesh-fill point's normal comes from the triangle it was sampled from. This makes the curve art
-  // itself fade toward white on a face that's turned away from the camera, not just the plain
-  // surface-fill dusting layered under it.
-  if (tris.length) {
-    for (let i = 0; i < baseCount; i++) {
-      const p = [geo.positions[i * 3], geo.positions[i * 3 + 1], geo.positions[i * 3 + 2]]
-      const nrm = nearestTriangleNormal(p, tris)
-      normals[i * 3] = nrm[0]; normals[i * 3 + 1] = nrm[1]; normals[i * 3 + 2] = nrm[2]
-    }
-    normalMask.fill(1, 0, baseCount)
-  }
-
-  const baseColors = colorByGroup(geo.groups, GROUP_COLORS, TRACE_COLOR)
-  colors.set(baseColors, 0)
-  const fillColors = colorByGroup(fill.groups, GROUP_COLORS, TRACE_COLOR)
-  colors.set(fillColors, baseCount * 3)
+  // social-media4.dxf already marks, per layer, which curves sit on a face turned away from the
+  // established camera (every "...背面" layer) - FULL_GROUP_COLORS maps those straight to a
+  // pre-lightened color and everything else to its full color, so this is a plain per-point color
+  // lookup with no geometry or camera math involved.
+  const colors = colorByGroup(geo.groups, FULL_GROUP_COLORS, TRACE_COLOR)
 
   // A genuine reflection (mirroring X), not just a yaw rotation - a rotation alone can never fix a
   // front/back chirality flip (mirrored avatar faces, a mirrored overall chip arrangement). Confirmed
@@ -298,46 +155,36 @@ export function buildSocialMediaCloud(text, gltf) {
   // "up" that `yaw` spins around and keeps fixed - feeding DXF's Z straight into THREE's z (as every
   // other coordinate here does, with no axis remapping) left yaw spinning around the model's own
   // *horizontal* axis instead, which is exactly why its vertical edges weren't staying vertical on
-  // screen - see SOCIAL_ORIENTATION's own comment for the full explanation. Applied to both the
-  // points and their normals (normals skip the mirror's implicit translate, but get the same sign
-  // flip and axis swap).
+  // screen - see SOCIAL_ORIENTATION's own comment for the full explanation.
   for (let i = 0; i < n; i++) {
     positions[i * 3] *= -1
     const py = positions[i * 3 + 1]
     positions[i * 3 + 1] = positions[i * 3 + 2]
     positions[i * 3 + 2] = py
-    if (normalMask[i]) {
-      normals[i * 3] *= -1
-      const ny = normals[i * 3 + 1]
-      normals[i * 3 + 1] = normals[i * 3 + 2]
-      normals[i * 3 + 2] = ny
-    }
   }
 
-  return { positions, sizes, colors, normals, normalMask }
+  return { positions, sizes: geo.sizes, colors }
 }
 
 /**
  * Particle-cloud rendering of the post-Industry-4.0 "social media" stage: a central chip carrying a
- * molecule/network diagram, 4 satellite chips each carrying a real avatar-icon curve, and the
- * pin-hatch ticks along the central chip's edges - all genuine curve geometry (ARC/SPLINE/POLYLINE),
- * sampled from social-media3.dxf the same way as DNAParticles.jsx/SmartCityParticles.jsx
- * (parseDXF.js's sampleDXF) - plus a sparse mesh-surface fill sampled from social-media-light.glb's 5
- * solid chip boxes, carrying real normals so points facing away from the camera fade toward white
- * (ParticleCanvas.jsx's `backA`/whiteFade, the same mechanism BrainParticles.jsx's own back-facing
- * points use). Not wired into the page as its own pinned theme card - ParticleCanvas.jsx morphs the
- * arm straight into buildSocialMediaCloud's data as the page's final backdrop. This default export
- * exists for parity with the other particle files (and ad-hoc preview) rather than being rendered
- * anywhere.
+ * molecule/network diagram, 4 satellite chips each carrying a real avatar-icon curve, the central
+ * chip's own edge/notch pattern, and the pin-hatch ticks along its edges - all genuine curve geometry
+ * (ARC/SPLINE/POLYLINE), sampled from social-media4.dxf the same way as DNAParticles.jsx/
+ * SmartCityParticles.jsx (parseDXF.js's sampleDXF). social-media4.dxf pairs most of its layers with a
+ * manually-authored "...背面" twin, already marking which curves sit on a face turned away from this
+ * scene's camera (see FULL_GROUP_COLORS) - pure line art, no mesh-surface fill (removed per request).
+ * Not wired into the page as its own pinned theme card - ParticleCanvas.jsx morphs the arm straight
+ * into buildSocialMediaCloud's data as the page's final backdrop. This default export exists for
+ * parity with the other particle files (and ad-hoc preview) rather than being rendered anywhere.
  */
 export default function SocialMediaParticles() {
-  const text = useLoader(FileLoader, '/models/social-media3.dxf', (loader) => loader.setResponseType('text'))
-  const gltf = useLoader(GLTFLoader, '/models/social-media-light.glb')
-  const { positions, sizes, colors, normals, normalMask } = useMemo(() => buildSocialMediaCloud(text, gltf), [text, gltf])
+  const text = useLoader(FileLoader, '/models/social-media4.dxf', (loader) => loader.setResponseType('text'))
+  const { positions, sizes, colors } = useMemo(() => buildSocialMediaCloud(text), [text])
 
   return (
     <group quaternion={SOCIAL_ORIENTATION}>
-      <ParticleMesh positions={positions} sizes={sizes} colors={colors} normals={normals} normalMask={normalMask} particleSize={SOCIAL_PARTICLE_SIZE} />
+      <ParticleMesh positions={positions} sizes={sizes} colors={colors} particleSize={SOCIAL_PARTICLE_SIZE} />
     </group>
   )
 }

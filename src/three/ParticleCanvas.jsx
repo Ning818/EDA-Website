@@ -203,6 +203,12 @@ function makePoints(map, a, base, b) {
     // box face's own ~0.05-thick point spread, but disabling the test entirely draws it cleanly
     // regardless.
     depthTest: base.depthTest ?? true,
+    // Same fix BrainParticles.jsx/VLSICADParticles.jsx's own ParticleMesh.jsx already applies for
+    // their hand/brain back-face points: THREE's own default here (true) should already cover this,
+    // but passing it explicitly for SocialMediaParticles.js's cloud specifically (base.depthWrite) to
+    // rule out any doubt that a back-facing point might render after - and so visually sit on top of -
+    // a front one it shares screen space with, regardless of actual draw order.
+    depthWrite: base.depthWrite ?? true,
   })
   const obj = new THREE.Points(g, m)
   obj.frustumCulled = false
@@ -327,8 +333,7 @@ function Clouds() {
   const dnaText = useLoader(FileLoader, '/models/dna6.dxf', (l) => l.setResponseType('text'))
   const armGltf = useLoader(GLTFLoader, '/models/industry-arm.glb')
   const cityText = useLoader(FileLoader, '/models/smart-city13.dxf', (l) => l.setResponseType('text'))
-  const socialText = useLoader(FileLoader, '/models/social-media3.dxf', (l) => l.setResponseType('text'))
-  const socialGltf = useLoader(GLTFLoader, '/models/social-media-light.glb')
+  const socialText = useLoader(FileLoader, '/models/social-media4.dxf', (l) => l.setResponseType('text'))
   const sway = useRef({ tx: 0, ty: 0, x: 0, y: 0 })
   const anchors = useRef({})
   // Animated by the ScrollTrigger timelines below; read every frame. One per transition.
@@ -351,7 +356,7 @@ function Clouds() {
     const armStage = rotated(arm.positions, qArm).map((v) => v * 260)
     // The arm has more points than the city: match the arm to the city and grow the extras out of it.
     const ex4 = expandedSource(city, arm, matchClouds(armStage, cityStage))
-    const social = buildSocialMediaCloud(socialText, socialGltf)
+    const social = buildSocialMediaCloud(socialText)
     const qSocial = new THREE.Quaternion(...SOCIAL_ORIENTATION)
     const qVlsi = new THREE.Quaternion(...VLSI_ORIENTATION)
     const vlsiStage = rotated(vlsi.positions, qVlsi).map((v) => v * 260)
@@ -369,14 +374,18 @@ function Clouds() {
       city: makePoints(map, city, { a: CITY_PARTICLE_SIZE }),
       cityToArm: makePoints(map, ex4.src, { a: CITY_PARTICLE_SIZE, b: ARM_PARTICLE_SIZE }, ex4.tgt),
       arm: makePoints(map, arm, { a: ARM_PARTICLE_SIZE }),
-      // backA: social-media-light.glb's 5 chip boxes (SocialMediaParticles.js's mesh-surface fill
-      // points, real normals, normalMask=1) fade toward white when facing away from the camera -
-      // same backA/whiteFade mechanism as VLSI-CAD's own hand mesh (backA:0.6 there too); the curve
-      // points (molecule/avatar/pin-hatch lines, normalMask=0) are unaffected regardless of facing.
-      social: makePoints(map, social, { a: SOCIAL_PARTICLE_SIZE, orthographic: true, backA: 0.6 }),
+      // Pure line art now (social-media4.dxf only - per request, the mesh-surface fill that used to
+      // come from social-media-light.glb has been removed entirely, for every chip). depthTest:false
+      // since this cloud's own real 3D depth isn't reliably camera-accurate for its "...背面" pairs (a
+      // hand-authored back-face curve can sit measurably *nearer* the established camera than its
+      // front counterpart; confirmed numerically, see this file's own git history), so correctness
+      // comes entirely from buildSocialMediaCloud's own reorderBackFirst (背面 points submitted first)
+      // - with depth testing off, the later-submitted (front) point simply paints over whatever's
+      // already there, regardless of either point's real depth.
+      social: makePoints(map, social, { a: SOCIAL_PARTICLE_SIZE, orthographic: true, depthTest: false, depthWrite: false }),
       qVlsi, qCity, qArm, qSocial,
     }
-  }, [brainGltf, chipsGltf, dnaText, cityText, armGltf, socialText, socialGltf])
+  }, [brainGltf, chipsGltf, dnaText, cityText, armGltf, socialText])
 
   // Scroll-scrubbed timelines. Transition 1 runs from the top of the page until the first theme is
   // pinned; transition 2 from when that theme's pin releases until the second theme is pinned. In

@@ -55,8 +55,13 @@ const VLSI_TURNS = 1
 export const ARM_EXIT_SCREENS = 2 // scroll length (in screens) of the arm's closing turn
 // Industry 4.0 arm -> social-media chip cluster: once the arm's closing turn ends and scroll passes
 // this point, the social-media cloud (SocialMediaParticles.js) just replaces it outright - no
-// scatter/regather morph into it (per request, to skip the extra matchClouds/transition work) - and
-// holds as the page's final backdrop for everything below it (YoutubeSpotlight, LinkedInSection).
+// scatter/regather morph into it (per request, to skip the extra matchClouds/transition work).
+// Holds for SOCIAL_HOLD_SCREENS, then cuts (same instant-replace, no morph yet) to `social2` - a
+// placeholder duplicate of the exact same cloud, standing in for a planned next stage/transition the
+// user will design later. `social2` then holds as the page's final backdrop for everything below it
+// (YoutubeSpotlight, LinkedInSection). Home.jsx's own Industry-4.0 `gap` needs to stay wide enough to
+// hold this scroll range before those sections scroll into view - see its own comment.
+export const SOCIAL_HOLD_SCREENS = 2 // scroll length (in screens) `social` holds before cutting to `social2`
 // Px-per-model-unit for the social-media composition once formed - a flat on-screen size (unlike
 // the circuit board's old viewport-covering "cover" scale) since this is a compact poster-style
 // composition, not a full-bleed wallpaper. Tuned by eye against the Rhino reference screenshots.
@@ -357,6 +362,7 @@ function Clouds() {
     // The arm has more points than the city: match the arm to the city and grow the extras out of it.
     const ex4 = expandedSource(city, arm, matchClouds(armStage, cityStage))
     const social = buildSocialMediaCloud(socialText)
+    const social2 = buildSocialMediaCloud(socialText) // placeholder: an exact duplicate of `social` for now, until its own transition is designed
     const qSocial = new THREE.Quaternion(...SOCIAL_ORIENTATION)
     const qVlsi = new THREE.Quaternion(...VLSI_ORIENTATION)
     const vlsiStage = rotated(vlsi.positions, qVlsi).map((v) => v * 260)
@@ -383,6 +389,11 @@ function Clouds() {
       // - with depth testing off, the later-submitted (front) point simply paints over whatever's
       // already there, regardless of either point's real depth.
       social: makePoints(map, social, { a: SOCIAL_PARTICLE_SIZE, orthographic: true, depthTest: false, depthWrite: false }),
+      // `social2`: the next stage/transition to be designed later (see SOCIAL_HOLD_SCREENS) - for now
+      // an exact duplicate of `social`, same material options. Its own THREE.Points instance since
+      // `social` and `social2` need to be independently shown/hidden and (once there's an actual
+      // transition) independently positioned.
+      social2: makePoints(map, social2, { a: SOCIAL_PARTICLE_SIZE, orthographic: true, depthTest: false, depthWrite: false }),
       qVlsi, qCity, qArm, qSocial,
     }
   }, [brainGltf, chipsGltf, dnaText, cityText, armGltf, socialText])
@@ -436,7 +447,7 @@ function Clouds() {
 
     const elBrain = anchorEl('brain'), elVlsi = anchorEl('vlsi'), elDna = anchorEl('dna'), elCity = anchorEl('city'), elArm = anchorEl('arm')
     const sec1 = elVlsi?.closest('section'), sec2 = elDna?.closest('section'), sec3 = elCity?.closest('section'), sec4 = elArm?.closest('section')
-    const all = [scene.brain, scene.vlsi, scene.vlsiToDna, scene.dna, scene.dnaToCity, scene.city, scene.cityToArm, scene.arm, scene.social]
+    const all = [scene.brain, scene.vlsi, scene.vlsiToDna, scene.dna, scene.dnaToCity, scene.city, scene.cityToArm, scene.arm, scene.social, scene.social2]
     if (!elBrain || !elVlsi || !elDna || !elCity || !elArm || !sec4 || !sec1 || !sec2 || !sec3) { for (const o of all) o.visible = false; return }
 
     // Anchor geometry. The brain (hero, not pinned) is a fixed page coordinate, used at scroll 0. A theme
@@ -470,8 +481,10 @@ function Clouds() {
     const done4 = a4.morph >= 0.999 && a4.destruct <= 0.001
     // No morph into the social-media cloud (per request, to skip the extra matchClouds/transition
     // work) - it just replaces the arm outright once scroll passes the same point the arm's old
-    // exit transition used to start at.
+    // exit transition used to start at. After a further SOCIAL_HOLD_SCREENS, it likewise just cuts
+    // to `social2` (a placeholder copy, see its own comment) outright - no morph there yet either.
     const socialFormed = done4 && sy >= pinEnd('arm')() + ARM_EXIT_SCREENS * vh
+    const social2Formed = socialFormed && sy >= pinEnd('arm')() + (ARM_EXIT_SCREENS + SOCIAL_HOLD_SCREENS) * vh
     const R0 = EXPLODE_DIST * 1.98 * A.scale // explosion distance for both transitions (x brain radius on screen)
 
     // Transition 1: brain -> VLSI-CAD. The brain keeps its own size and shape and its current angle while it
@@ -595,14 +608,20 @@ function Clouds() {
     }
 
     // The social-media chip cluster: replaces the arm outright (no morph - see socialFormed above),
-    // holds in place as the backdrop for the rest of the page.
-    scene.social.visible = socialFormed
+    // holds for SOCIAL_HOLD_SCREENS, then itself gets replaced outright by `social2` (a placeholder
+    // copy - see its own build-time comment), which holds as the backdrop for the rest of the page.
+    // Both share the exact same transform for now, since social2 has no distinct position/orientation
+    // of its own yet.
+    scene.social.visible = socialFormed && !social2Formed
+    scene.social2.visible = social2Formed
     {
       _q3.copy(swayQ).multiply(scene.qSocial)
-      const u = scene.social.material.uniforms
-      u.uCA.value.set(0, 0)
-      u.uScaleA.value = SOCIAL_SCALE_PX
-      setMirroredModel(u.uModelA.value, _q3)
+      for (const obj of [scene.social, scene.social2]) {
+        const u = obj.material.uniforms
+        u.uCA.value.set(0, 0)
+        u.uScaleA.value = SOCIAL_SCALE_PX
+        setMirroredModel(u.uModelA.value, _q3)
+      }
     }
   })
 
@@ -617,6 +636,7 @@ function Clouds() {
       <primitive object={scene.cityToArm} />
       <primitive object={scene.arm} />
       <primitive object={scene.social} />
+      <primitive object={scene.social2} />
     </>
   )
 }

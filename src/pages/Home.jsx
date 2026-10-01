@@ -5,7 +5,7 @@ import LinkedInSection from '../components/sections/LinkedInSection'
 import IndustryArmScene from '../three/IndustryArmScene'
 import SmartCityScene from '../three/SmartCityScene'
 import DNAScene from '../three/DNAScene'
-import ParticleCanvas from '../three/ParticleCanvas'
+import ParticleCanvas, { SOCIAL_HOLD_SCREENS } from '../three/ParticleCanvas'
 import VLSICADScene from '../three/VLSICADScene'
 
 const THEMES = [
@@ -33,7 +33,11 @@ const THEMES = [
   {
     theme: 'Industry 4.0',
     imageSide: 'right',
-    gap: 500, // vh of scroll for the arm's closing turn, its change into the social-media chip cluster, and a hold on it
+    // vh of scroll for the arm's closing turn, its change into the social-media chip cluster, a hold
+    // on it, and (SOCIAL_HOLD_SCREENS*100vh) a further hold before it cuts to `social2` - a
+    // placeholder next stage - which then needs to already be the backdrop before YoutubeSpotlight/
+    // LinkedInSection scroll into view below.
+    gap: 500 + SOCIAL_HOLD_SCREENS * 100,
     visual: <IndustryArmScene className="h-[478px] w-full max-w-[531px] shrink-0" />,
   },
 ]

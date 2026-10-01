@@ -18,7 +18,11 @@
  */
 export function resampleChains(chains, chainGroups, opts) {
   const { targetExtent, spacing } = opts
-  if (chains.length === 0) throw new Error('resampleChains: no chains given')
+  // A pure-mesh GLB (no THREE.Line/LineSegments at all - e.g. SocialMediaParticles.js's chip boxes)
+  // has zero chains; that's fine as long as `opts.bounds` stands in for the chains' own bounding box
+  // below, since sampleGLBLinesAndMesh always passes bounds covering the mesh triangles too. Only
+  // reject the case nothing at all can define a transform.
+  if (chains.length === 0 && !opts.bounds) throw new Error('resampleChains: no chains given')
 
   let minX = Infinity, minY = Infinity, minZ = Infinity, maxX = -Infinity, maxY = -Infinity, maxZ = -Infinity
   for (const chain of chains) {

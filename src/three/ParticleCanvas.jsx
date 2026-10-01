@@ -9,7 +9,7 @@ import { buildVLSICloud, VLSI_ORIENTATION, VLSI_PARTICLE_SIZE } from './VLSICADP
 import { buildDNACloud, DNA_PARTICLE_SIZE } from './DNAParticles'
 import { buildCityCloud, CITY_ORIENTATION, CITY_PIVOT, CITY_PARTICLE_SIZE } from './SmartCityParticles'
 import { buildArmCloud, ARM_ORIENTATION, ARM_PARTICLE_SIZE } from './IndustryArmParticles'
-import { buildCircuitCloud, updateCircuitFlow, CIRCUIT_W, CIRCUIT_H, CIRCUIT_UNIT } from './CircuitParticles'
+import { buildSocialMediaCloud, SOCIAL_ORIENTATION, SOCIAL_PARTICLE_SIZE } from './SocialMediaParticles'
 import { FileLoader } from 'three'
 import { matchClouds } from './morphMatch'
 import { makeCircleTexture } from './makeCircleTexture'
@@ -53,11 +53,14 @@ const SPIN_TURNS = 1 // extra full horizontal turns the brain makes while it mov
 // is already turned back by VLSI_TURNS turns (worked out backwards from the end pose).
 const VLSI_TURNS = 1
 export const ARM_EXIT_SCREENS = 2 // scroll length (in screens) of the arm's closing turn
-// Industry 4.0 arm -> full-screen circuit board: after the closing turn the arm scatters in place and
-// regathers as a generated PCB layout (CircuitParticles.js) stretched to cover the screen.
-export const CIRCUIT_SCREENS = 2 // scroll length of the arm -> circuit change
-const CIRCUIT_PARTICLE_SIZE = 0.075 // x CIRCUIT_UNIT*cover px, about the same dot size as the other clouds
-const ARM_PX = 235 // rough px per model unit of the arm on screen, only used to line up the point matching
+// Industry 4.0 arm -> social-media chip cluster: once the arm's closing turn ends and scroll passes
+// this point, the social-media cloud (SocialMediaParticles.js) just replaces it outright - no
+// scatter/regather morph into it (per request, to skip the extra matchClouds/transition work) - and
+// holds as the page's final backdrop for everything below it (YoutubeSpotlight, LinkedInSection).
+// Px-per-model-unit for the social-media composition once formed - a flat on-screen size (unlike
+// the circuit board's old viewport-covering "cover" scale) since this is a compact poster-style
+// composition, not a full-bleed wallpaper. Tuned by eye against the Rhino reference screenshots.
+const SOCIAL_SCALE_PX = 366
 const EXPLODE_DIST = 6 // how far particles fly, x the brain's on-screen radius
 
 const VERTEX = `
@@ -183,9 +186,23 @@ function makePoints(map, a, base, b) {
       uScaleA: { value: 1 }, uScaleB: { value: 1 },
       uBaseA: { value: base.a }, uBaseB: { value: base.b ?? base.a },
       uBackA: { value: base.backA ?? 0 }, uBackB: { value: base.backB ?? 0 }, uFoldA: { value: base.foldA ?? 0 },
-      uMorph: { value: 0 }, uDestruct: { value: 0 }, uExplodeDist: { value: 0 }, uCam: { value: CAM },
+      uMorph: { value: 0 }, uDestruct: { value: 0 }, uExplodeDist: { value: 0 },
+      // uCam feeds place()'s k = uCam/(uCam-r.z) perspective-divide factor; a huge value makes k≈1
+      // for any reasonable r.z, i.e. an orthographic (no-perspective) look for this cloud specifically
+      // - SocialMediaParticles.js's "no perspective, true isometric" request, without touching the
+      // perspective every other cloud on this shared shader still uses (uCam is per-material, not
+      // shared across makePoints() calls).
+      uCam: { value: base.orthographic ? 1e6 : CAM },
       uOffA: { value: new THREE.Vector3() },
     },
+    // depthTest:false (default true, elsewhere): for an overlay that must always read as "on top" of
+    // another cloud sharing the same screen position (SocialMediaParticles.js's icon-pictogram
+    // points over their chip's own densely-sampled surface points) rather than competing pixel-by-
+    // pixel on this scene's custom depth (place()'s r.z*scale, fed straight into gl_Position with no
+    // perspective divide) - a small, tasteful offset there is enough to lose a depth test against a
+    // box face's own ~0.05-thick point spread, but disabling the test entirely draws it cleanly
+    // regardless.
+    depthTest: base.depthTest ?? true,
   })
   const obj = new THREE.Points(g, m)
   obj.frustumCulled = false
@@ -196,6 +213,19 @@ const _q = new THREE.Quaternion(), _q2 = new THREE.Quaternion(), _q3 = new THREE
 function setModel(mat3, q) {
   _m4.makeRotationFromQuaternion(q)
   mat3.setFromMatrix4(_m4)
+}
+// Like setModel, but the result is a true mirror image of the normal rotation (screen-x negated,
+// screen-y/depth untouched) rather than just a different rotation - picking a different yaw instead
+// changes *which* azimuth you're looking from (a genuinely different view, not a left-right flip of
+// this one: confirmed numerically that two opposite yaws do not produce negated-x/same-y results for
+// general points), whereas negating the matrix's row 0 (mat3 is column-major, so that's elements
+// 0,3,6) gives screen-x' = -screen-x for every point, exactly a mirror of whatever q alone would
+// render - including the avatar icons reading backwards, same as any real mirror reverses faces.
+function setMirroredModel(mat3, q) {
+  setModel(mat3, q)
+  mat3.elements[0] *= -1
+  mat3.elements[3] *= -1
+  mat3.elements[6] *= -1
 }
 
 /**
@@ -297,13 +327,14 @@ function Clouds() {
   const dnaText = useLoader(FileLoader, '/models/dna6.dxf', (l) => l.setResponseType('text'))
   const armGltf = useLoader(GLTFLoader, '/models/industry-arm.glb')
   const cityText = useLoader(FileLoader, '/models/smart-city13.dxf', (l) => l.setResponseType('text'))
+  const socialText = useLoader(FileLoader, '/models/social-media3.dxf', (l) => l.setResponseType('text'))
+  const socialGltf = useLoader(GLTFLoader, '/models/social-media-light.glb')
   const sway = useRef({ tx: 0, ty: 0, x: 0, y: 0 })
   const anchors = useRef({})
   // Animated by the ScrollTrigger timelines below; read every frame. One per transition.
   const anim1 = useRef({ move: 0, spin: 0, slide: 0, turn: 0, destruct: 0, morph: 0 }) // brain -> VLSI-CAD
   const anim2 = useRef({ move: 0, spin: 0, destruct: 0, morph: 0 }) // VLSI-CAD -> DNA
   const anim3 = useRef({ move: 0, spin: 0, destruct: 0, morph: 0 }) // DNA -> Smart City
-  const anim6 = useRef({ destruct: 0, morph: 0 }) // arm -> circuit board
   const anim5 = useRef({ move: 0, spin: 0 }) // Industry 4.0 arm's closing turn (slides left while turning)
   const anim4 = useRef({ move: 0, spin: 0, destruct: 0, morph: 0 }) // Smart City -> Industry 4.0
 
@@ -320,11 +351,8 @@ function Clouds() {
     const armStage = rotated(arm.positions, qArm).map((v) => v * 260)
     // The arm has more points than the city: match the arm to the city and grow the extras out of it.
     const ex4 = expandedSource(city, arm, matchClouds(armStage, cityStage))
-    const circuit = buildCircuitCloud()
-    // Match in screen px: the arm as it will sit (centered, at its on-screen size) vs the board.
-    const arm4px = armStage.map((v) => (v / 260) * ARM_PX)
-    const circuitPx = circuit.positions.map((v) => v * CIRCUIT_UNIT)
-    const ex6 = expandedSource(arm, circuit, matchClouds(circuitPx, arm4px))
+    const social = buildSocialMediaCloud(socialText, socialGltf)
+    const qSocial = new THREE.Quaternion(...SOCIAL_ORIENTATION)
     const qVlsi = new THREE.Quaternion(...VLSI_ORIENTATION)
     const vlsiStage = rotated(vlsi.positions, qVlsi).map((v) => v * 260)
     // Each transition matches the earlier cloud's points 1:1 to the next one's (the earlier one has
@@ -341,12 +369,14 @@ function Clouds() {
       city: makePoints(map, city, { a: CITY_PARTICLE_SIZE }),
       cityToArm: makePoints(map, ex4.src, { a: CITY_PARTICLE_SIZE, b: ARM_PARTICLE_SIZE }, ex4.tgt),
       arm: makePoints(map, arm, { a: ARM_PARTICLE_SIZE }),
-      armToCircuit: makePoints(map, ex6.src, { a: ARM_PARTICLE_SIZE, b: CIRCUIT_PARTICLE_SIZE }, ex6.tgt),
-      circuit: makePoints(map, circuit, { a: CIRCUIT_PARTICLE_SIZE }),
-      circuitFlowGroups: circuit.flowGroups,
-      qVlsi, qCity, qArm,
+      // backA: social-media-light.glb's 5 chip boxes (SocialMediaParticles.js's mesh-surface fill
+      // points, real normals, normalMask=1) fade toward white when facing away from the camera -
+      // same backA/whiteFade mechanism as VLSI-CAD's own hand mesh (backA:0.6 there too); the curve
+      // points (molecule/avatar/pin-hatch lines, normalMask=0) are unaffected regardless of facing.
+      social: makePoints(map, social, { a: SOCIAL_PARTICLE_SIZE, orthographic: true, backA: 0.6 }),
+      qVlsi, qCity, qArm, qSocial,
     }
-  }, [brainGltf, chipsGltf, dnaText, cityText, armGltf])
+  }, [brainGltf, chipsGltf, dnaText, cityText, armGltf, socialText, socialGltf])
 
   // Scroll-scrubbed timelines. Transition 1 runs from the top of the page until the first theme is
   // pinned; transition 2 from when that theme's pin releases until the second theme is pinned. In
@@ -357,19 +387,6 @@ function Clouds() {
     const tl2 = transitionTimeline(anim2.current, pinEnd('vlsi'), pinStart('dna'))
     const tl3 = transitionTimeline(anim3.current, pinEnd('dna'), pinStart('city'))
     const tl4 = transitionTimeline(anim4.current, pinEnd('city'), pinStart('arm'))
-    const tl6 = gsap.timeline({
-      defaults: { ease: 'none' },
-      scrollTrigger: {
-        trigger: document.documentElement,
-        start: () => pinEnd('arm')() + ARM_EXIT_SCREENS * window.innerHeight,
-        end: () => pinEnd('arm')() + (ARM_EXIT_SCREENS + CIRCUIT_SCREENS) * window.innerHeight,
-        scrub: SCRUB, invalidateOnRefresh: true,
-      },
-    })
-    tl6.to(anim6.current, { destruct: 1, duration: 0.35 }, 0)
-    tl6.to(anim6.current, { destruct: 0, duration: 0.25 }, 0.35)
-    tl6.to(anim6.current, { morph: 1, duration: 0.3 }, 0.35)
-    tl6.to({}, { duration: 0.35 }, 0.65)
     const tl5 = gsap.timeline({
       defaults: { ease: 'none' },
       scrollTrigger: { trigger: document.documentElement, start: pinEnd('arm'), end: () => pinEnd('arm')() + ARM_EXIT_SCREENS * window.innerHeight, scrub: SCRUB, invalidateOnRefresh: true },
@@ -380,7 +397,7 @@ function Clouds() {
     window.addEventListener('load', refresh)
     return () => {
       window.removeEventListener('load', refresh)
-      for (const tl of [tl1, tl2, tl3, tl4, tl5, tl6]) { tl.scrollTrigger?.kill(); tl.kill() }
+      for (const tl of [tl1, tl2, tl3, tl4, tl5]) { tl.scrollTrigger?.kill(); tl.kill() }
     }
   }, [])
 
@@ -410,7 +427,7 @@ function Clouds() {
 
     const elBrain = anchorEl('brain'), elVlsi = anchorEl('vlsi'), elDna = anchorEl('dna'), elCity = anchorEl('city'), elArm = anchorEl('arm')
     const sec1 = elVlsi?.closest('section'), sec2 = elDna?.closest('section'), sec3 = elCity?.closest('section'), sec4 = elArm?.closest('section')
-    const all = [scene.brain, scene.vlsi, scene.vlsiToDna, scene.dna, scene.dnaToCity, scene.city, scene.cityToArm, scene.arm, scene.armToCircuit, scene.circuit]
+    const all = [scene.brain, scene.vlsi, scene.vlsiToDna, scene.dna, scene.dnaToCity, scene.city, scene.cityToArm, scene.arm, scene.social]
     if (!elBrain || !elVlsi || !elDna || !elCity || !elArm || !sec4 || !sec1 || !sec2 || !sec3) { for (const o of all) o.visible = false; return }
 
     // Anchor geometry. The brain (hero, not pinned) is a fixed page coordinate, used at scroll 0. A theme
@@ -431,7 +448,7 @@ function Clouds() {
     const scr = (P, up = 0) => ({ x: P.x - vw / 2, y: -(P.y - up - vh / 2) })
     const cA = scr(A), c1 = scr(B1), c2 = scr(B2), c3 = scr(B3), c4 = scr(B4)
 
-    const a1 = anim1.current, a2 = anim2.current, a3 = anim3.current, a4 = anim4.current, a5 = anim5.current, a6 = anim6.current
+    const a1 = anim1.current, a2 = anim2.current, a3 = anim3.current, a4 = anim4.current, a5 = anim5.current
     const done1 = a1.morph >= 0.999 && a1.destruct <= 0.001
     const mid = { x: 0, y: c1.y } // middle of the screen, at the VLSI-CAD cloud's height
     // VLSI-CAD's angle on the way in: default angle turned back by the turns still to come.
@@ -442,9 +459,10 @@ function Clouds() {
     const done3 = a3.morph >= 0.999 && a3.destruct <= 0.001
     const started4 = a4.destruct > 0.001 || a4.morph > 0.001 || a4.move > 0.001
     const done4 = a4.morph >= 0.999 && a4.destruct <= 0.001
-    const started6 = a6.destruct > 0.001 || a6.morph > 0.001
-    const done6 = a6.morph >= 0.999 && a6.destruct <= 0.001
-    const cover = Math.max(vw / CIRCUIT_W, vh / CIRCUIT_H)
+    // No morph into the social-media cloud (per request, to skip the extra matchClouds/transition
+    // work) - it just replaces the arm outright once scroll passes the same point the arm's old
+    // exit transition used to start at.
+    const socialFormed = done4 && sy >= pinEnd('arm')() + ARM_EXIT_SCREENS * vh
     const R0 = EXPLODE_DIST * 1.98 * A.scale // explosion distance for both transitions (x brain radius on screen)
 
     // Transition 1: brain -> VLSI-CAD. The brain keeps its own size and shape and its current angle while it
@@ -556,7 +574,7 @@ function Clouds() {
     }
 
     // The Industry 4.0 arm cloud once it has formed.
-    scene.arm.visible = done4 && !started6
+    scene.arm.visible = done4 && !socialFormed
     {
       const u = scene.arm.material.uniforms
       // Closing turn: once the arm's pin releases, it turns a full turn while sliding to the middle of the screen.
@@ -567,37 +585,15 @@ function Clouds() {
       setModel(u.uModelA.value, _q2)
     }
 
-    // Arm -> circuit board: scatter in place, regather as a PCB layout that covers the whole screen.
-    scene.armToCircuit.visible = done4 && started6 && !done6
+    // The social-media chip cluster: replaces the arm outright (no morph - see socialFormed above),
+    // holds in place as the backdrop for the rest of the page.
+    scene.social.visible = socialFormed
     {
-      const u = scene.armToCircuit.material.uniforms
-      _q.copy(swayQ).multiply(scene.qArm)
-      _q2.setFromAxisAngle(_yAxis, a5.spin * SPIN_TURNS * 2 * Math.PI).multiply(_q)
-      setModel(u.uModelA.value, _q2)
-      u.uCA.value.set(c4.x * (1 - a5.move), c4.y)
-      u.uScaleA.value = B4.scale
-      u.uMorph.value = a6.morph
-      u.uCB.value.set(0, 0)
-      u.uScaleB.value = CIRCUIT_UNIT * cover
-      setModel(u.uModelB.value, _q.identity())
-      u.uDestruct.value = a6.destruct
-      u.uExplodeDist.value = R0
-    }
-
-    // The circuit board once it has formed. A few whole bus lines' own points slide along their line
-    // (updateCircuitFlow, writing straight into this geometry's own position buffer) for a "current
-    // flowing" feel - no separate glow layer, just some of the board's own particles moving.
-    scene.circuit.visible = done6
-    {
-      const u = scene.circuit.material.uniforms
+      _q3.copy(swayQ).multiply(scene.qSocial)
+      const u = scene.social.material.uniforms
       u.uCA.value.set(0, 0)
-      u.uScaleA.value = CIRCUIT_UNIT * cover
-      setModel(u.uModelA.value, _q.identity())
-      if (done6 && scene.circuitFlowGroups?.length) {
-        const posAttr = scene.circuit.geometry.attributes.position
-        updateCircuitFlow(scene.circuitFlowGroups, posAttr.array, state.clock.elapsedTime)
-        posAttr.needsUpdate = true
-      }
+      u.uScaleA.value = SOCIAL_SCALE_PX
+      setMirroredModel(u.uModelA.value, _q3)
     }
   })
 
@@ -611,8 +607,7 @@ function Clouds() {
       <primitive object={scene.city} />
       <primitive object={scene.cityToArm} />
       <primitive object={scene.arm} />
-      <primitive object={scene.armToCircuit} />
-      <primitive object={scene.circuit} />
+      <primitive object={scene.social} />
     </>
   )
 }

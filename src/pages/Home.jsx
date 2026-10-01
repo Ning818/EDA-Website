@@ -7,7 +7,6 @@ import SmartCityScene from '../three/SmartCityScene'
 import DNAScene from '../three/DNAScene'
 import ParticleCanvas from '../three/ParticleCanvas'
 import VLSICADScene from '../three/VLSICADScene'
-import CircuitChipCards from '../components/sections/CircuitChipCards'
 
 const THEMES = [
   {
@@ -34,7 +33,7 @@ const THEMES = [
   {
     theme: 'Industry 4.0',
     imageSide: 'right',
-    gap: 500, // vh of scroll for the arm's closing turn, its change into the circuit board, and a hold on it
+    gap: 500, // vh of scroll for the arm's closing turn, its change into the social-media chip cluster, and a hold on it
     visual: <IndustryArmScene className="h-[478px] w-full max-w-[531px] shrink-0" />,
   },
 ]
@@ -43,7 +42,6 @@ export default function Home() {
   return (
     <>
       <ParticleCanvas />
-      <CircuitChipCards />
       <main className="relative z-10">
       <Hero />
       {/* Empty scroll: the brain's move + regather + VLSI-CAD turn needs a long stretch, like every other transition. */}

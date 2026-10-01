@@ -53,7 +53,7 @@ export function sampleGLBLines(scene, opts) {
   return resampleChains(chains, chainGroups, { targetExtent, spacing })
 }
 
-function collectTriangles(scene) {
+export function collectTriangles(scene) {
   scene.updateWorldMatrix(true, true)
   const tris = [] // { group, a:[x,y,z], b, c }
   const va = new THREE.Vector3(), vb = new THREE.Vector3(), vc = new THREE.Vector3()
@@ -264,5 +264,5 @@ export function sampleGLBLinesAndMesh(scene, opts) {
   normals.set(meshNormals, nLine * 3)
   const normalMask = new Float32Array(nLine + nMesh)
   normalMask.fill(1, nLine)
-  return { positions, sizes, normals, normalMask, groups: [...lines.groups, ...meshGroups], counts: { lines: nLine, mesh: nMesh } }
+  return { positions, sizes, normals, normalMask, groups: [...lines.groups, ...meshGroups], counts: { lines: nLine, mesh: nMesh }, transform: lines.transform }
 }

@@ -362,7 +362,8 @@ function Clouds() {
     // The arm has more points than the city: match the arm to the city and grow the extras out of it.
     const ex4 = expandedSource(city, arm, matchClouds(armStage, cityStage))
     const social = buildSocialMediaCloud(socialText)
-    const social2 = buildSocialMediaCloud(socialText) // placeholder: an exact duplicate of `social` for now, until its own transition is designed
+    // Circuit-trace drawing is switched off per request; pass `true` as a 2nd arg to bring it back.
+    const social2 = buildSocialMediaCloud(socialText)
     const qSocial = new THREE.Quaternion(...SOCIAL_ORIENTATION)
     const qVlsi = new THREE.Quaternion(...VLSI_ORIENTATION)
     const vlsiStage = rotated(vlsi.positions, qVlsi).map((v) => v * 260)
@@ -390,9 +391,8 @@ function Clouds() {
       // already there, regardless of either point's real depth.
       social: makePoints(map, social, { a: SOCIAL_PARTICLE_SIZE, orthographic: true, depthTest: false, depthWrite: false }),
       // `social2`: the next stage/transition to be designed later (see SOCIAL_HOLD_SCREENS) - for now
-      // an exact duplicate of `social`, same material options. Its own THREE.Points instance since
-      // `social` and `social2` need to be independently shown/hidden and (once there's an actual
-      // transition) independently positioned.
+      // an exact duplicate of `social` (trace network currently disabled), same material options. Its own THREE.Points instance since `social` and `social2` need to be
+      // independently shown/hidden and (once there's an actual transition) independently positioned.
       social2: makePoints(map, social2, { a: SOCIAL_PARTICLE_SIZE, orthographic: true, depthTest: false, depthWrite: false }),
       qVlsi, qCity, qArm, qSocial,
     }

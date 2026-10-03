@@ -42,6 +42,10 @@ export function resampleChains(chains, chainGroups, opts) {
   const scale = targetExtent / extent
   const centerScale = (x, y, z) => [(x - cx) * scale, (y - cy) * scale, (z - cz) * scale]
 
+  // Groups whose chains get split into equal steps end to end (both endpoints kept) instead of the
+  // default fixed-`spacing` walk, whose leftover tail makes the last gap shorter than the rest.
+  const evenGroups = new Set(opts.evenGroups ?? [])
+
   const points = []
   const groups = []
   for (let ci = 0; ci < chains.length; ci++) {
@@ -56,6 +60,29 @@ export function resampleChains(chains, chainGroups, opts) {
     for (let i = 0; i + 1 < n; i++) {
       const [ax, ay, az] = verts[i], [bx, by, bz] = verts[i + 1]
       totalLen += Math.sqrt((bx - ax) ** 2 + (by - ay) ** 2 + (bz - az) ** 2)
+    }
+
+    if (evenGroups.has(group) && totalLen > 0) {
+      const cum = [0]
+      for (let i = 0; i + 1 < n; i++) {
+        const [ax, ay, az] = verts[i], [bx, by, bz] = verts[i + 1]
+        cum.push(cum[i] + Math.sqrt((bx - ax) ** 2 + (by - ay) ** 2 + (bz - az) ** 2))
+      }
+      const [sx, sy, sz] = verts[0], [ex, ey, ez] = verts[n - 1]
+      const closed = n > 3 && Math.sqrt((ex - sx) ** 2 + (ey - sy) ** 2 + (ez - sz) ** 2) < 1e-6
+      const steps = Math.max(closed ? 3 : 1, Math.round(totalLen / spacing))
+      let seg = 0
+      // A closed loop's last point is its first - emit steps points, not steps + 1.
+      for (let k = 0; k <= steps - (closed ? 1 : 0); k++) {
+        const d = (totalLen * k) / steps
+        while (seg + 2 < n && cum[seg + 1] < d) seg++
+        const segLen = cum[seg + 1] - cum[seg]
+        const t = segLen > 0 ? (d - cum[seg]) / segLen : 0
+        const [ax, ay, az] = verts[seg], [bx, by, bz] = verts[seg + 1]
+        points.push(ax + (bx - ax) * t, ay + (by - ay) * t, az + (bz - az) * t)
+        groups.push(group)
+      }
+      continue
     }
 
     if (totalLen < spacing) {

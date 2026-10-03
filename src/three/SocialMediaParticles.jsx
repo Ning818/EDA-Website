@@ -81,8 +81,27 @@ function lighten(hex, amount) {
   c.lerp(new THREE.Color('#ffffff'), amount)
   return `#${c.getHexString()}`
 }
-const FULL_GROUP_COLORS = { ...GROUP_COLORS }
-for (const [g, c] of Object.entries(GROUP_COLORS)) FULL_GROUP_COLORS[g + BACK_SUFFIX] = lighten(c, BACK_LIGHTEN)
+function withBackVariants(colors) {
+  const full = { ...colors }
+  for (const [g, c] of Object.entries(colors)) full[g + BACK_SUFFIX] = lighten(c, BACK_LIGHTEN)
+  return full
+}
+const FULL_GROUP_COLORS = withBackVariants(GROUP_COLORS)
+
+// Brand colors sampled from the YouTube / LinkedIn app logos; applied only to the center chip's
+// picture-pattern layer (the logo itself) - every other layer keeps the multi-accent palette.
+export const YOUTUBE_BRAND_COLOR = '#f01c1c'
+export const LINKEDIN_BRAND_COLOR = '#0a66c2'
+const LOGO_GROUP = '中心芯片上面的图案'
+const PIN_TICK_SIZE_SCALE = 0.9 // pin-hatch ticks' radius relative to the other outline points'
+const FILL_SIZE_SCALE = 0.6 // hover-fill points' radius relative to the outline points'
+const BRAND_CHIP_LIGHTEN = 0.15 // the chip body/side texture read as a paler tint of the logo layer's color
+// Optional per-stage layer overrides, e.g. a hue-shifted take on the brand color for one satellite.
+export const YOUTUBE_SAT2_COLOR = '#d93a5c' // rose-leaning shift of YouTube red, not the same red
+function brandGroupColors(color, overrides = null) {
+  const body = lighten(color, BRAND_CHIP_LIGHTEN)
+  return withBackVariants({ ...GROUP_COLORS, '中心芯片上面的图案': color, '中心芯片-颜色1': body, '中心芯片的侧纹路': body, ...overrides })
+}
 
 // True isometric (elevation = asin(1/sqrt(3)) ~= 35.264deg, the standard "equal angle" camera).
 // Combined with makePoints' `orthographic` option (ParticleCanvas.jsx) for a true flat isometric
@@ -413,6 +432,142 @@ function buildCircuitForSocial(chains, groups) {
   return { chains: outChains, groups: outGroups }
 }
 
+/** Joins a layer's separate line/arc chains (they only meet at endpoints) into closed loops of [x,y]
+ * points; chains that are already closed pass straight through. Open leftovers are dropped. */
+function joinLoops(chainList, tol = 1) {
+  // tol is loose on purpose: the DXF's own "n" arch has ~0.4-0.6 unit gaps where its curves meet,
+  // and a tight tolerance left that loop open (so its inside got filled). Real features are >9 units apart.
+  const pts = chainList.map((ch) => { const out = []; for (let k = 0; k < ch.length; k += 3) out.push([ch[k], ch[k + 1]]); return out })
+  const near = (a, b) => Math.hypot(a[0] - b[0], a[1] - b[1]) < tol
+  const used = new Array(pts.length).fill(false)
+  const loops = []
+  for (let i = 0; i < pts.length; i++) {
+    if (used[i]) continue
+    used[i] = true
+    let loop = [...pts[i]]
+    for (let guard = 0; guard < pts.length && !near(loop[0], loop[loop.length - 1]); guard++) {
+      const end = loop[loop.length - 1]
+      let found = false
+      for (let j = 0; j < pts.length && !found; j++) {
+        if (used[j]) continue
+        if (near(pts[j][0], end)) { loop = loop.concat(pts[j].slice(1)); used[j] = found = true }
+        else if (near(pts[j][pts[j].length - 1], end)) { loop = loop.concat([...pts[j]].reverse().slice(1)); used[j] = found = true }
+      }
+      if (!found) break
+    }
+    if (near(loop[0], loop[loop.length - 1]) && loop.length > 3) loops.push(loop)
+  }
+  return loops
+}
+
+/** Points filling the logo layer's own "solid" area (even-odd across its loops: the outer shape minus
+ * the glyph cut-outs), on a hex grid kept clear of the outlines. Raw DXF units; returns
+ * { pts: [x,y,z][], delay: number[] } with delay 0..0.5 growing outward from the logo's center. */
+function fillLogoPoints(chains, groups, { spacing = 3.4, skipOutermost = false } = {}) {
+  const list = []
+  let z = 0
+  for (let i = 0; i < chains.length; i++) if (groups[i] === LOGO_GROUP) { list.push(chains[i]); z = chains[i][2] }
+  let loops = joinLoops(list)
+  // skipOutermost: the largest loop is only a backdrop (YouTube's white app-icon square around the red
+  // button), not part of the filled shape - drop it so the even-odd test starts at the next loop in.
+  if (skipOutermost && loops.length > 1) {
+    const area = (loop) => Math.abs(loop.reduce((a, [x, y], i) => { const [x2, y2] = loop[(i + 1) % loop.length]; return a + (x * y2 - x2 * y) }, 0))
+    const largest = loops.reduce((best, l) => (area(l) > area(best) ? l : best))
+    loops = loops.filter((l) => l !== largest)
+  }
+  if (!loops.length) return { pts: [], delay: [] }
+  const inLoop = (loop, x, y) => {
+    let inside = false
+    for (let i = 0, j = loop.length - 1; i < loop.length; j = i++) {
+      const [xi, yi] = loop[i], [xj, yj] = loop[j]
+      if ((yi > y) !== (yj > y) && x < ((xj - xi) * (y - yi)) / (yj - yi) + xi) inside = !inside
+    }
+    return inside
+  }
+  const distToLoops = (x, y) => {
+    let best = Infinity
+    for (const loop of loops) for (let i = 1; i < loop.length; i++) {
+      const [ax, ay] = loop[i - 1], [bx, by] = loop[i]
+      const dx = bx - ax, dy = by - ay
+      const t = Math.max(0, Math.min(1, ((x - ax) * dx + (y - ay) * dy) / (dx * dx + dy * dy || 1)))
+      best = Math.min(best, Math.hypot(x - (ax + t * dx), y - (ay + t * dy)))
+    }
+    return best
+  }
+  let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity
+  for (const loop of loops) for (const [x, y] of loop) { minX = Math.min(minX, x); maxX = Math.max(maxX, x); minY = Math.min(minY, y); maxY = Math.max(maxY, y) }
+  const cx = (minX + maxX) / 2, cy = (minY + maxY) / 2
+  const pts = []
+  const rowH = spacing * 0.866
+  for (let r = 0, y = minY; y <= maxY; r++, y += rowH) {
+    for (let x = minX + (r % 2 ? spacing / 2 : 0); x <= maxX; x += spacing) {
+      let n = 0
+      for (const loop of loops) if (inLoop(loop, x, y)) n++
+      if (n % 2 === 1 && distToLoops(x, y) >= spacing * 0.55) pts.push([x, y, z])
+    }
+  }
+  const maxD = Math.max(...pts.map(([x, y]) => Math.hypot(x - cx, y - cy)), 1)
+  return { pts, delay: pts.map(([x, y]) => (Math.hypot(x - cx, y - cy) / maxD) * 0.5) }
+}
+
+/** Joins a group's separate line/arc chains that meet end to end (within `tol`) into single continuous
+ * chains - a closed loop gets its last point snapped onto its first - and drops any chain lying entirely
+ * on top of another (a duplicated edge). Other groups pass through untouched. The DXF's logo curves
+ * arrive as many short pieces; sampling each piece on its own breaks the even spacing at every joint. */
+function joinGroupChains(chains, groups, groupName, tol = 1) {
+  const idx = []
+  for (let i = 0; i < chains.length; i++) if (groups[i] === groupName) idx.push(i)
+  const pieces = idx.map((i) => { const ch = chains[i], out = []; for (let k = 0; k < ch.length; k += 3) out.push([ch[k], ch[k + 1], ch[k + 2]]); return out })
+  const d3 = (a, b) => Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2])
+  const used = new Array(pieces.length).fill(false)
+  const joined = []
+  for (let i = 0; i < pieces.length; i++) {
+    if (used[i]) continue
+    used[i] = true
+    let path = [...pieces[i]]
+    const isClosed = () => path.length > 3 && d3(path[0], path[path.length - 1]) < tol
+    for (let guard = 0; guard < pieces.length && !isClosed(); guard++) {
+      let found = false
+      for (let j = 0; j < pieces.length && !found; j++) {
+        if (used[j]) continue
+        const p = pieces[j], end = path[path.length - 1], start = path[0]
+        if (d3(p[0], end) < tol) path = path.concat(p.slice(1))
+        else if (d3(p[p.length - 1], end) < tol) path = path.concat([...p].reverse().slice(1))
+        else if (d3(p[p.length - 1], start) < tol) path = p.slice(0, -1).concat(path)
+        else if (d3(p[0], start) < tol) path = [...p].reverse().slice(0, -1).concat(path)
+        else continue
+        used[j] = found = true
+      }
+      if (!found) break
+    }
+    if (isClosed()) path[path.length - 1] = path[0]
+    joined.push(path)
+  }
+  // Drop a chain whose every vertex lies on another chain's polyline.
+  const distToPath = (pt, path) => {
+    let best = Infinity
+    for (let i = 1; i < path.length; i++) {
+      const a = path[i - 1], b = path[i]
+      const dx = b[0] - a[0], dy = b[1] - a[1], dz = b[2] - a[2]
+      const t = Math.max(0, Math.min(1, ((pt[0] - a[0]) * dx + (pt[1] - a[1]) * dy + (pt[2] - a[2]) * dz) / (dx * dx + dy * dy + dz * dz || 1)))
+      best = Math.min(best, Math.hypot(pt[0] - a[0] - t * dx, pt[1] - a[1] - t * dy, pt[2] - a[2] - t * dz))
+    }
+    return best
+  }
+  const keep = joined.map(() => true)
+  for (let i = 0; i < joined.length; i++) {
+    if (joined[i].length > 3) continue // only short straight pieces can be a duplicated edge
+    for (let j = 0; j < joined.length; j++) {
+      if (i === j || !keep[j]) continue
+      if (joined[i].every((pt) => distToPath(pt, joined[j]) < 0.05)) { keep[i] = false; break }
+    }
+  }
+  const outChains = [], outGroups = []
+  for (let i = 0; i < chains.length; i++) if (groups[i] !== groupName) { outChains.push(chains[i]); outGroups.push(groups[i]) }
+  joined.forEach((path, i) => { if (keep[i]) { outChains.push(path.flat()); outGroups.push(groupName) } })
+  return { chains: outChains, chainGroups: outGroups }
+}
+
 function reorderBackFirst(geo) {
   const count = geo.positions.length / 3
   const order = []
@@ -438,9 +593,10 @@ function reorderBackFirst(geo) {
  * Opt-in (ParticleCanvas.jsx passes true only for `social2`, the placeholder "next stage" cloud -
  * `social` itself keeps its original, simpler look) rather than always-on, since the two clouds are
  * meant to read as two distinct states for a transition to be designed between them later. */
-export function buildSocialMediaCloud(text, withTraces = false) {
+export function buildSocialMediaCloud(text, withTraces = false, brandColor = null, groupOverrides = null, fillLogo = false) {
   let { chains, chainGroups } = parseDXFToChains(text, { curveSegments: CURVE_SEGMENTS })
   ;({ chains, chainGroups } = dedupeChains(chains, chainGroups))
+  ;({ chains, chainGroups } = joinGroupChains(chains, chainGroups, LOGO_GROUP))
   // The generated traces deliberately extend well beyond the chip cluster's own footprint (to spread
   // across the screen) - bounding by the ORIGINAL chains only (computed before adding them) keeps the
   // chip cluster itself at its established on-screen size instead of shrinking to fit the new, much
@@ -453,7 +609,7 @@ export function buildSocialMediaCloud(text, withTraces = false) {
   const traces = withTraces ? buildCircuitForSocial(chains, chainGroups) : { chains: [], groups: [] }
   const allChains = [...chains, ...traces.chains]
   const allGroups = [...chainGroups, ...traces.groups]
-  const geo = reorderBackFirst(resampleChains(allChains, allGroups, { targetExtent: TARGET_EXTENT, spacing: EDGE_SPACING, bounds: originalBounds }))
+  const geo = reorderBackFirst(resampleChains(allChains, allGroups, { targetExtent: TARGET_EXTENT, spacing: EDGE_SPACING, bounds: originalBounds, evenGroups: [STUB_GROUP, STUB_GROUP + BACK_SUFFIX, LOGO_GROUP] }))
   const n = geo.positions.length / 3
   const positions = new Float32Array(geo.positions)
 
@@ -461,7 +617,10 @@ export function buildSocialMediaCloud(text, withTraces = false) {
   // established camera (every "...背面" layer) - FULL_GROUP_COLORS maps those straight to a
   // pre-lightened color and everything else to its full color, so this is a plain per-point color
   // lookup with no geometry or camera math involved.
-  const colors = colorByGroup(geo.groups, FULL_GROUP_COLORS, TRACE_COLOR)
+  const colors = colorByGroup(geo.groups, brandColor ? brandGroupColors(brandColor, groupOverrides) : FULL_GROUP_COLORS, TRACE_COLOR)
+
+  // The pin-hatch ticks (the layer feeding the circuit traces, and its 背面 twin) read better with finer dots.
+  for (let i = 0; i < n; i++) if (geo.groups[i]?.startsWith('用于连接电路板线路的起始线')) geo.sizes[i] *= PIN_TICK_SIZE_SCALE
 
   // A genuine reflection (mirroring X), not just a yaw rotation - a rotation alone can never fix a
   // front/back chirality flip (mirrored avatar faces, a mirrored overall chip arrangement). Confirmed
@@ -483,7 +642,34 @@ export function buildSocialMediaCloud(text, withTraces = false) {
     positions[i * 3 + 2] = py
   }
 
-  return { positions, sizes: geo.sizes, colors }
+  // 1 for the logo layer's points - the "pressable" ones (ParticleCanvas.jsx sinks them on press).
+  const press = new Float32Array(n)
+  for (let i = 0; i < n; i++) if (geo.groups[i] === LOGO_GROUP) press[i] = 1
+  // aFill: -1 = always shown (every outline point); >= 0 = a hover-revealed fill point, the value being
+  // its reveal delay (see the shader's uFill).
+  const fill = new Float32Array(n).fill(-1)
+
+  if (!fillLogo) return { positions, sizes: geo.sizes, colors, press, fill }
+
+  // Hover-revealed fill for the logo's solid area, through the exact same pipeline as the outline
+  // points: raw -> centered/scaled -> X-mirror + Y/Z swap.
+  const { pts, delay } = fillLogoPoints(chains, chainGroups, fillLogo === true ? {} : fillLogo)
+  const m = pts.length, { center, scale } = geo.transform
+  const fillColor = colorByGroup(new Array(m).fill(LOGO_GROUP), brandColor ? brandGroupColors(brandColor, groupOverrides) : FULL_GROUP_COLORS, TRACE_COLOR)
+  const total = n + m
+  const allPos = new Float32Array(total * 3), allSizes = new Float32Array(total), allColors = new Float32Array(total * 3)
+  const allPress = new Float32Array(total), allFill = new Float32Array(total)
+  allPos.set(positions); allSizes.set(geo.sizes); allColors.set(colors); allPress.set(press); allFill.set(fill)
+  for (let i = 0; i < m; i++) {
+    const o = n + i
+    const x = (pts[i][0] - center[0]) * scale, y = (pts[i][1] - center[1]) * scale, z = (pts[i][2] - center[2]) * scale
+    allPos[o * 3] = -x; allPos[o * 3 + 1] = z; allPos[o * 3 + 2] = y
+    allSizes[o] = FILL_SIZE_SCALE * (0.82 + 0.36 * ((i * 0.6180339887) % 1)) // outline points' size spread, scaled down
+    allPress[o] = 1
+    allFill[o] = delay[i]
+  }
+  allColors.set(fillColor, n * 3)
+  return { positions: allPos, sizes: allSizes, colors: allColors, press: allPress, fill: allFill }
 }
 
 /**

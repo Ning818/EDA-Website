@@ -9,7 +9,7 @@ import { buildVLSICloud, VLSI_ORIENTATION, VLSI_PARTICLE_SIZE } from './VLSICADP
 import { buildDNACloud, DNA_PARTICLE_SIZE } from './DNAParticles'
 import { buildCityCloud, CITY_ORIENTATION, CITY_PIVOT, CITY_PARTICLE_SIZE } from './SmartCityParticles'
 import { buildArmCloud, ARM_ORIENTATION, ARM_PARTICLE_SIZE } from './IndustryArmParticles'
-import { buildSocialMediaCloud, SOCIAL_ORIENTATION, SOCIAL_PARTICLE_SIZE } from './SocialMediaParticles'
+import { buildSocialMediaCloud, SOCIAL_ORIENTATION, SOCIAL_PARTICLE_SIZE, YOUTUBE_BRAND_COLOR, LINKEDIN_BRAND_COLOR, YOUTUBE_SAT2_COLOR } from './SocialMediaParticles'
 import { FileLoader } from 'three'
 import { matchClouds } from './morphMatch'
 import { makeCircleTexture } from './makeCircleTexture'
@@ -61,6 +61,9 @@ export const ARM_EXIT_SCREENS = 2 // scroll length (in screens) of the arm's clo
 // user will design later. `social2` then holds as the page's final backdrop for everything below it
 // (YoutubeSpotlight, LinkedInSection). Home.jsx's own Industry-4.0 `gap` needs to stay wide enough to
 // hold this scroll range before those sections scroll into view - see its own comment.
+// Click targets for the pressable logo layer of each social stage (opened in a new tab).
+const YOUTUBE_URL = 'https://www.youtube.com/@edagrouppolito329/videos'
+const LINKEDIN_URL = 'https://www.linkedin.com/company/edagroup-polito/posts/?feedView=all'
 export const SOCIAL_HOLD_SCREENS = 2 // scroll length (in screens) `social` holds before cutting to `social2`
 // Px-per-model-unit for the social-media composition once formed - a flat on-screen size (unlike
 // the circuit board's old viewport-covering "cover" scale) since this is a compact poster-style
@@ -78,6 +81,8 @@ const VERTEX = `
   attribute vec3 aNormalB;
   attribute float aMask;
   attribute float aMaskB;
+  attribute float aPress; // 1 = pressable logo point (social clouds), else 0
+  attribute float aFill; // -1 = always shown; >= 0 = hover-revealed fill point with that reveal delay
   attribute float aFold;
   attribute vec3 aRand;
   uniform mat3 uModelA;
@@ -95,6 +100,9 @@ const VERTEX = `
   uniform float uDestruct;
   uniform float uExplodeDist;
   uniform float uCam;
+  uniform float uPress; // 0..1 how far the logo is pressed in
+  uniform float uPressDist; // model-space units sunk at uPress=1
+  uniform float uFill; // 0..1 hover reveal progress for the fill points
   uniform vec3 uOffA; // A's rotation-pivot compensation (unit space, added after the model rotation)
   varying vec3 vColor;
 
@@ -111,7 +119,11 @@ const VERTEX = `
     return max(facing >= 0.0 ? 0.0 : back, fold * foldFade);
   }
   void main() {
-    vec4 a = place(position, uModelA, uOffA, uCA, uScaleA, uBaseA, aSize);
+    // Pressing sinks the logo points along the model's own vertical (+Y is up in model space), so it reads
+    // as pushing into the chip from any view angle.
+    vec3 posA = position - vec3(0.0, 1.0, 0.0) * aPress * uPress * uPressDist;
+    vec4 a = place(posA, uModelA, uOffA, uCA, uScaleA, uBaseA, aSize);
+    if (aFill >= 0.0) a.w *= smoothstep(0.0, 0.4, uFill - aFill);
     vec3 col = mix(aCol, vec3(1.0), whiteFade(position, aNormal, aMask, aFold, uModelA, uBackA, uFoldA));
     vec3 pos = a.xyz;
     float size = a.w;
@@ -175,6 +187,8 @@ function makePoints(map, a, base, b) {
     rand[i * 3] = r * Math.cos(th) * len; rand[i * 3 + 1] = r * Math.sin(th) * len; rand[i * 3 + 2] = z * len
   }
   g.setAttribute('aRand', new THREE.BufferAttribute(rand, 3))
+  g.setAttribute('aPress', new THREE.BufferAttribute(new Float32Array(a.press ?? new Float32Array(n)), 1))
+  g.setAttribute('aFill', new THREE.BufferAttribute(new Float32Array(a.fill ?? new Float32Array(n).fill(-1)), 1))
   const t = b ?? { positions: a.positions, colors: a.colors, sizes: a.sizes, normals: aNormals, mask: aMask }
   g.setAttribute('aPosB', new THREE.BufferAttribute(new Float32Array(t.positions), 3))
   g.setAttribute('aColB', new THREE.BufferAttribute(new Float32Array(t.colors), 3))
@@ -192,6 +206,7 @@ function makePoints(map, a, base, b) {
       uBaseA: { value: base.a }, uBaseB: { value: base.b ?? base.a },
       uBackA: { value: base.backA ?? 0 }, uBackB: { value: base.backB ?? 0 }, uFoldA: { value: base.foldA ?? 0 },
       uMorph: { value: 0 }, uDestruct: { value: 0 }, uExplodeDist: { value: 0 },
+      uPress: { value: 0 }, uPressDist: { value: 0.05 }, uFill: { value: 0 },
       // uCam feeds place()'s k = uCam/(uCam-r.z) perspective-divide factor; a huge value makes k≈1
       // for any reasonable r.z, i.e. an orthographic (no-perspective) look for this cloud specifically
       // - SocialMediaParticles.js's "no perspective, true isometric" request, without touching the
@@ -332,14 +347,45 @@ export const pinEnd = (anchorName) => () => {
   return sec ? Math.max(1, sec.getBoundingClientRect().bottom + window.scrollY - window.innerHeight) : 1
 }
 
+function logoPoints(cloud) {
+  const out = []
+  for (let i = 0; i < cloud.press.length; i++) if (cloud.press[i]) out.push(cloud.positions[i * 3], cloud.positions[i * 3 + 1], cloud.positions[i * 3 + 2])
+  return new Float32Array(out)
+}
+
+function convexHull(pts) {
+  const p = [...pts].sort((a, b) => a[0] - b[0] || a[1] - b[1])
+  const cross = (o, a, b) => (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0])
+  const half = (list) => {
+    const h = []
+    for (const q of list) {
+      while (h.length >= 2 && cross(h[h.length - 2], h[h.length - 1], q) <= 0) h.pop()
+      h.push(q)
+    }
+    h.pop()
+    return h
+  }
+  return [...half(p), ...half([...p].reverse())]
+}
+function insideHull(hull, x, y) {
+  for (let i = 0; i < hull.length; i++) {
+    const a = hull[i], b = hull[(i + 1) % hull.length]
+    if ((b[0] - a[0]) * (y - a[1]) - (b[1] - a[1]) * (x - a[0]) < 0) return false
+  }
+  return hull.length > 2
+}
+
 function Clouds() {
   const brainGltf = useLoader(GLTFLoader, '/models/brain.glb')
   const chipsGltf = useLoader(GLTFLoader, '/models/chips.glb')
   const dnaText = useLoader(FileLoader, '/models/dna6.dxf', (l) => l.setResponseType('text'))
   const armGltf = useLoader(GLTFLoader, '/models/industry-arm.glb')
   const cityText = useLoader(FileLoader, '/models/smart-city13.dxf', (l) => l.setResponseType('text'))
-  const socialText = useLoader(FileLoader, '/models/social-media4.dxf', (l) => l.setResponseType('text'))
+  // social = YouTube line art, social2 = LinkedIn line art (same layer names/extents as social-media4.dxf).
+  const socialText = useLoader(FileLoader, '/models/social-media-youtube2.dxf', (l) => l.setResponseType('text'))
+  const social2Text = useLoader(FileLoader, '/models/social-media-linkedin.dxf', (l) => l.setResponseType('text'))
   const sway = useRef({ tx: 0, ty: 0, x: 0, y: 0 })
+  const press = useRef({ hover: false, down: false, value: 0, fill: 0 }) // the social logo's press state
   const anchors = useRef({})
   // Animated by the ScrollTrigger timelines below; read every frame. One per transition.
   const anim1 = useRef({ move: 0, spin: 0, slide: 0, turn: 0, destruct: 0, morph: 0 }) // brain -> VLSI-CAD
@@ -361,9 +407,9 @@ function Clouds() {
     const armStage = rotated(arm.positions, qArm).map((v) => v * 260)
     // The arm has more points than the city: match the arm to the city and grow the extras out of it.
     const ex4 = expandedSource(city, arm, matchClouds(armStage, cityStage))
-    const social = buildSocialMediaCloud(socialText)
+    const social = buildSocialMediaCloud(socialText, false, YOUTUBE_BRAND_COLOR, { '次级芯片-颜色2': YOUTUBE_SAT2_COLOR, '次级芯片-颜色2上的图案': YOUTUBE_SAT2_COLOR }, { skipOutermost: true })
     // Circuit-trace drawing is switched off per request; pass `true` as a 2nd arg to bring it back.
-    const social2 = buildSocialMediaCloud(socialText)
+    const social2 = buildSocialMediaCloud(social2Text, false, LINKEDIN_BRAND_COLOR, null, true)
     const qSocial = new THREE.Quaternion(...SOCIAL_ORIENTATION)
     const qVlsi = new THREE.Quaternion(...VLSI_ORIENTATION)
     const vlsiStage = rotated(vlsi.positions, qVlsi).map((v) => v * 260)
@@ -394,9 +440,11 @@ function Clouds() {
       // an exact duplicate of `social` (trace network currently disabled), same material options. Its own THREE.Points instance since `social` and `social2` need to be
       // independently shown/hidden and (once there's an actual transition) independently positioned.
       social2: makePoints(map, social2, { a: SOCIAL_PARTICLE_SIZE, orthographic: true, depthTest: false, depthWrite: false }),
+      // Model-space points of each stage's pressable logo layer, for the screen-space hit test below.
+      socialLogo: logoPoints(social), social2Logo: logoPoints(social2),
       qVlsi, qCity, qArm, qSocial,
     }
-  }, [brainGltf, chipsGltf, dnaText, cityText, armGltf, socialText])
+  }, [brainGltf, chipsGltf, dnaText, cityText, armGltf, socialText, social2Text])
 
   // Scroll-scrubbed timelines. Transition 1 runs from the top of the page until the first theme is
   // pinned; transition 2 from when that theme's pin releases until the second theme is pinned. In
@@ -429,6 +477,78 @@ function Clouds() {
     window.addEventListener('pointermove', onMove, { passive: true })
     return () => window.removeEventListener('pointermove', onMove)
   }, [])
+
+  // The pressable logo (social / social2). The canvas sits under the page content and takes no pointer
+  // events, so hover/press/click are hit-tested here in screen space: the logo layer's points are
+  // projected exactly the way the vertex shader does it and their convex hull is the button.
+  useEffect(() => {
+    const st = press.current
+    const active = () => (scene.social2.visible ? { obj: scene.social2, pts: scene.social2Logo, url: LINKEDIN_URL, label: 'Follow on LinkedIn ↗' } : scene.social.visible ? { obj: scene.social, pts: scene.socialLogo, url: YOUTUBE_URL, label: 'Watch on YouTube ↗' } : null)
+    const hitTest = (e) => {
+      const stage = active()
+      if (!stage) return null
+      // Not when something opaque or interactive is on top of the canvas at that point.
+      let el = document.elementFromPoint(e.clientX, e.clientY)
+      if (el?.closest('a,button,input,select,textarea,[role="button"]')) return null
+      // Only elements inside <main> (z-10, above the canvas) can cover it; the page wrapper's own mint
+      // background sits underneath the canvas.
+      if (!el?.closest('main')) return null
+      for (; el; el = el.parentElement) {
+        const bg = getComputedStyle(el).backgroundColor
+        if (bg !== 'transparent' && !/^rgba\(.*,\s*0\)$/.test(bg)) return null
+        if (el.tagName === 'MAIN') break
+      }
+      const m = stage.obj.material.uniforms.uModelA.value.elements
+      const px = stage.obj.material.uniforms.uScaleA.value
+      const cx = window.innerWidth / 2, cy = window.innerHeight / 2
+      const pts = []
+      for (let i = 0; i < stage.pts.length; i += 3) {
+        const x = stage.pts[i], y = stage.pts[i + 1], z = stage.pts[i + 2]
+        pts.push([cx + (m[0] * x + m[3] * y + m[6] * z) * px, cy - (m[1] * x + m[4] * y + m[7] * z) * px])
+      }
+      return insideHull(convexHull(pts), e.clientX, e.clientY) ? stage : null
+    }
+    // Hover label: a small navy pill that follows the cursor while it's over the logo.
+    const tip = document.createElement('div')
+    Object.assign(tip.style, {
+      position: 'fixed', left: '0', top: '0', zIndex: '60', pointerEvents: 'none', opacity: '0',
+      padding: '6px 14px', borderRadius: '999px', background: '#002843', color: '#fff',
+      font: '600 14px/1.2 var(--font-body), system-ui, sans-serif', whiteSpace: 'nowrap',
+      boxShadow: '0 4px 14px rgba(0,40,67,0.25)', transition: 'opacity 160ms ease, transform 160ms ease',
+      transform: 'translate(0,6px)',
+    })
+    document.body.appendChild(tip)
+    const moveTip = (e, stage) => {
+      if (stage) tip.textContent = stage.label
+      tip.style.left = `${e.clientX + 16}px`
+      tip.style.top = `${e.clientY + 18}px`
+      tip.style.opacity = stage ? '1' : '0'
+      tip.style.transform = stage ? 'translate(0,0)' : 'translate(0,6px)'
+    }
+
+    const setCursor = (on) => { document.documentElement.style.cursor = on ? 'pointer' : '' }
+    const onMove = (e) => { const stage = hitTest(e); st.hover = !!stage; setCursor(st.hover); moveTip(e, stage) }
+    const onDown = (e) => { if (e.button === 0 && hitTest(e)) st.down = true }
+    const onUp = () => { st.down = false }
+    const onClick = (e) => {
+      const stage = hitTest(e)
+      if (stage) window.open(stage.url, '_blank', 'noopener,noreferrer')
+    }
+    window.addEventListener('pointermove', onMove)
+    window.addEventListener('pointerdown', onDown)
+    window.addEventListener('pointerup', onUp)
+    window.addEventListener('pointercancel', onUp)
+    window.addEventListener('click', onClick)
+    return () => {
+      window.removeEventListener('pointermove', onMove)
+      window.removeEventListener('pointerdown', onDown)
+      window.removeEventListener('pointerup', onUp)
+      window.removeEventListener('pointercancel', onUp)
+      window.removeEventListener('click', onClick)
+      tip.remove()
+      setCursor(false)
+    }
+  }, [scene])
 
   const anchorEl = (name) => {
     let el = anchors.current[name]
@@ -621,6 +741,16 @@ function Clouds() {
         u.uCA.value.set(0, 0)
         u.uScaleA.value = SOCIAL_SCALE_PX
         setMirroredModel(u.uModelA.value, _q3)
+      }
+      // Ease the press: hover sinks the logo a little, a held press sinks it fully, release springs back.
+      const st = press.current
+      const target = st.down ? 1 : st.hover ? 0.3 : 0
+      st.value += (target - st.value) * (1 - Math.exp(-(target > st.value ? 22 : 12) * delta))
+      // Hover reveals the LinkedIn logo's blue fill points (linear ramp so it lands exactly on 1 / 0).
+      st.fill = Math.max(0, Math.min(1, st.fill + (st.hover ? 2.2 : -3) * delta))
+      for (const obj of [scene.social, scene.social2]) {
+        obj.material.uniforms.uPress.value = st.value
+        obj.material.uniforms.uFill.value = st.fill
       }
     }
   })

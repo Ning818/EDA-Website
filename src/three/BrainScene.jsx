@@ -1,5 +1,5 @@
 import { useRef } from 'react'
-import { brainState } from './cloudState'
+import { brainState, isMobileView } from './cloudState'
 
 /**
  * Drop-in for ParticlePlaceholder in the Hero section. It no longer owns a canvas: it's the brain's
@@ -12,15 +12,16 @@ export default function BrainScene({ className }) {
   return (
     <div
       data-cloud="brain"
-      className={`${className ?? ''} cursor-grab active:cursor-grabbing`}
-      style={{ touchAction: 'pan-y' }}
+      // Drag-to-spin is a desktop interaction; on the phone layout the brain is look-only (the page just scrolls).
+      className={`${className ?? ''} md:cursor-grab md:active:cursor-grabbing md:[touch-action:pan-y]`}
       onPointerDown={(e) => {
+        if (isMobileView()) return
         brainState.dragging = true
         last.current = e.clientX
         e.currentTarget.setPointerCapture(e.pointerId)
       }}
       onPointerMove={(e) => {
-        if (!brainState.dragging) return
+        if (isMobileView() || !brainState.dragging) return
         const dx = e.clientX - last.current
         last.current = e.clientX
         // Same feel as OrbitControls' rotate: a full canvas height of drag is one full turn.

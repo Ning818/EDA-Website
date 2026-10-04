@@ -22,10 +22,22 @@ export default function Footer() {
   return (
     <footer className="relative z-10 w-full mt-10 bg-mint md:mt-16">
       <div className="border-t border-navy/70">
-        <div className="mx-auto flex max-w-[1440px] flex-wrap items-start justify-between gap-y-10 px-8 py-12 lg:px-[120px]">
-          <div className="flex shrink-0 items-center gap-6 self-center">
-            <img src={politoLogo} alt="Politecnico di Torino" className="h-[106px] w-[240px]" />
-            <img src={edaLogoText} alt="EDA Group" className="h-[105px] w-[210px] object-cover" />
+        {/* Bottom padding is tighter on the phone layout, so the LinkedIn / YouTube icons (the last thing in the column)
+            sit closer to the Copyright line. */}
+        <div className="mx-auto flex max-w-[1440px] flex-wrap items-start justify-between gap-y-10 px-8 pb-6 pt-12 md:pb-12 lg:px-[120px]">
+          {/* The two logos sit side by side while they fit (240 + 24 + 198px); when the screen is too narrow for that, the second one wraps below the first, with a roomier gap between them. */}
+          <div className="flex max-w-full flex-wrap items-center gap-x-6 gap-y-8 self-center">
+            <img src={politoLogo} alt="Politecnico di Torino" className="h-[106px] w-[240px] shrink-0" />
+            {/* eda-logo-text.png is 500x250 with transparent margins; its visible part is x 10-401, y 19-228 (392 x 210).
+                Scaled so that visible height is 106px - the same as the Polito logo's - and cropped to exactly that area. */}
+            <div className="relative h-[106px] w-[198px] shrink-0 overflow-hidden">
+              <img
+                src={edaLogoText}
+                alt="EDA Group"
+                className="absolute max-w-none"
+                style={{ width: 252.4, height: 126.2, left: -5.05, top: -9.59 }}
+              />
+            </div>
           </div>
 
           <div className="flex flex-col gap-3 font-body text-lg text-navy">
@@ -63,7 +75,7 @@ export default function Footer() {
         </div>
       </div>
 
-      <div className="mx-auto max-w-[1440px] px-8 py-6 lg:px-[120px]">
+      <div className="mx-auto max-w-[1440px] px-8 pb-6 pt-4 md:pt-6 lg:px-[120px]">
         <p className="font-body text-sm text-navy">
           Copyright © 2026{' '}
           <a href="https://eda.polito.it/" target="_blank" rel="noreferrer" className="underline">

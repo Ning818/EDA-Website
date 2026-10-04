@@ -10,7 +10,7 @@
 export default function VLSICADScene({ className }) {
   return (
     <div className={`${className ?? ''} relative`}>
-      <div data-cloud="vlsi" className="absolute left-[calc(50%-57.5px)] top-1/2 aspect-square w-[245%] -translate-x-1/2 -translate-y-1/2 pointer-events-none">
+      <div data-cloud="vlsi" className="phone-cloud absolute left-[calc(50%-57.5px)] top-1/2 aspect-square w-[245%] -translate-x-1/2 -translate-y-1/2 pointer-events-none" style={{ '--fw': 0.531, '--fh': 0.527, '--fx': 0.042, '--fy': 0.028 }}>
       </div>
     </div>
   )

@@ -15,18 +15,120 @@ import lucaBarbierato from '../assets/images/professors/luca-barbierato.jpg'
 import santaDiCataldo from '../assets/images/professors/santa-di-cataldo.jpg'
 import saraVinco from '../assets/images/professors/sara-vinco.jpg'
 
+// `links` (Polito Page / ORCID Publication / LinkedIn) show on the card's hover state; a missing key hides its row.
+// Taken from each person's own polito.it staff page (the ORCID ids were also checked against pub.orcid.org's name
+// for that id); the LinkedIn links of Burrello, Ponzio, Bottaccioli, Di Cataldo and Vinco were given by the user.
+// Macii has no LinkedIn yet, so that row is hidden on his card.
 const PROFESSORS = [
-  { photo: enricoMacii, name: 'Enrico Macii', title: 'Full Professor' },
-  { photo: alessandroAliberti, name: 'Alessandro Aliberti', title: 'Assistant Professor' },
-  { photo: alessioBurrello, name: 'Alessio Burrello', title: 'Assistant Professor' },
-  { photo: danieleJahierPagliari, name: 'Daniele Jahier Pagliari', title: 'Associate Professor' },
-  { photo: edoardoPatti, name: 'Edoardo Patti', title: 'Associate Professor' },
-  { photo: francescoPonzio, name: 'Francesco Ponzio', title: 'Assistant Professor' },
-  { photo: gianvitoUrgese, name: 'Gianvito Urgese', title: 'Associate Professor' },
-  { photo: lorenzoBottaccioli, name: 'Lorenzo Bottaccioli', title: 'Associate Professor' },
-  { photo: lucaBarbierato, name: 'Luca Barbierato', title: 'Assistant Professor' },
-  { photo: santaDiCataldo, name: 'Santa Di Cataldo', title: 'Associate Professor' },
-  { photo: saraVinco, name: 'Sara Vinco', title: 'Associate Professor' },
+  {
+    photo: enricoMacii,
+    name: 'Enrico Macii',
+    title: 'Full Professor',
+    links: {
+      polito: 'https://www.polito.it/personale?p=002042',
+      orcid: 'https://orcid.org/0000-0001-9046-5618',
+    },
+  },
+  {
+    photo: alessandroAliberti,
+    name: 'Alessandro Aliberti',
+    title: 'Assistant Professor',
+    links: {
+      polito: 'https://www.polito.it/personale?p=040463',
+      orcid: 'https://orcid.org/0000-0001-8828-608X',
+      linkedin: 'https://www.linkedin.com/in/alessandro-aliberti/',
+    },
+  },
+  {
+    photo: alessioBurrello,
+    name: 'Alessio Burrello',
+    title: 'Assistant Professor',
+    links: {
+      polito: 'https://www.polito.it/personale?p=036284',
+      orcid: 'https://orcid.org/0000-0002-6215-8220',
+      linkedin: 'https://www.linkedin.com/in/alessio-burrello-750533107/',
+    },
+  },
+  {
+    photo: danieleJahierPagliari,
+    name: 'Daniele Jahier Pagliari',
+    title: 'Associate Professor',
+    links: {
+      polito: 'https://www.polito.it/personale?p=035148',
+      orcid: 'https://orcid.org/0000-0002-2872-7071',
+      linkedin: 'https://www.linkedin.com/in/danielejahierpagliari/',
+    },
+  },
+  {
+    photo: edoardoPatti,
+    name: 'Edoardo Patti',
+    title: 'Associate Professor',
+    links: {
+      polito: 'https://www.polito.it/personale?p=024365',
+      orcid: 'https://orcid.org/0000-0002-6043-6477',
+      linkedin: 'https://www.linkedin.com/in/edoardopatti/',
+    },
+  },
+  {
+    photo: francescoPonzio,
+    name: 'Francesco Ponzio',
+    title: 'Assistant Professor',
+    links: {
+      polito: 'https://www.polito.it/personale?p=038677',
+      orcid: 'https://orcid.org/0000-0002-8472-8247',
+      linkedin: 'https://www.linkedin.com/in/francesco-ponzio-biomedical-engineer/',
+    },
+  },
+  {
+    photo: gianvitoUrgese,
+    name: 'Gianvito Urgese',
+    title: 'Associate Professor',
+    links: {
+      polito: 'https://www.polito.it/personale?p=018489',
+      orcid: 'https://orcid.org/0000-0003-2672-7593',
+      linkedin: 'https://www.linkedin.com/in/gianvito-urgese-5bb2668a/',
+    },
+  },
+  {
+    photo: lorenzoBottaccioli,
+    name: 'Lorenzo Bottaccioli',
+    title: 'Associate Professor',
+    links: {
+      polito: 'https://www.polito.it/personale?p=036638',
+      orcid: 'https://orcid.org/0000-0001-7445-3975',
+      linkedin: 'https://www.linkedin.com/in/lorenzo-bottaccioli-4342806a/',
+    },
+  },
+  {
+    photo: lucaBarbierato,
+    name: 'Luca Barbierato',
+    title: 'Assistant Professor',
+    links: {
+      polito: 'https://www.polito.it/personale?p=038687',
+      orcid: 'https://orcid.org/0000-0001-6470-3299',
+      linkedin: 'https://www.linkedin.com/in/luca-barbierato-ph-d-3937a75b/',
+    },
+  },
+  {
+    photo: santaDiCataldo,
+    name: 'Santa Di Cataldo',
+    title: 'Associate Professor',
+    links: {
+      polito: 'https://www.polito.it/personale?p=019491',
+      orcid: 'https://orcid.org/0000-0002-6239-8945',
+      linkedin: 'https://www.linkedin.com/in/santadicataldo/',
+    },
+  },
+  {
+    photo: saraVinco,
+    name: 'Sara Vinco',
+    title: 'Associate Professor',
+    links: {
+      polito: 'https://www.polito.it/personale?p=032283',
+      orcid: 'https://orcid.org/0000-0001-9666-5194',
+      linkedin: 'https://www.linkedin.com/in/sara-vinco/',
+    },
+  },
 ]
 
 // The other sidebar tabs (Phd Students / Alumni / Administrative Clerks) don't have
@@ -50,7 +152,7 @@ export default function Teaching() {
         collective.
       </PageIntroBand>
 
-      <div className="mx-auto flex max-w-[1440px] flex-col px-8 py-6 lg:flex-row lg:gap-6 lg:px-[120px]">
+      <div className="mx-auto flex max-w-[1440px] flex-col gap-6 px-8 py-6 lg:flex-row lg:px-[120px]">
         <TeachingSidebar active={active} onSelect={setActive} />
         <ProfessorGrid professors={people} />
       </div>

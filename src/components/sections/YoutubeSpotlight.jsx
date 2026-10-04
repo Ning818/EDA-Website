@@ -1,7 +1,9 @@
 import ArrowLink from '../ui/ArrowLink'
 import youtubeThumbnail from '../../assets/images/youtube-thumbnail.png'
 
-const CHANNEL_URL = 'https://www.youtube.com/@edagrouppolito329/videos'
+import { YOUTUBE_COPY } from './socialCopyText'
+
+const CHANNEL_URL = YOUTUBE_COPY.url
 
 export default function YoutubeSpotlight() {
   return (
@@ -11,14 +13,9 @@ export default function YoutubeSpotlight() {
           <img src={youtubeThumbnail} alt="EDA Group YouTube channel" className="w-full rounded-sm md:w-[564px]" />
         </a>
         <div className="flex max-w-[554px] flex-col gap-8">
-          <p className="font-body text-2xl leading-[1.45] text-white">
-            Discover how our automated techniques are transforming complex systems through interdisciplinary research
-            across VLSI-CAD, Bioinformatics, and Smart City domains. By collaborating closely with research
-            institutions and industry experts, we develop innovative digital twin and co-simulation solutions.
-            Explore our YouTube channel to see our tools in action and view our latest technical developments.
-          </p>
+          <p className="font-body text-2xl leading-[1.45] text-white">{YOUTUBE_COPY.text}</p>
           <ArrowLink to={CHANNEL_URL} tone="white" variant="circle" underline>
-            Explore our YouTube channel
+            {YOUTUBE_COPY.cta}
           </ArrowLink>
         </div>
       </div>

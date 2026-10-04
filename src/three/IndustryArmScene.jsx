@@ -19,7 +19,7 @@ export default function IndustryArmScene({ className }) {
           30% pulls it back to a roughly constant ~25-40px margin across that whole range, without
           pushing its left side (the claw) into the text links to its left. top-[calc(50%+20px)]:
           nudged 10px down from box-center, then another 10px the same way, per request. */}
-      <div data-cloud="arm" className="absolute left-[calc(31.94%+20px)] top-[calc(50%+20px)] aspect-square w-[245%] -translate-x-1/2 -translate-y-1/2 pointer-events-none">
+      <div data-cloud="arm" className="phone-cloud absolute left-[calc(31.94%+20px)] top-[calc(50%+20px)] aspect-square w-[245%] -translate-x-1/2 -translate-y-1/2 pointer-events-none" style={{ '--fw': 0.574, '--fh': 0.479, '--fx': 0.07, '--fy': -0.021 }}>
       </div>
     </div>
   )

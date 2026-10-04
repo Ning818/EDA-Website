@@ -33,13 +33,31 @@ const NAV_LINKS = [
 ]
 
 export default function Header() {
-  const { pathname } = useLocation()
+  const { pathname, key } = useLocation()
   const isHome = pathname === '/'
+
+  // Phone layout (below `md`): the nav links collapse behind a hamburger button that unfolds them as a vertical list
+  // under the logo row. Research / Projects (which only host a dropdown on desktop) are accordion groups in it.
+  const [menuOpen, setMenuOpen] = useState(false)
+  const [openGroup, setOpenGroup] = useState(null)
+  useEffect(() => {
+    setMenuOpen(false) // any navigation (a menu link, the logo, back/forward) folds the menu away
+    setOpenGroup(null)
+  }, [key])
+  useEffect(() => {
+    if (!menuOpen) return
+    const onKey = (e) => e.key === 'Escape' && setMenuOpen(false)
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [menuOpen])
 
   // On the Home page: hide the header on scroll-down (slides up and off the top), reveal it
   // again on scroll-up (slides back down into view).
   const [hidden, setHidden] = useState(false)
   const lastY = useRef(0)
+  useEffect(() => {
+    if (hidden) setMenuOpen(false) // scrolling the page away folds an open phone menu
+  }, [hidden])
 
   useEffect(() => {
     if (!isHome) {
@@ -100,15 +118,21 @@ export default function Header() {
   return (
     <>
       <header
-        ref={headerRef}
-        className={`w-full bg-mint/30 backdrop-blur-sm ${isHome ? 'fixed inset-x-0 top-0 z-50' : ''}`}
+        className={`w-full backdrop-blur-sm ${menuOpen ? 'bg-mint md:bg-mint/30' : 'bg-mint/30'} ${
+          isHome ? 'fixed inset-x-0 top-0 z-50' : ''
+        }`}
         style={{
-          transition: 'transform 300ms ease-in-out',
+          transition: 'transform 300ms ease-in-out, background-color 300ms ease',
           transform: isHome && hidden ? 'translateY(-100%)' : 'translateY(0)',
           willChange: isHome ? 'transform' : undefined,
         }}
       >
-        <div className="mx-auto flex max-w-[1440px] flex-wrap items-center justify-between gap-4 px-6 py-3 lg:flex-nowrap lg:px-[120px]">
+        {/* The measured row is just the logo + nav line: the phone menu unfolds below it and overlays the page, so it
+            must not count towards the spacer / --header-h. */}
+        <div
+          ref={headerRef}
+          className="mx-auto flex max-w-[1440px] flex-wrap items-center justify-between gap-4 px-6 py-3 lg:flex-nowrap lg:px-[120px]"
+        >
           <NavLink to="/" className="flex shrink-0 items-center gap-2 lg:gap-3">
             <img src={edaLogo} alt="EDA Group logo" className="size-[44.8px] object-cover lg:size-[68.6px]" />
             {/* Matches the nav links' own flex-col label+underline structure below (text +
@@ -182,6 +206,111 @@ export default function Header() {
               )
             })}
           </nav>
+
+          <button
+            type="button"
+            aria-label={menuOpen ? 'Close menu' : 'Open menu'}
+            aria-expanded={menuOpen}
+            aria-controls="mobile-nav"
+            onClick={() => setMenuOpen((o) => !o)}
+            className="-mr-2 flex size-11 shrink-0 items-center justify-center md:hidden"
+          >
+            {/* Three bars that turn into a cross while the menu is open */}
+            <span className="relative block h-4 w-6" aria-hidden="true">
+              <span
+                className={`absolute left-0 h-[2px] w-full bg-navy transition-all duration-300 ${
+                  menuOpen ? 'top-[7px] rotate-45' : 'top-0'
+                }`}
+              />
+              <span
+                className={`absolute left-0 top-[7px] h-[2px] w-full bg-navy transition-opacity duration-200 ${
+                  menuOpen ? 'opacity-0' : ''
+                }`}
+              />
+              <span
+                className={`absolute left-0 h-[2px] w-full bg-navy transition-all duration-300 ${
+                  menuOpen ? 'top-[7px] -rotate-45' : 'top-[14px]'
+                }`}
+              />
+            </span>
+          </button>
+        </div>
+
+        {/* Phone menu: unfolds downwards (grid row 0fr -> 1fr) under the logo row. `inert` while folded so its links
+            can't be tabbed to. */}
+        <div
+          id="mobile-nav"
+          inert={!menuOpen}
+          className={`grid transition-[grid-template-rows] duration-300 ease-out md:hidden ${
+            menuOpen ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'
+          }`}
+        >
+          <div className="overflow-hidden">
+            <ul className="mx-auto max-w-[1440px] px-6 pb-3">
+              {NAV_LINKS.map((link) => {
+                const groupOpen = openGroup === link.label
+                return (
+                  <li key={link.to} className="border-t border-navy/10">
+                    {link.dropdown ? (
+                      <>
+                        <button
+                          type="button"
+                          aria-expanded={groupOpen}
+                          onClick={() => setOpenGroup(groupOpen ? null : link.label)}
+                          className={`flex w-full items-center justify-between py-3.5 font-heading text-lg text-navy ${
+                            pathname === link.to ? 'font-bold' : 'font-medium'
+                          }`}
+                        >
+                          {link.label}
+                          <svg
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            className={`size-5 transition-transform duration-300 ${groupOpen ? 'rotate-180' : ''}`}
+                            aria-hidden="true"
+                          >
+                            <path d="m6 9 6 6 6-6" />
+                          </svg>
+                        </button>
+                        <div
+                          inert={!groupOpen}
+                          className={`grid transition-[grid-template-rows] duration-300 ease-out ${
+                            groupOpen ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'
+                          }`}
+                        >
+                          <ul className="overflow-hidden">
+                            {link.dropdown.map((item) => (
+                              <li key={item.label}>
+                                <NavLink
+                                  to={item.to}
+                                  className="block py-2.5 pl-4 font-body text-base text-navy active:bg-navy/10"
+                                >
+                                  {item.label}
+                                </NavLink>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      </>
+                    ) : (
+                      <NavLink
+                        to={link.to}
+                        end
+                        className={`block py-3.5 font-heading text-lg text-navy ${
+                          pathname === link.to ? 'font-bold' : 'font-medium'
+                        }`}
+                      >
+                        {link.label}
+                      </NavLink>
+                    )}
+                  </li>
+                )
+              })}
+            </ul>
+          </div>
         </div>
       </header>
       {isHome && <div style={{ height: spacerHeight }} aria-hidden="true" />}

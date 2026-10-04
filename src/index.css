@@ -12,6 +12,34 @@
   --color-placeholder: #d9d9d9;
 }
 
+/* "Flipped" state of a Teaching professor card (a `group`): on a real desktop (hover-capable pointer, md and up) it is
+   the hover; on the phone layout / touch devices, where there is no hover, it is a tap (ProfessorGrid sets
+   data-open on the card). Used as `card-open:...` on the card's descendants. */
+@custom-variant card-open {
+  &:is(:where(.group)[data-open] *) {
+    @slot;
+  }
+  @media (hover: hover) and (min-width: 768px) {
+    &:is(:where(.group):hover *) {
+      @slot;
+    }
+  }
+}
+
+/* Phone layout: a theme's cloud anchor (VLSICADScene & co.) is sized and placed so that its cloud fits the visual box it
+   lives in (the box is a size container there, see Home.jsx) and sits centred in it. --fw / --fh are the cloud's width /
+   height as a fraction of the anchor's size, --fx / --fy where the cloud's centre lies relative to the anchor's own
+   centre (also fractions of its size); measured from the rendered clouds. 24px of bleed past the box's width: the
+   outermost points are sparse. */
+@media (max-width: 767px) {
+  .phone-cloud {
+    --s: min(calc((100cqw + 24px) / var(--fw)), calc(100cqh / var(--fh)));
+    width: var(--s);
+    left: calc(50% - var(--s) * var(--fx));
+    top: calc(50% - var(--s) * var(--fy));
+  }
+}
+
 /* Industry 4.0's particle background (IndustryArmScene) is intentionally oversized
    (w-[245%]) and allowed to overflow its own section - without clipping it at the root,
    that overflow inflates the whole document's scrollable width and shows a horizontal

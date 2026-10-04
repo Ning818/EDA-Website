@@ -9,7 +9,7 @@
 export default function DNAScene({ className }) {
   return (
     <div className={`${className ?? ''} relative`}>
-      <div data-cloud="dna" className="absolute left-[45%] top-1/2 aspect-square w-[245%] -translate-x-1/2 -translate-y-1/2 pointer-events-none">
+      <div data-cloud="dna" className="phone-cloud absolute left-[45%] top-1/2 aspect-square w-[245%] -translate-x-1/2 -translate-y-1/2 pointer-events-none" style={{ '--fw': 0.683, '--fh': 0.667, '--fx': 0, '--fy': -0.02 }}>
       </div>
     </div>
   )

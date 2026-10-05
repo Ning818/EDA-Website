@@ -23,7 +23,7 @@ const WHITE_FADE = 0.7
 // themselves are this new palette.
 const ANCHORS = [
   { pos: [-0.48, 0.24, 0.13], color: new THREE.Color('#6a6fc4') }, // 紫色
-  { pos: [0.48, 0.24, 0.13], color: new THREE.Color('#4a9db3') }, // 另一种蓝绿色
+  { pos: [0.48, 0.24, 0.13], color: new THREE.Color('#2f86b3') }, // 偏绿的海洋蓝（智慧城市的主题色，同 SmartCityParticles.jsx 的 SMART_CITY_COLOR）
   { pos: [-0.39, -0.3, 0.17], color: new THREE.Color('#3fb0b8') }, // 蓝绿色
   { pos: [0.39, -0.3, 0.17], color: new THREE.Color('#4ab47a') }, // 绿色
 ]

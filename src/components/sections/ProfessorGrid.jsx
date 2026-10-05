@@ -60,10 +60,10 @@ function ProfessorCard({ photo, name, title, links }) {
         <div
           className="absolute inset-x-4 top-[214px] flex flex-col transition-[top] duration-[744ms] ease-[cubic-bezier(0.34,1.3,0.64,1)] card-open:top-5"
         >
-          <p className={`font-heading text-lg font-bold leading-7 text-navy transition-colors duration-[744ms] ${SPRING} card-open:text-white`}>
+          <p className={`font-heading text-base font-bold md:text-lg leading-7 text-navy transition-colors duration-[744ms] ${SPRING} card-open:text-white`}>
             {name}
           </p>
-          <p className="mt-1 max-h-6 overflow-hidden font-body text-base text-[#839794] opacity-100 transition-[opacity,max-height,margin] duration-300 ease-out card-open:mt-0 card-open:max-h-0 card-open:opacity-0">
+          <p className="mt-1 max-h-6 overflow-hidden font-body text-sm text-[#839794] md:text-base opacity-100 transition-[opacity,max-height,margin] duration-300 ease-out card-open:mt-0 card-open:max-h-0 card-open:opacity-0">
             {title}
           </p>
           <dl className="pointer-events-none flex max-h-0 flex-col gap-2.5 overflow-hidden opacity-0 transition-[max-height,opacity,margin] duration-500 ease-out card-open:pointer-events-auto card-open:mt-3 card-open:max-h-[220px] card-open:opacity-100">
@@ -94,10 +94,10 @@ function ProfessorCard({ photo, name, title, links }) {
       <div
         className={`absolute inset-x-0 bottom-0 flex h-[79px] flex-col justify-center gap-1 bg-white p-4 transition-[height,background-color] duration-[744ms] ${SPRING} card-open:h-full card-open:bg-navy`}
       >
-        <p className={`font-heading text-lg font-bold text-navy transition-colors duration-[744ms] ${SPRING} card-open:text-white`}>
+        <p className={`font-heading text-base font-bold md:text-lg text-navy transition-colors duration-[744ms] ${SPRING} card-open:text-white`}>
           {name}
         </p>
-        <p className="font-body text-base text-[#839794] opacity-100 transition-opacity duration-200 card-open:opacity-0">
+        <p className="font-body text-sm text-[#839794] md:text-base opacity-100 transition-opacity duration-200 card-open:opacity-0">
           {title}
         </p>
       </div>

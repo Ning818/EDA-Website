@@ -7,8 +7,8 @@ import ArrowLink from '../ui/ArrowLink'
 export default function HighlightBand({ title, children, image, imageAlt, ctaLabel, ctaTo, imageSide = 'left', dark = false }) {
   const textBlock = (
     <div className="flex w-full max-w-[564px] flex-col gap-6">
-      <h2 className={`font-heading text-4xl font-bold ${dark ? 'text-white' : 'text-navy'}`}>{title}</h2>
-      <p className={`font-body text-2xl leading-[1.45] ${dark ? 'text-white' : 'text-navy'}`}>{children}</p>
+      <h2 className={`font-heading text-2xl font-bold md:text-4xl ${dark ? 'text-white' : 'text-navy'}`}>{title}</h2>
+      <p className={`font-body text-base leading-[1.45] md:text-2xl ${dark ? 'text-white' : 'text-navy'}`}>{children}</p>
       <ArrowLink to={ctaTo} variant="circle" tone={dark ? 'white' : 'navy'} underline>
         {ctaLabel}
       </ArrowLink>

@@ -24,7 +24,7 @@ const CURVE_SEGMENTS = 1000
 export const DNA_PARTICLE_SIZE = 0.028
 const PARTICLE_SIZE = DNA_PARTICLE_SIZE
 // Bioinformatics' theme accent from particle_brain_demo_logo_24.html's anchor set - the one
-// remaining anchor color not already claimed by Smart City ('#4a9db3') or Industry 4.0
+// remaining anchor color not already claimed by Smart City ('#2f86b3', formerly '#4a9db3') or Industry 4.0
 // ('#6a6fc4'). Used for the plain "DNA" layer; the "亮色DNA" (bright-color DNA) layer reuses
 // Smart City's ROAD_COLOR so a highlighted strand reads as a distinct accent the same way Smart
 // City's road network does.

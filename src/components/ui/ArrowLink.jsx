@@ -13,7 +13,7 @@ import arrowCircleNavy from '../../assets/images/arrow-circle-navy.svg'
  */
 // The label's underline: a 2px bar painted as a background, 0% wide until the link is hovered/focused, then
 // growing to 100% from the left. `clone` so each wrapped line of a long label gets its own bar.
-const UNDERLINE_ANIM =
+export const UNDERLINE_ANIM =
   'bg-[linear-gradient(currentColor,currentColor)] bg-no-repeat bg-left-bottom bg-[length:0%_2px] pb-[2px] [box-decoration-break:clone] transition-[background-size] duration-300 ease-out group-hover:bg-[length:100%_2px] group-focus-visible:bg-[length:100%_2px]'
 
 // In-site paths navigate client-side (so App's ScrollToTop applies, no full page reload); full URLs stay plain anchors.
@@ -29,7 +29,7 @@ export default function ArrowLink({ to = '#', children, tone = 'navy', variant =
 
   if (variant === 'circle') {
     return (
-      <Anchor href={to} {...ext} className={`${group}inline-flex items-center gap-4 font-heading ${textClass ?? 'text-[32px]'} font-normal ${toneClasses} ${underline ? 'underline' : ''}`}>
+      <Anchor href={to} {...ext} className={`${group}inline-flex items-center gap-4 font-heading ${textClass ?? 'text-xl md:text-[32px]'} font-normal ${toneClasses} ${underline ? 'underline' : ''}`}>
         <img
           src={tone === 'white' ? arrowCircleWhite : arrowCircleNavy}
           alt=""
@@ -42,7 +42,7 @@ export default function ArrowLink({ to = '#', children, tone = 'navy', variant =
   }
 
   return (
-    <Anchor href={to} className={`${group}inline-flex items-center gap-2 font-heading ${textClass ?? 'text-[28px] lg:text-[32px]'} font-normal ${toneClasses}`}>
+    <Anchor href={to} className={`${group}inline-flex items-center gap-2 font-heading ${textClass ?? 'text-lg md:text-[28px] lg:text-[32px]'} font-normal ${toneClasses}`}>
       {label}
       <img src={arrowIcon} alt="" className={`size-8 rotate-90 md:size-12 ${tone === 'white' ? 'invert' : ''}`} />
     </Anchor>

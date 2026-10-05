@@ -12,7 +12,7 @@
 export default function LogoGrid({ title, logos }) {
   return (
     <section className="mx-auto max-w-[1440px] px-8 pt-10 lg:px-[120px]">
-      <h2 className="pb-5 font-heading text-4xl font-bold text-navy">{title}</h2>
+      <h2 className="pb-5 font-heading text-2xl font-bold md:text-4xl text-navy">{title}</h2>
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5">
         {logos.map((logo, i) =>
           logo ? (
@@ -28,7 +28,7 @@ export default function LogoGrid({ title, logos }) {
                 className="pointer-events-none absolute inset-0 flex items-center justify-center bg-[#185a7d] p-3 text-center opacity-0 transition-opacity duration-300 ease-out group-hover:opacity-100"
                 aria-hidden="true"
               >
-                <span className="font-heading text-xl font-bold text-[#f5f4f6]">{logo.alt}</span>
+                <span className="font-heading text-base font-bold text-[#f5f4f6] md:text-xl">{logo.alt}</span>
               </div>
             </div>
           ) : (

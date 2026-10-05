@@ -28,6 +28,8 @@ export default function App() {
         <Route path="/" element={<Home />} />
         <Route path="/research" element={<Research />} />
         <Route path="/research/funded-projects" element={<FundedProjects />} />
+        <Route path="/research/funded-projects/:theme" element={<FundedProjects />} />
+        <Route path="/research/:theme" element={<Research />} />
         <Route path="/collaborations" element={<Collaborations />} />
         <Route path="/teaching" element={<Teaching />} />
       </Routes>

@@ -35,9 +35,117 @@
   .phone-cloud {
     --s: min(calc((100cqw + 24px) / var(--fw)), calc(100cqh / var(--fh)));
     width: var(--s);
+    /* Lifted by half of its distance from the screen top, which is the box's top (4rem: the pinned screen's top padding,
+       ThemeShowcase.jsx) plus the space above the cloud inside the box. */
+    --lift: calc((4rem + (100cqh - var(--s) * var(--fh)) / 2) / 2);
     left: calc(50% - var(--s) * var(--fx));
-    top: calc(50% - var(--s) * var(--fy));
+    top: calc(50% - var(--s) * var(--fy) - var(--lift));
   }
+  /* Clouds at the bottom of the screen (imageSide 'right') are mirrored: sunk by half of their distance from the screen
+     bottom, which is the pinned screen's bottom padding (2rem) plus the space below the cloud inside the box. */
+  [data-side='right'] .phone-cloud {
+    --lift: calc((2rem + (100cqh - var(--s) * var(--fh)) / 2) / -2);
+  }
+}
+
+/* Line art that draws itself in once (the Smart City page headers' skyline, SkylineDecor.jsx): `.line-draw` strokes a path
+   that carries pathLength="1" from nothing to whole, `.line-fade` fades a shape in. */
+@keyframes line-draw {
+  to { stroke-dashoffset: 0; }
+}
+@keyframes line-fade {
+  to { opacity: 1; }
+}
+.line-draw {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: line-draw 1.4s cubic-bezier(0.3, 0.6, 0.3, 1) forwards;
+}
+.line-fade {
+  opacity: 0;
+  animation: line-fade 0.6s ease-out forwards;
+}
+@media (prefers-reduced-motion: reduce) {
+  .line-draw { animation: none; stroke-dashoffset: 0; }
+  .line-fade { animation: none; opacity: 1; }
+}
+
+/* A gentle float for line art (the Bioinformatics headers' helices, molecules and cells): up and down with a slight turn about the
+   shape's own centre. --float-y / --float-r / --float-t / --float-d set the height, the turn, the period and the delay. */
+@keyframes float-drift {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(var(--float-y, -6px)) rotate(var(--float-r, 1.2deg)); }
+}
+.float-drift {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: float-drift var(--float-t, 7s) ease-in-out var(--float-d, 0s) infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .float-drift { animation: none; }
+}
+
+/* The Industry 4.0 page headers' factory (FactoryDecor.jsx) at work. `.gear-spin`: a gear turning about its own centre (--spin-t is
+   the period, --spin-dir 'reverse' for the other way; the meshing gears must all start together). `.arm-swing`: a robot-arm
+   segment rocking between --a0 and --a1 about the point given as its transform-origin (user units). `.belt-crate`: a crate riding
+   the conveyor by --belt-run, one crate spacing, so each ends where the next began; the first one fades in, the last fades
+   out. `.scan-pulse`: the scanner's beam flickering. `.smoke-puff`: a ring of smoke rising from a chimney and fading.
+   `.line-flow`: dashes running along a data line. */
+@keyframes gear-spin {
+  to { transform: rotate(360deg); }
+}
+.gear-spin {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: gear-spin var(--spin-t, 30s) linear infinite;
+  animation-direction: var(--spin-dir, normal);
+}
+@keyframes arm-swing {
+  0%, 100% { transform: rotate(var(--a0, 0deg)); }
+  50% { transform: rotate(var(--a1, 4deg)); }
+}
+.arm-swing {
+  transform-box: view-box;
+  animation: arm-swing var(--arm-t, 6s) ease-in-out var(--arm-d, 0s) infinite;
+}
+@keyframes belt-run {
+  to { transform: translateX(var(--belt-run, 96px)); }
+}
+@keyframes belt-in {
+  0% { opacity: 0; }
+  45%, 100% { opacity: 1; }
+}
+@keyframes belt-out {
+  0%, 40% { opacity: 1; }
+  100% { opacity: 0; }
+}
+.belt-crate { animation: belt-run 8s linear infinite; }
+.belt-crate-first { animation: belt-run 8s linear infinite, belt-in 8s linear infinite; }
+.belt-crate-last { animation: belt-run 8s linear infinite, belt-out 8s linear infinite; }
+@keyframes scan-pulse {
+  0%, 100% { opacity: 0.15; }
+  50% { opacity: 0.85; }
+}
+.scan-pulse { opacity: 0.15; animation: scan-pulse 2.2s ease-in-out infinite; }
+@keyframes smoke-puff {
+  0% { transform: translate(0, 0) scale(0.6); opacity: 0; }
+  15% { opacity: 0.55; }
+  100% { transform: translate(8px, -34px) scale(1.9); opacity: 0; }
+}
+.smoke-puff {
+  transform-box: fill-box;
+  transform-origin: center;
+  opacity: 0;
+  animation: smoke-puff 5s ease-out var(--puff-d, 0s) infinite;
+}
+@keyframes line-flow {
+  to { stroke-dashoffset: -14; }
+}
+.line-flow { animation: line-flow 1.2s linear infinite; }
+@media (prefers-reduced-motion: reduce) {
+  .gear-spin, .arm-swing, .belt-crate, .scan-pulse, .smoke-puff, .line-flow { animation: none; }
+  .belt-crate-first, .belt-crate-last { animation: none; }
+  .scan-pulse { opacity: 0.5; }
 }
 
 /* Industry 4.0's particle background (IndustryArmScene) is intentionally oversized

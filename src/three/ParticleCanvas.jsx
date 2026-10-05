@@ -80,8 +80,11 @@ export const ARM_EXIT_SCREENS = 2.16 // scroll length (in screens) of the arm ->
 // Click targets for the pressable logo layer of each social stage (opened in a new tab).
 const YOUTUBE_URL = 'https://www.youtube.com/@edagrouppolito329/videos'
 const LINKEDIN_URL = 'https://www.linkedin.com/company/edagroup-polito/posts/?feedView=all'
-export const SOCIAL_HOLD_SCREENS = 2 // scroll length (in screens) `social` holds before it morphs into `social2`
-export const SOCIAL_MORPH_SCREENS = 1 // scroll length (in screens) of the in-place social -> social2 morph
+export const SOCIAL_HOLD_SCREENS = 0.6 // scroll length (in screens) `social` holds before it morphs into `social2` (and `social2` holds after it)
+// social1 -> social2 is not scrubbed by the scrollbar: scrolling past the end of social1's hold starts it, and it then runs
+// to the end by itself over this many seconds (scrolling back past that point plays it in reverse). It takes no scroll
+// length of its own. Eased like the clouds' slide (VLSI_SLIDE_EASE): quick off the mark, landing softly with no rebound.
+const SOCIAL_MORPH_SECONDS = 0.5
 // Px-per-model-unit for the social-media composition once formed - a flat on-screen size (unlike
 // the circuit board's old viewport-covering "cover" scale) since this is a compact poster-style
 // composition, not a full-bleed wallpaper. Tuned by eye against the Rhino reference screenshots.
@@ -487,21 +490,39 @@ function scatteredTimeline(anim, start, end) {
  * screen), centred in the space between the top of the page and the copy, shrunk from SOCIAL_SCALE_PX to fit that space and
  * the screen's width. Returns the cloud's origin (px from the screen centre, y up) and scale.
  */
+// The brain's silhouette centre relative to its anchor (fractions of the anchor's height), for the phone layout; the theme
+// clouds carry theirs as --fx / --fy on their anchors.
+const BRAIN_CENTER = { fx: 0.042, fy: -0.008 }
+/**
+ * Phone layout: makes a cloud's full turn (about the screen's vertical axis, applied after its own orientation) go round its
+ * silhouette's centre instead of its origin, so the turn doesn't swing the cloud sideways off the narrow screen. `o` is the
+ * silhouette centre relative to the origin (px), `scale` the cloud's px per unit, `spin` its 0..1 turn progress. Written
+ * into the material's uOffA (unit space, added after the rotation): V - Ry(theta) V for V = the centre's offset.
+ */
+function spinAboutCentre(u, o, scale, spin) {
+  const th = spin * SPIN_TURNS * 2 * Math.PI
+  const vx = o.x / scale
+  u.uOffA.value.set(vx * (1 - Math.cos(th)), 0, vx * Math.sin(th))
+}
 const PHONE_SOCIAL_TOP = 64 // px kept clear at the top (the header slides back in over it)
 const PHONE_SOCIAL_SIDE = 16 // px kept clear at each side
 const PHONE_SOCIAL_GAP = 16 // px between the cloud and the copy
-let socialCopyEls = []
+let socialCopyWrap = null
 function phoneSocial(box, vw, vh) {
-  if (!socialCopyEls.length || !socialCopyEls[0].isConnected) socialCopyEls = [...document.querySelectorAll('[data-social-copy]')]
-  // The taller of the two copy blocks decides, so the cloud doesn't jump between social1 and social2 (offsetTop: no transform).
-  const copyTop = socialCopyEls.length ? Math.min(...socialCopyEls.map((el) => el.offsetTop)) : vh * 0.6
+  if (!socialCopyWrap?.isConnected) socialCopyWrap = document.querySelector('[data-social-copy-wrap]')
+  // The wrapper is as tall as the taller of the two copy blocks (they share its top edge), so the cloud doesn't jump
+  // between social1 and social2.
+  const copyTop = socialCopyWrap ? socialCopyWrap.getBoundingClientRect().top : vh * 0.6
   const availW = vw - 2 * PHONE_SOCIAL_SIDE, availH = Math.max(80, copyTop - PHONE_SOCIAL_GAP - PHONE_SOCIAL_TOP)
   const k = Math.min(1, availW / (box.maxX - box.minX), availH / (box.maxY - box.minY))
   const midY = PHONE_SOCIAL_TOP + availH / 2 // screen y (down) of the cloud's centre
+  const cy = vh / 2 - midY // where the cloud's centre goes (y up from the screen centre)
   return {
     scale: SOCIAL_SCALE_PX * k,
     x: -k * (box.minX + box.maxX) / 2,
-    y: vh / 2 - midY - k * (box.minY + box.maxY) / 2,
+    y: cy - k * (box.minY + box.maxY) / 2,
+    cx: 0,
+    cy,
   }
 }
 
@@ -565,7 +586,8 @@ function Clouds() {
   const anim2 = useRef({ move: 0, spin: 0, collapse: 0, morph: 0 }) // VLSI-CAD -> DNA
   const anim3 = useRef({ move: 0, spin: 0, collapse: 0, morph: 0 }) // DNA -> Smart City
   const anim5 = useRef({ move: 0, spin: 0, destruct: 0, morph: 0 }) // Industry 4.0 arm -> social1 (same shape as brain -> VLSI-CAD)
-  const anim6 = useRef({ morph: 0 }) // social1 -> social2, in place
+  const anim6 = useRef({ morph: 0 }) // social1 -> social2, in place (time-based, see SOCIAL_MORPH_SECONDS)
+  const social2Crossed = useRef(null) // was the scroll past social1's hold last frame (null = first frame)
   const copyState = useRef({ y: 0, l: 0, els: {}, last: {} }) // the YouTube / LinkedIn copy beside social1 / social2 (SocialCopy.jsx)
   const anim4 = useRef({ move: 0, spin: 0, collapse: 0, morph: 0 }) // Smart City -> Industry 4.0
 
@@ -662,19 +684,11 @@ function Clouds() {
     // Arm -> social1: the same timeline as brain -> VLSI-CAD (turn + slide to the middle, scatter, regather
     // and morph), over ARM_EXIT_SCREENS of scroll.
     const tl5 = brainTimeline(anim5.current, pinEnd('arm'), () => pinEnd('arm')() + ARM_EXIT_SCREENS * window.innerHeight)
-    // social1 -> social2: after the social1 hold, an in-place morph over SOCIAL_MORPH_SCREENS of scroll.
-    const social2Start = () => pinEnd('arm')() + (ARM_EXIT_SCREENS + SOCIAL_HOLD_SCREENS) * window.innerHeight
-    const tl6 = gsap.timeline({
-      defaults: { ease: 'none' },
-      scrollTrigger: { trigger: document.documentElement, start: social2Start, end: () => social2Start() + SOCIAL_MORPH_SCREENS * window.innerHeight, scrub: SCRUB, invalidateOnRefresh: true },
-    })
-    tl6.to(anim6.current, { morph: 1, duration: 0.9, ease: 'power2.inOut' })
-    tl6.to({}, { duration: 0.1 })
     const refresh = () => ScrollTrigger.refresh()
     window.addEventListener('load', refresh)
     return () => {
       window.removeEventListener('load', refresh)
-      for (const tl of [tl1, tl2, tl3, tl4, tl5, tl6]) { tl.scrollTrigger?.kill(); tl.kill() }
+      for (const tl of [tl1, tl2, tl3, tl4, tl5]) { tl.scrollTrigger?.kill(); tl.kill() }
     }
   }, [])
 
@@ -825,11 +839,12 @@ function Clouds() {
     const sy = window.scrollY
     const size = (el) => el.getBoundingClientRect().height * PX_PER_UNIT_PER_ANCHOR_PX
     const hero = elBrain.getBoundingClientRect()
-    const A = { x: hero.left + hero.width / 2, y: hero.top + sy + hero.height / 2, scale: size(elBrain) }
+    const A = { x: hero.left + hero.width / 2, y: hero.top + sy + hero.height / 2, scale: size(elBrain), S: hero.height, ...BRAIN_CENTER }
     const pinned = (el) => {
       const r = el.getBoundingClientRect()
       const pin = el.closest('[data-pin]').getBoundingClientRect()
-      return { x: r.left + r.width / 2, y: r.top - pin.top + r.height / 2, scale: r.height * PX_PER_UNIT_PER_ANCHOR_PX }
+      const f = (name) => parseFloat(el.style.getPropertyValue(name)) || 0 // where the cloud's centre lies (index.css, .phone-cloud)
+      return { x: r.left + r.width / 2, y: r.top - pin.top + r.height / 2, scale: r.height * PX_PER_UNIT_PER_ANCHOR_PX, S: r.height, fx: f('--fx'), fy: f('--fy') }
     }
     const B1 = pinned(elVlsi), B2 = pinned(elDna), B3 = pinned(elCity), B4 = pinned(elArm)
 
@@ -840,9 +855,22 @@ function Clouds() {
     const mobile = isMobileView()
     const cA = scr(A), c1 = scr(B1, mobile ? 0 : VLSI_UP_PX), c2 = scr(B2), c3 = scr(B3), c4 = scr(B4)
 
+    // Phone layout: a cloud's origin is not the middle of its silhouette (an anchor is placed so the silhouette is centred in
+    // its box, see .phone-cloud). A cloud travelling to the next one's spot is therefore sent to where its OWN silhouette
+    // ends up centred on the next cloud's, not to the next cloud's origin - otherwise it lands off-centre there. `off` is
+    // the silhouette centre relative to the origin (px, y up); all zero on desktop, where the destination is just c.
+    const off = (P) => (mobile ? { x: P.S * P.fx, y: -P.S * P.fy } : { x: 0, y: 0 })
+    const oA = off(A), o1 = off(B1), o2 = off(B2), o3 = off(B3), o4 = off(B4)
+    const dest = (cTo, oTo, oFrom) => ({ x: cTo.x + oTo.x - oFrom.x, y: cTo.y + oTo.y - oFrom.y })
+    const d2 = dest(c2, o2, o1), d3 = dest(c3, o3, o2), d4 = dest(c4, o4, o3)
+
     const a1 = anim1.current, a2 = anim2.current, a3 = anim3.current, a4 = anim4.current, a5 = anim5.current
     const done1 = a1.morph >= 0.999 && a1.destruct <= 0.001
-    const mid = { x: 0, y: c1.y } // middle of the screen, at the VLSI-CAD cloud's height
+    // Where the brain goes and the VLSI-CAD cloud forms: the middle of the screen at the VLSI-CAD cloud's height on desktop;
+    // on the phone the very middle of the screen (the VLSI-CAD cloud then slides up/down from there to its place).
+    const mid = mobile ? { x: 0, y: 0 } : { x: 0, y: c1.y }
+    const midBrain = { x: mid.x - oA.x, y: mid.y - oA.y }
+    const midVlsi = { x: mid.x - o1.x, y: mid.y - o1.y }
     // Reaching the next theme's side (a transition's move step done) scatters the cloud on its own;
     // scrolling back regathers it.
     ;[anim2.current, anim3.current, anim4.current].forEach((anim, i) => {
@@ -883,7 +911,7 @@ function Clouds() {
     const socialX = mobile ? 0 : Math.min(0, Math.max(cityLeft.current.edge, 16) - vw / 2 + scene.socialLeftPx)
     // Where the social cloud's origin sits and how big it is: on desktop (0, 0) at SOCIAL_SCALE_PX (plus the slide left
     // by socialX); on the phone shrunk to fit the screen width and the space above the copy, its bounding box centred there.
-    const sc = mobile ? phoneSocial(scene.socialBox, vw, vh) : { scale: SOCIAL_SCALE_PX, x: 0, y: 0 }
+    const sc = mobile ? phoneSocial(scene.socialBox, vw, vh) : { scale: SOCIAL_SCALE_PX, x: 0, y: 0, cx: 0, cy: 0 }
     // The moment the VLSI-CAD cloud / social1 finishes forming it slides to its left-hand default place (time-based,
     // eased with no rebound, no rotation). Scrolling back un-forms it, so snap `v` home (it is back at the middle).
     // The very first frame just adopts the current state (e.g. a reload deep in the page: already left).
@@ -898,8 +926,7 @@ function Clouds() {
       else if (done && !sl.done) {
         gsap.killTweensOf(sl)
         // Same speed for both: the duration scales with how far this cloud has to go, relative to the VLSI one.
-        const dist = i === 0 ? Math.abs(c1.x) : Math.abs(socialX)
-        const duration = Math.max(0.4, (VLSI_SLIDE_SECONDS * dist) / (Math.abs(c1.x) || 1))
+        const duration = i === 0 ? VLSI_SLIDE_SECONDS : Math.max(0.4, (VLSI_SLIDE_SECONDS * Math.abs(socialX)) / (Math.abs(c1.x) || 1))
         gsap.to(sl, { v: 1, duration, ease: VLSI_SLIDE_EASE })
       } else if (!done && sl.done) {
         gsap.killTweensOf(sl)
@@ -907,6 +934,16 @@ function Clouds() {
       }
       sl.done = done
     })
+    // social1 -> social2 plays by itself: scrolling past the end of social1's hold starts the whole morph, which then runs
+    // to the end (no resting half-way, whatever the scrolling does); scrolling back past the point plays it in reverse.
+    // The first frame just adopts the current state (e.g. a reload deep in the page: already social2).
+    const crossed6 = sy >= pinEnd('arm')() + (ARM_EXIT_SCREENS + SOCIAL_HOLD_SCREENS) * window.innerHeight
+    if (social2Crossed.current === null) anim6.current.morph = crossed6 ? 1 : 0
+    else if (crossed6 !== social2Crossed.current) {
+      gsap.killTweensOf(anim6.current)
+      gsap.to(anim6.current, { morph: crossed6 ? 1 : 0, duration: SOCIAL_MORPH_SECONDS, ease: VLSI_SLIDE_EASE })
+    }
+    social2Crossed.current = crossed6
     const started6 = anim6.current.morph > 0.001, done6 = anim6.current.morph >= 0.999
     const social2Formed = socialFormed && done6
     const R0 = EXPLODE_DIST * 1.98 * A.scale // explosion distance for both transitions (x brain radius on screen)
@@ -918,10 +955,10 @@ function Clouds() {
       const u = scene.brain.material.uniforms
       _q.setFromAxisAngle(_yAxis, brainState.yaw + a1.spin * SPIN_TURNS * 2 * Math.PI)
       setModel(u.uModelA.value, _q)
-      u.uCA.value.set(cA.x + (mid.x - cA.x) * a1.move, cA.y + (mid.y - cA.y) * a1.move)
+      u.uCA.value.set(cA.x + (midBrain.x - cA.x) * a1.move, cA.y + (midBrain.y - cA.y) * a1.move)
       u.uScaleA.value = A.scale
       u.uMorph.value = a1.morph
-      u.uCB.value.set(mid.x, mid.y)
+      u.uCB.value.set(midVlsi.x, midVlsi.y)
       u.uScaleB.value = B1.scale
       _q.copy(swayQ).multiply(scene.qVlsi)
       setModel(u.uModelB.value, _q)
@@ -933,7 +970,7 @@ function Clouds() {
     scene.vlsi.visible = done1 && !started2
     {
       const u = scene.vlsi.material.uniforms
-      u.uCA.value.set(mid.x + (c1.x - mid.x) * slides.current[0].v, c1.y)
+      u.uCA.value.set(midVlsi.x + (c1.x - midVlsi.x) * slides.current[0].v, midVlsi.y + (c1.y - midVlsi.y) * slides.current[0].v)
       u.uScaleA.value = B1.scale
       _q.copy(swayQ).multiply(scene.qVlsi)
       setModel(u.uModelA.value, _q)
@@ -946,7 +983,8 @@ function Clouds() {
       _q.copy(swayQ).multiply(scene.qVlsi)
       _q2.setFromAxisAngle(_yAxis, a2.spin * SPIN_TURNS * 2 * Math.PI).multiply(_q)
       setModel(u.uModelA.value, _q2)
-      u.uCA.value.set(c1.x + (c2.x - c1.x) * a2.move, c1.y + (c2.y - c1.y) * a2.move)
+      u.uCA.value.set(c1.x + (d2.x - c1.x) * a2.move, c1.y + (d2.y - c1.y) * a2.move)
+      spinAboutCentre(u, o1, B1.scale, a2.spin)
       u.uScaleA.value = B1.scale
       u.uMorph.value = a2.morph
       u.uCB.value.set(c2.x, c2.y)
@@ -971,7 +1009,8 @@ function Clouds() {
       const u = scene.dnaToCity.material.uniforms
       _q2.setFromAxisAngle(_yAxis, a3.spin * SPIN_TURNS * 2 * Math.PI).multiply(swayQ)
       setModel(u.uModelA.value, _q2)
-      u.uCA.value.set(c2.x + (c3.x - c2.x) * a3.move, c2.y + (c3.y - c2.y) * a3.move)
+      u.uCA.value.set(c2.x + (d3.x - c2.x) * a3.move, c2.y + (d3.y - c2.y) * a3.move)
+      spinAboutCentre(u, o2, B2.scale, a3.spin)
       u.uScaleA.value = B2.scale
       u.uMorph.value = a3.morph
       u.uCB.value.set(c3.x, c3.y)
@@ -1006,7 +1045,7 @@ function Clouds() {
       _q2.copy(_q).multiply(_q3.setFromAxisAngle(_yAxis, a4.spin * SPIN_TURNS * 2 * Math.PI)) // R
       setModel(u.uModelA.value, _q2)
       u.uOffA.value.copy(CITY_PIVOT_VEC).applyQuaternion(_q).sub(_v.copy(CITY_PIVOT_VEC).applyQuaternion(_q2))
-      u.uCA.value.set(c3.x + (c4.x - c3.x) * a4.move, c3.y + (c4.y - c3.y) * a4.move)
+      u.uCA.value.set(c3.x + (d4.x - c3.x) * a4.move, c3.y + (d4.y - c3.y) * a4.move)
       u.uScaleA.value = B3.scale
       u.uMorph.value = a4.morph
       u.uCB.value.set(c4.x, c4.y)
@@ -1032,7 +1071,8 @@ function Clouds() {
     scene.armToSocial.visible = done4 && started5 && !done5
     {
       const u = scene.armToSocial.material.uniforms
-      u.uCA.value.set(c4.x + (sc.x - c4.x) * a5.move, c4.y + (sc.y - c4.y) * a5.move)
+      u.uCA.value.set(c4.x + (sc.cx - o4.x - c4.x) * a5.move, c4.y + (sc.cy - o4.y - c4.y) * a5.move)
+      spinAboutCentre(u, o4, B4.scale, a5.spin)
       u.uScaleA.value = B4.scale
       _q.copy(swayQ).multiply(scene.qArm)
       _q2.setFromAxisAngle(_yAxis, a5.spin * SPIN_TURNS * 2 * Math.PI).multiply(_q)

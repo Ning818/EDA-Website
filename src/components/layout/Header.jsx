@@ -1,16 +1,15 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { NavLink, useLocation } from 'react-router-dom'
 import edaLogo from '../../assets/images/eda-logo.png'
+import { THEMES } from '../../themes'
 
-// The four research themes shown on the Home page - reused here as the Research/Projects
-// dropdown items. VLSI-CAD is the only theme with a real dedicated page today (the Research
-// page itself is themed VLSI-CAD, see its PageIntroBand title), so it links straight there;
-// the others fall back to the same anchors ThemeShowcase already links to from the Home page.
-// Projects' list isn't split by theme at all, so all four point at the same page.
-const RESEARCH_THEMES = ['VLSI-CAD', 'Bioinformatics', 'Smart City', 'Industry 4.0']
-
-function slug(theme) {
-  return theme.toLowerCase().replace(/[^a-z0-9]+/g, '-')
+// The four research themes shown on the Home page - reused here as the Research / Projects dropdown items; each links to
+// its own Research / Funded Projects page (see themes.js).
+// Research and Projects aren't pages themselves, so they count as the current page for any of their themes' pages.
+const isActiveLink = (pathname, link) => {
+  if (link.label === 'Research') return pathname === '/research' || (pathname.startsWith('/research/') && !pathname.startsWith('/research/funded-projects'))
+  if (link.label === 'Projects') return pathname.startsWith('/research/funded-projects')
+  return pathname === link.to
 }
 
 const NAV_LINKS = [
@@ -18,15 +17,12 @@ const NAV_LINKS = [
   {
     label: 'Research',
     to: '/research',
-    dropdown: RESEARCH_THEMES.map((theme) => ({
-      label: theme,
-      to: theme === 'VLSI-CAD' ? '/research' : `/research#${slug(theme)}`,
-    })),
+    dropdown: THEMES.map((theme) => ({ label: theme.name, to: theme.research })),
   },
   {
     label: 'Projects',
     to: '/research/funded-projects',
-    dropdown: RESEARCH_THEMES.map((theme) => ({ label: theme, to: '/research/funded-projects' })),
+    dropdown: THEMES.map((theme) => ({ label: theme.name, to: theme.projects })),
   },
   { label: 'Collaborations', to: '/collaborations' },
   { label: 'Teaching', to: '/teaching' },
@@ -119,7 +115,9 @@ export default function Header() {
     <>
       <header
         className={`w-full backdrop-blur-sm ${menuOpen ? 'bg-mint md:bg-mint/30' : 'bg-mint/30'} ${
-          isHome ? 'fixed inset-x-0 top-0 z-50' : ''
+          // Off the Home page the header is in the normal flow; `relative z-40` lifts it (and its dropdown / phone menu)
+          // above page content that has its own z-index, e.g. the decorated page-header band.
+          isHome ? 'fixed inset-x-0 top-0 z-50' : 'relative z-40'
         }`}
         style={{
           transition: 'transform 300ms ease-in-out, background-color 300ms ease',
@@ -147,7 +145,7 @@ export default function Header() {
 
           <nav className="hidden flex-wrap items-center gap-4 md:flex lg:gap-10">
             {NAV_LINKS.map((link) => {
-              const isActive = pathname === link.to
+              const isActive = isActiveLink(pathname, link)
               const label = (
                 <>
                   {link.label}
@@ -258,7 +256,7 @@ export default function Header() {
                           aria-expanded={groupOpen}
                           onClick={() => setOpenGroup(groupOpen ? null : link.label)}
                           className={`flex w-full items-center justify-between py-3.5 font-heading text-lg text-navy ${
-                            pathname === link.to ? 'font-bold' : 'font-medium'
+                            isActiveLink(pathname, link) ? 'font-bold' : 'font-medium'
                           }`}
                         >
                           {link.label}
@@ -300,7 +298,7 @@ export default function Header() {
                         to={link.to}
                         end
                         className={`block py-3.5 font-heading text-lg text-navy ${
-                          pathname === link.to ? 'font-bold' : 'font-medium'
+                          isActiveLink(pathname, link) ? 'font-bold' : 'font-medium'
                         }`}
                       >
                         {link.label}

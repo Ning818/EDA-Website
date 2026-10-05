@@ -27,11 +27,13 @@ const PARTICLE_SIZE = CITY_PARTICLE_SIZE
 // smart-city11.dxf's two named layers (same as smart-city10.dxf's): "亮色road" and "主题色建筑"
 // (theme-color buildings).
 // Anything on "亮色road" gets ROAD_COLOR; everything else (including layer "0"/unnamed) gets
-// BUILDING_COLOR. BUILDING_COLOR is Smart City's own accent from particle_brain_demo_logo_24.html's
-// anchor set; ROAD_COLOR is a warm amber deliberately far from it on the color wheel (a cool teal vs.
-// a warm gold) so the street network reads as a clearly distinct layer even though it's a small
-// fraction of the total points.
-const BUILDING_COLOR = '#4a9db3'
+// BUILDING_COLOR. BUILDING_COLOR is Smart City's own accent (it was a blue-teal, '#4a9db3', too close to
+// the VLSI-CAD cloud's teal; a plain blue was then too close to Industry 4.0's purple and an orchid didn't fit the
+// palette, so it is a deeper, greener ocean blue now - darker and bluer than the VLSI teal, clear of the purple - it also
+// colors the brain's top-right anchor, see BrainParticles.jsx); ROAD_COLOR is a warm amber so the street network reads as a clearly distinct layer
+// even though it's a small fraction of the total points.
+export const SMART_CITY_COLOR = '#2f86b3'
+const BUILDING_COLOR = SMART_CITY_COLOR
 const ROAD_COLOR = '#e0a94a'
 // Matched by eye to the user's Rhino Perspective-viewport reference screenshot for smart-city10.dxf,
 // same technique as this file's other models: pitch 25deg, yaw 25deg about (Y then X, i.e.

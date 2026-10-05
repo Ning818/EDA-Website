@@ -6,7 +6,8 @@ import BrainScene from '../../three/BrainScene'
 //
 // Phone layout (stacked, below md): the copy is top-aligned with a gap under the header (centered, it used to overflow
 // the section and slide up under the nav bar) and the brain takes the rest of the one-screen height, whole and on screen:
-// its box is capped at 384px tall (the brain is up to ~0.9 of its box height wide, so that is the most that fits the
+// its box is nudged up by 15% of its height (the brain is centred in a taller box, which left a wide gap under the copy)
+// and is capped at 384px tall (the brain is up to ~0.9 of its box height wide, so that is the most that fits the
 // width). The section keeps its one-screen height: the brain's scroll-0 position (and with it the brain -> VLSI-CAD
 // transition) is measured from it.
 export default function Hero() {
@@ -20,7 +21,7 @@ export default function Hero() {
           and Urban Studies and Planning (DIST) of Politecnico di Torino.
         </p>
       </div>
-      <BrainScene className="h-full max-h-[692px] w-full max-w-[615px] shrink-0 max-md:pointer-events-none max-md:h-auto max-md:min-h-0 max-md:max-h-[384px] max-md:flex-1 max-md:shrink" />
+      <BrainScene className="h-full max-h-[692px] w-full max-w-[615px] shrink-0 max-md:pointer-events-none max-md:h-auto max-md:min-h-0 max-md:max-h-[384px] max-md:flex-1 max-md:shrink max-md:-translate-y-[15%]" />
     </section>
   )
 }

@@ -40,7 +40,7 @@ export default function Footer() {
             </div>
           </div>
 
-          <div className="flex flex-col gap-3 font-body text-lg text-navy">
+          <div className="flex flex-col gap-3 font-body text-base text-navy md:text-lg">
             <p className="font-bold tracking-[-0.36px]">Politecnico di Torino</p>
             <p className="font-medium tracking-[-0.36px]">Department of Control and Computer Engineering (DAUIN)</p>
             <p className="leading-6">
@@ -54,7 +54,7 @@ export default function Footer() {
             </p>
           </div>
 
-          <div className="flex flex-col gap-3 font-body text-lg text-navy">
+          <div className="flex flex-col gap-3 font-body text-base text-navy md:text-lg">
             <p className="font-bold tracking-[-0.36px]">Visit</p>
             <p className="leading-6">
               Polito website

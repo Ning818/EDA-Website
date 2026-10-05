@@ -1,8 +1,8 @@
 function ListItem({ code, description }) {
   return (
     <div className="w-full border-b border-[rgba(182,176,156,0.5)] py-1">
-      <p className="font-body text-lg font-bold text-navy">{code}</p>
-      <p className="font-body text-base text-[#185a7d]">{description}</p>
+      <p className="font-body text-base font-bold text-navy md:text-lg">{code}</p>
+      <p className="font-body text-sm text-[#185a7d] md:text-base">{description}</p>
     </div>
   )
 }
@@ -16,7 +16,7 @@ export default function FundedProjectsListSection({ title, items, splitAt }) {
 
   return (
     <section className="mx-auto max-w-[1440px] px-8 lg:px-[120px]">
-      <h2 className="pt-20 font-heading text-4xl font-bold text-navy">{title}</h2>
+      <h2 className="pt-20 font-heading text-2xl font-bold md:text-4xl text-navy">{title}</h2>
       <div className="flex flex-col gap-x-6 gap-y-2 pb-20 pt-10 md:flex-row">
         <div className="flex-1">
           {left.map((item, i) => (

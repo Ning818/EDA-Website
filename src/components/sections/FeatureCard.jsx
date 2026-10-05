@@ -6,7 +6,7 @@ import { ONGOING_PROJECTS, ENDED_PROJECTS, TOTAL_PROJECTS } from './projectStats
  * A rounded "feature" card for the Research page: an image beside an eyebrow, a title, a short summary and a call to
  * action - the page's two highlights (a thesis, the funded projects).
  *
- * `tone`: 'dark' (navy card, light type) or 'light' (white card with a hairline border that warms to teal on hover - the
+ * `tone`: 'dark' (navy card, light type) or 'light' (white card with a hairline border that lights up in the page's theme colour (`--theme`, teal without it) on hover - the
  * same card language as the project / people cards). `meta`: a muted line under the title (authors, year). `tags`: small
  * keyword pills. `stats`: the funded-project numbers as a
  * teaser row. `button`: the call to action is a solid button instead of an underlined text link - used where the card is
@@ -60,7 +60,7 @@ export default function FeatureCard({
   const external = !to.startsWith('/')
   const asLink = button // the whole card is the link
   const cardClass = `group relative grid items-center gap-6 overflow-hidden rounded-3xl p-5 md:grid-cols-2 md:gap-12 md:p-10 ${
-    light ? 'border border-navy/15 bg-white transition-[border-color] duration-300 ease-out hover:border-[#279aae]' : 'bg-navy'
+    light ? 'border border-navy/15 bg-white transition-[border-color] duration-300 ease-out hover:border-[color:var(--theme,#279aae)]' : 'bg-navy'
   }`
 
   const imageBlock = (

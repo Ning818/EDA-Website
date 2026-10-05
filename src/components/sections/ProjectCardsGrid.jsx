@@ -1,6 +1,7 @@
 // A project card: a white, thin-bordered, rounded card in the site's navy / teal. A header row (the project code, with the
 // status as a small pill on the right), then the project name, with the funding source as a label / value pair at the
-// right. Hovering warms the border to the teal accent and lifts the card.
+// right. Hovering lights the border (and a soft glow under the card) in the page's theme colour - the `--theme` variable the page sets, teal
+// without it - and lifts the card.
 // `status` is "<funding> · <state>", e.g. "EU Funded · Active".
 function ProjectCard({ code, description, status }) {
   const [funding, state] = status.split('·').map((part) => part.trim())
@@ -8,7 +9,7 @@ function ProjectCard({ code, description, status }) {
   const active = /active/i.test(label)
 
   return (
-    <div className="flex w-[384px] max-w-full flex-col gap-4 rounded-2xl border border-navy/15 bg-white px-6 py-5 shadow-sm transition-[border-color,box-shadow,transform] duration-300 ease-out hover:-translate-y-0.5 hover:border-[#279aae] hover:shadow-[0_10px_28px_rgba(0,40,67,0.10)]">
+    <div className="flex w-[384px] max-w-full flex-col gap-4 rounded-2xl border border-navy/15 bg-white px-6 py-5 shadow-sm transition-[border-color,box-shadow,transform] duration-300 ease-out hover:-translate-y-0.5 hover:border-[color:var(--theme,#279aae)] hover:shadow-[0_10px_28px_color-mix(in_srgb,var(--theme,#279aae)_18%,transparent)]">
       <div className="flex items-center justify-between gap-3">
         <p className="min-w-0 truncate font-heading text-base font-semibold text-navy md:text-lg">{code}</p>
         <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-navy/15 px-2.5 py-1 font-body text-xs font-medium text-navy md:px-3">

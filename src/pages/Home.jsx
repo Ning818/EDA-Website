@@ -37,6 +37,7 @@ const THEMES = [
     imageSide: 'left',
     dwell: 60,
     gap: 161, // 0.87 x 300vh - see scatteredTimeline in ParticleCanvas.jsx
+    phoneLift: 40, // px: on the phone the copy sits this much higher than the other left-hand themes' (the cloud above is small)
     visual: <SmartCityScene className={VISUAL_BOX} />,
   },
   {
@@ -62,7 +63,7 @@ export default function Home() {
           timeline (0.28 of 300vh = 84vh) instead of stretching the other steps out. */}
       <div aria-hidden style={{ height: '116vh' }} />
       {THEMES.map((t, i) => (
-        <ThemeShowcase key={t.theme} theme={t.theme} imageSide={t.imageSide} visual={t.visual} copy={t.copy} dwell={t.dwell} gapAfter={t.gap ?? 100} />
+        <ThemeShowcase key={t.theme} theme={t.theme} imageSide={t.imageSide} visual={t.visual} copy={t.copy} dwell={t.dwell} gapAfter={t.gap ?? 100} phoneLift={t.phoneLift} />
       ))}
       </main>
       {/* The YouTube / LinkedIn copy sits beside the social1 / social2 clouds now (it used to be the two standalone

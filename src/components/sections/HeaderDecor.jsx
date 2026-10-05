@@ -99,6 +99,9 @@ const VARIANTS = {
 
 const VB_W = 1100
 const VB_H = 460
+// The part of the viewBox the circuit really occupies, for the phone layout of the research page: the picture there spans the canvas'
+// width (as the other themes' pictures do) and stands from the band's top edge, so its x and y extent are what is scaled to fit.
+const MOB = { x0: 510, x1: 1100, y0: 74, y1: 382 }
 const START = 0.3 // seconds before the first trace starts
 const STEP = 0.08 // between traces
 const at = (i) => START + i * STEP
@@ -304,6 +307,11 @@ export default function HeaderDecor({ variant = 'projects' }) {
       const dpr = Math.min(2, window.devicePixelRatio || 1)
       canvas.width = Math.max(1, Math.round(r.width * dpr))
       canvas.height = Math.max(1, Math.round(r.height * dpr))
+      if (variant === 'research' && window.matchMedia('(max-width: 767px)').matches) {
+        const sc = r.width / (MOB.x1 - MOB.x0)
+        view = { w: r.width, h: r.height, sc, tx: -MOB.x0 * sc, ty: -MOB.y0 * sc, dpr }
+        return
+      }
       // like preserveAspectRatio "xMaxYMid slice", but a tall band does not blow the circuit up: the height-driven scale is capped
       const sc = Math.max(r.width / VB_W, Math.min(r.height / VB_H, 0.77))
       view = { w: r.width, h: r.height, sc, tx: r.width - VB_W * sc, ty: (r.height - VB_H * sc) / 2, dpr }
@@ -423,7 +431,12 @@ export default function HeaderDecor({ variant = 'projects' }) {
     <div aria-hidden="true" className="pointer-events-none absolute inset-0">
       <canvas
         ref={canvasRef}
-        className="absolute inset-y-0 right-0 h-full w-[min(1250px,calc((100vw_-_560px)_*_1.9))] max-md:w-full max-md:opacity-35 [mask-image:linear-gradient(to_left,black_50%,transparent_100%)] max-md:[mask-image:linear-gradient(to_left,black_15%,transparent_75%)]"
+        style={variant === 'research' ? { aspectRatio: `${MOB.x1 - MOB.x0} / ${MOB.y1 - MOB.y0}` } : undefined}
+        className={`absolute inset-y-0 right-0 h-full w-[min(1250px,calc((100vw_-_560px)_*_1.9))] max-md:w-full [mask-image:linear-gradient(to_left,black_50%,transparent_100%)] ${
+          variant === 'research'
+            ? 'max-md:bottom-auto max-md:h-auto max-md:opacity-40 max-md:[mask-image:linear-gradient(to_left,black_88%,transparent_100%)]'
+            : 'max-md:opacity-35 max-md:[mask-image:linear-gradient(to_left,black_15%,transparent_75%)]'
+        }`}
       />
     </div>
   )

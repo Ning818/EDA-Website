@@ -42,9 +42,10 @@
     top: calc(50% - var(--s) * var(--fy) - var(--lift));
   }
   /* Clouds at the bottom of the screen (imageSide 'right') are mirrored: sunk by half of their distance from the screen
-     bottom, which is the pinned screen's bottom padding (2rem) plus the space below the cloud inside the box. */
+     bottom, which is the pinned screen's bottom padding (2rem) plus the space below the cloud inside the box - then raised again by
+     40px, so the clouds (and the transitions into them, which happen where they sit) are not right down at the edge of the screen. */
   [data-side='right'] .phone-cloud {
-    --lift: calc((2rem + (100cqh - var(--s) * var(--fh)) / 2) / -2);
+    --lift: calc((2rem + (100cqh - var(--s) * var(--fh)) / 2) / -2 + 40px);
   }
 }
 
@@ -146,6 +147,13 @@
   .gear-spin, .arm-swing, .belt-crate, .scan-pulse, .smoke-puff, .line-flow { animation: none; }
   .belt-crate-first, .belt-crate-last { animation: none; }
   .scan-pulse { opacity: 0.5; }
+}
+
+/* A fine film grain for a dark page (the Collaborations page): fractal noise as a tiling SVG, laid over the page at a few percent so the
+   flat navy gets a surface instead of looking like a fill. */
+.tex-noise {
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n' x='0' y='0' width='100%' height='100%'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 0.9 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  background-size: 220px 220px;
 }
 
 /* Industry 4.0's particle background (IndustryArmScene) is intentionally oversized

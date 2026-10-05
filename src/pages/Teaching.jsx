@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import PageIntroBand from '../components/sections/PageIntroBand'
 import TeachingSidebar from '../components/sections/TeachingSidebar'
+import NetworkParticles from '../components/sections/NetworkParticles'
 import ProfessorGrid from '../components/sections/ProfessorGrid'
 
 import enricoMacii from '../assets/images/professors/enrico-macii.png'
@@ -141,8 +142,15 @@ export default function Teaching() {
   const people = active === 'Professors' ? PROFESSORS : PLACEHOLDER_PEOPLE
 
   return (
-    <main>
-      <PageIntroBand category="Teaching">
+    // A light page: the site's mint ground with a faint dot grid and a soft teal glow behind the sidebar. The header band has no background
+    // of its own, so it flows into the content (no hairline under it). Behind everything is a
+    // network of particles whose nodes sit on the dots of this grid (NetworkParticles, a canvas as big as the page, scrolling with it); the paragraph runs the full
+    // width over it, the white sidebar and cards cover it.
+    <main className="relative pb-6">
+      <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-[radial-gradient(rgba(0,40,67,0.10)_1px,transparent_1.3px)] bg-[length:24px_24px] [mask-image:linear-gradient(to_bottom,black_94%,transparent)]" />
+      <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_60%_40%_at_14%_52%,rgba(63,176,184,0.12),transparent)]" />
+      <NetworkParticles />
+      <PageIntroBand category="EDA Group" title="Teaching" light bandRule={false} titleVeil bandBg="" backdrop={null}>
         Our academic community is structured around four foundational pillars that sustain our research and
         educational mission. Our Professors spearhead advanced pedagogical and scientific inquiry within the domains
         of design automation and complex systems. Working in close synergy with them are our PhD Students, who drive
@@ -152,7 +160,7 @@ export default function Teaching() {
         collective.
       </PageIntroBand>
 
-      <div className="mx-auto flex max-w-[1440px] flex-col gap-6 px-8 py-6 lg:flex-row lg:px-[120px]">
+      <div className="relative mx-auto flex max-w-[1440px] flex-col gap-6 px-8 pt-4 lg:flex-row lg:gap-8 lg:px-[120px]">
         <TeachingSidebar active={active} onSelect={setActive} />
         <ProfessorGrid professors={people} />
       </div>

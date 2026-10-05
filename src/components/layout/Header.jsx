@@ -31,6 +31,9 @@ const NAV_LINKS = [
 export default function Header() {
   const { pathname, key } = useLocation()
   const isHome = pathname === '/'
+  // The Collaborations page lays soft colour glows behind the nav bar (Collaborations.jsx), so the bar there has no tint of its own: the
+  // glows run on into it without a seam.
+  const seamless = pathname === '/collaborations'
 
   // Phone layout (below `md`): the nav links collapse behind a hamburger button that unfolds them as a vertical list
   // under the logo row. Research / Projects (which only host a dropdown on desktop) are accordion groups in it.
@@ -114,7 +117,7 @@ export default function Header() {
   return (
     <>
       <header
-        className={`w-full backdrop-blur-sm ${menuOpen ? 'bg-mint md:bg-mint/30' : 'bg-mint/30'} ${
+        className={`w-full backdrop-blur-sm ${menuOpen ? 'bg-mint md:bg-mint/30' : seamless ? 'bg-transparent' : 'bg-mint/30'} ${
           // Off the Home page the header is in the normal flow; `relative z-40` lifts it (and its dropdown / phone menu)
           // above page content that has its own z-index, e.g. the decorated page-header band.
           isHome ? 'fixed inset-x-0 top-0 z-50' : 'relative z-40'

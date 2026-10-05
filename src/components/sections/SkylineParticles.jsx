@@ -149,7 +149,7 @@ export default function SkylineParticles({ color = '#2f86b3', variant = 'project
       <canvas
         ref={canvasRef}
         style={{ aspectRatio: `${W} / ${H}` }}
-        className="absolute bottom-0 right-0 w-[min(645px,calc(100vw_-_575px))] max-md:w-full max-md:opacity-40 [mask-image:linear-gradient(to_left,black_72%,transparent_100%)]"
+        className={`absolute bottom-0 right-0 w-[min(645px,calc(100vw_-_575px))] ${variant === 'research' ? 'max-md:bottom-auto max-md:top-[calc((100vw_-_64px)_*_-0.0155)] ' : ''}max-md:w-full max-md:opacity-40 [mask-image:linear-gradient(to_left,black_72%,transparent_100%)]`}
       />
     </div>
   )

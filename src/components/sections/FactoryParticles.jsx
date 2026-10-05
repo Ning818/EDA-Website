@@ -12,7 +12,14 @@ import {
 // on it): the three gears turn against each other, the arm swings at the shoulder and the elbow, crates ride the belt (the
 // first fades in at the left end, the last fades out under the gripper), the scanner's beam flickers, smoke rings rise from
 // the chimneys, amber pulses run along the data lines from the cloud to the machines, and the cloud and the card drift. With
-// reduced motion it is just the finished picture. The engine is flatParticles.js; the geometry factoryGeometry.js.
+// reduced motion it is just the finished picture. On a phone the research page's picture stands from the top edge of the band (not from the
+// bottom of the title row) - its own empty margin above the topmost objects (40 of 360 units) is lifted out of the band, so the drawn picture
+// itself touches the top edge - and lies faintly behind the text; the Funded Projects page's picture is placed as before. The engine is flatParticles.js; the geometry factoryGeometry.js.
+//
+// Two variants for the theme's two pages, told apart by where the amber goes: `projects` puts it on the robot arm (and the
+// scanner's beam, the data pulses and the end of the dashboard's trend line); `research` puts it on the cloud (its outline and
+// the gear inside) and on the crates riding the belt, and leaves the arm, the beam, the pulses and the dashboard in the theme's
+// indigo.
 
 const AMBER = '#e0a94a' // IndustryArmParticles.jsx HIGHLIGHT_COLOR
 const SPACING = 6.2 // between the particles of a line
@@ -34,7 +41,11 @@ const floating = (cx, cy, amp, turn, seconds, ph) => (t) => {
   return compose(translate(0, amp * s * e), rotateAbout(cx, cy, turn * s * e))
 }
 
-function build() {
+function build(variant) {
+  const research = variant === 'research'
+  const armC = research ? 0 : 1 // the arm, the beam
+  const cloudC = research ? 1 : 0 // the cloud
+  const crateC = research ? 1 : 0 // the crates
   const rand = rng(11)
   const particles = []
   const traces = []
@@ -95,14 +106,14 @@ function build() {
       const alpha = i === 0 ? clamp01(u / 0.45) : i === CRATE_XS.length - 1 ? 1 - clamp01((u - 0.4) / 0.6) : 1
       return [1, 0, 0, 1, u * CRATE_STEP, 0, alpha]
     })
-  CRATE_XS.forEach((x, i) => gather(at(x, 0.5), outline(crate(x), 5.2), { a: 0.9, r0: 2.1, jitter: 0, steady: true, mi: crateMotion(i) }))
+  CRATE_XS.forEach((x, i) => gather(at(x, 0.5), outline(crate(x), 5.2), { c: crateC, a: 0.9, r0: 2.1, jitter: 0, steady: true, mi: crateMotion(i) }))
 
   // the scanner arch, its camera and the beam (amber, flickering)
   gather(at(326, 0.6), outline(SCANNER.arch, 5.5), { a: 0.9 })
   gather(at(326, 1.0), outline(SCANNER.camera, 4.5), { a: 0.85 })
   gather(at(326, 1.2), outline(SCANNER.lens, 2.6), { a: 0.9, r0: 1.5 })
   gather(at(326, 1.3), outline(SCANNER.beam, 4.4).filter((_, i) => i % 2 === 0), {
-    c: 1,
+    c: armC,
     a: 0.8,
     r0: 1.6,
     steady: true,
@@ -121,28 +132,28 @@ function build() {
   const upper = motion((t) => rotateAbout(ARM.S[0], ARM.S[1], ((-6 * Math.PI) / 180) * swing(t, 7) * ramp(t, RUN)))
   const fore = motion((t) => compose(rotateAbout(ARM.S[0], ARM.S[1], ((-6 * Math.PI) / 180) * swing(t, 7) * ramp(t, RUN)), rotateAbout(ARM.E[0], ARM.E[1], ((11 * Math.PI) / 180) * swing(t + 1.2, 5.4) * ramp(t, RUN))))
   const hidden = within(ARM.S[0], ARM.S[1], 15.5) // what the shoulder housing covers
-  gather(at(596), outline(ARM.base, 5), { c: 1, a: 0.95, filter: hidden })
-  gather(at(596, 0.1), outline(ARM.shoulder, 4.6), { c: 1, a: 0.95 })
-  gather(at(596, 0.6), outline(ARM.shoulderRing, 3), { c: 1, a: 0.8, r0: 1.6 })
-  gather(at(560, 0.15), outline(ARM.upper, 5), { c: 1, a: 0.95, filter: hidden, mi: upper })
-  gather(at(500, 0.3), outline(ARM.fore, 5), { c: 1, a: 0.95, mi: fore })
-  gather(at(540, 0.9), outline(ARM.elbow, 3), { c: 1, a: 0.8, r0: 1.6, mi: fore })
-  gather(at(470, 1.0), outline(ARM.wrist, 3), { c: 1, a: 0.8, r0: 1.6, mi: fore })
-  gather(at(460, 0.8), outline(ARM.hand, 4.5), { c: 1, a: 0.95, r0: 1.8, mi: fore })
+  gather(at(596), outline(ARM.base, 5), { c: armC, a: 0.95, filter: hidden })
+  gather(at(596, 0.1), outline(ARM.shoulder, 4.6), { c: armC, a: 0.95 })
+  gather(at(596, 0.6), outline(ARM.shoulderRing, 3), { c: armC, a: 0.8, r0: 1.6 })
+  gather(at(560, 0.15), outline(ARM.upper, 5), { c: armC, a: 0.95, filter: hidden, mi: upper })
+  gather(at(500, 0.3), outline(ARM.fore, 5), { c: armC, a: 0.95, mi: fore })
+  gather(at(540, 0.9), outline(ARM.elbow, 3), { c: armC, a: 0.8, r0: 1.6, mi: fore })
+  gather(at(470, 1.0), outline(ARM.wrist, 3), { c: armC, a: 0.8, r0: 1.6, mi: fore })
+  gather(at(460, 0.8), outline(ARM.hand, 4.5), { c: armC, a: 0.95, r0: 1.8, mi: fore })
 
   // the cloud (with its gear turning inside it) and the dashboard card drift
   const cloudFloat = floating(CLOUD.cx, CLOUD.cy, 3.5, 0.012, 8.3, 0)
   const cloudMi = motion(cloudFloat)
   const gearMi = motion((t) => compose(cloudFloat(t), t < RUN ? IDENTITY : rotateAbout(CLOUD_GEAR.cx, CLOUD_GEAR.cy, (TAU * (t - RUN)) / 14)))
-  gather(at(CLOUD.cx, 0.3), outline(cloud(CLOUD.cx, CLOUD.cy), 5.2), { a: 0.95, mi: cloudMi })
-  gather(at(CLOUD.cx, 1.1), outline(CLOUD_GEAR.teeth, 3.2), { a: 0.8, r0: 1.5, jitter: 0.4, mi: gearMi })
+  gather(at(CLOUD.cx, 0.3), outline(cloud(CLOUD.cx, CLOUD.cy), 5.2), { c: cloudC, a: 0.95, mi: cloudMi })
+  gather(at(CLOUD.cx, 1.1), outline(CLOUD_GEAR.teeth, 3.2), { c: cloudC, a: 0.8, r0: 1.5, jitter: 0.4, mi: gearMi })
   const cardMi = motion(floating(56, 79, 3, 0.01, 7.4, 1.7))
   gather(at(56, 0.4), outline(DASHBOARD.frame, 5.2), { a: 0.95, mi: cardMi })
   gather(at(56, 1.0), outline(DASHBOARD.dots, 2.4), { a: 0.85, r0: 1.3, jitter: 0.3, mi: cardMi })
   DASHBOARD.barCols.forEach(([x, y0, y1]) => gather(at(56, 1.0), linePts(x, y0, x, y1, 4.4), { a: 0.85, r0: 1.7, mi: cardMi }))
   gather(at(56, 1.0), outline(DASHBOARD.gauge, 4.6), { a: 0.85, r0: 1.7, mi: cardMi })
   gather(at(56, 1.3), outline(DASHBOARD.trend, 4.6), { a: 0.95, r0: 1.7, mi: cardMi })
-  gather(at(56, 1.9), [DASHBOARD.last], { c: 1, a: 1, r0: 2.6, jitter: 0, mi: cardMi })
+  gather(at(56, 1.9), [DASHBOARD.last], { c: armC, a: 1, r0: 2.6, jitter: 0, mi: cardMi })
 
   // the data lines from the cloud to the machines (dim dots, a node at the end); each starts at the cloud's lower edge
   const lines = DATA_LINES.map(({ edge: [x1, y1], to }) => {
@@ -159,17 +170,18 @@ function build() {
 const SMOKE = FACTORY.smoke.flatMap(([x, y], i) => [0, 1, 2].map((k) => [x, y, 2.6 + i * 0.9 + k * 1.7]))
 const SMOKE_SECONDS = 5
 
-export default function FactoryParticles({ color = '#6a6fc4' }) {
+export default function FactoryParticles({ color = '#6a6fc4', variant = 'projects' }) {
   const canvasRef = useRef(null)
 
   useEffect(() => {
-    const { particles, traces, motions, lines } = build()
+    const { particles, traces, motions, lines } = build(variant)
+    const pulse = variant === 'research' ? 0 : 1 // the data pulses' colour: indigo or amber
     return startFlatParticles(canvasRef.current, {
       particles,
       traces,
       motions,
       colors: [color, AMBER],
-      glowColor: AMBER,
+      glowColor: pulse ? AMBER : color,
       // the picture fits the canvas' width and stands on its bottom edge
       layout: (w, h) => {
         const sc = Math.min(w / W, h / H)
@@ -197,7 +209,7 @@ export default function FactoryParticles({ color = '#6a6fc4' }) {
             const sj = s - j * 4.5
             if (sj < 0 || sj > tr.length) continue
             const [x, y] = pointOn(tr, sj)
-            sprite(dots[1], x, y, 2.3 - j * 0.28, 0.9 * Math.max(0, fade) * (1 - j / 6))
+            sprite(dots[pulse], x, y, 2.3 - j * 0.28, 0.9 * Math.max(0, fade) * (1 - j / 6))
           }
           if (s <= tr.length) {
             const [hx, hy] = pointOn(tr, s)
@@ -206,14 +218,14 @@ export default function FactoryParticles({ color = '#6a6fc4' }) {
         })
       },
     })
-  }, [color])
+  }, [color, variant])
 
   return (
     <div aria-hidden="true" className="pointer-events-none absolute inset-0">
       <canvas
         ref={canvasRef}
         style={{ aspectRatio: `${W} / ${H}` }}
-        className="absolute bottom-0 right-0 w-[min(660px,calc(100vw_-_560px))] max-md:w-full max-md:opacity-40 [mask-image:linear-gradient(to_left,black_92%,transparent_100%)]"
+        className={`absolute bottom-0 right-0 w-[min(660px,calc(100vw_-_560px))] ${variant === 'research' ? 'max-md:bottom-auto max-md:top-[calc((100vw_-_64px)_*_-0.06)] ' : ''}max-md:w-full max-md:opacity-40 [mask-image:linear-gradient(to_left,black_92%,transparent_100%)]`}
       />
     </div>
   )

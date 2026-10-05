@@ -1,10 +1,9 @@
 import { useState } from 'react'
 
 /**
- * Figma: hovering a professor card triggers Smart Animate (QUICK/spring easing, ~0.744s)
- * from the front state (photo + 79px name/title strip) to a "back" state where the info
- * panel expands to fill the full 282x282 card in dark navy, photo fades out, and the name
- * is shown in white.
+ * Hovering a professor card triggers a spring animation (~0.744s) from the front state (photo +
+ * 80px name/role strip) to a "back" state where the info panel expands to fill the whole card,
+ * the photo fades out and the name moves up to the top.
  *
  * The back state also lists the person's contact links under their name (Polito Page, ORCID
  * Publication, LinkedIn) when the professor has a `links` entry. The Figma placeholder used one
@@ -36,70 +35,58 @@ function useTapToFlip() {
   }
 }
 
-function ProfessorCard({ photo, name, title, links }) {
-  const flip = useTapToFlip()
-  const photoEl = (
-    <img
-      src={photo}
-      alt={name}
-      className={`absolute inset-0 h-[203px] w-full object-cover transition-opacity duration-[744ms] ${SPRING} card-open:opacity-0`}
-    />
-  )
+const GLOW = 'hover:border-[#3fb0b8] hover:shadow-[0_8px_28px_rgba(63,176,184,0.25)] data-[open]:border-[#3fb0b8] data-[open]:shadow-[0_8px_28px_rgba(63,176,184,0.25)]'
 
-  if (links) {
-    // The same name element travels from the strip up to the top as the panel grows (one spring, the panel's own),
-    // and the links sit right after it in the same stack: the title folds away and the links unfold under the name,
-    // so the name, panel and content all move as one instead of cross-fading between two layers.
-    return (
-      <div {...flip} className="group relative h-[282px] w-[282px] overflow-hidden rounded-lg bg-white shadow-sm">
-        {photoEl}
-        <div
-          className={`absolute inset-x-0 bottom-0 h-[79px] bg-white transition-[height,background-color] duration-[744ms] ${SPRING} card-open:h-full card-open:bg-navy`}
-        />
-        {/* 214px = where the name + title are centered in the 79px strip (203 + (79 - 56) / 2) */}
-        <div
-          className="absolute inset-x-4 top-[214px] flex flex-col transition-[top] duration-[744ms] ease-[cubic-bezier(0.34,1.3,0.64,1)] card-open:top-5"
-        >
-          <p className={`font-heading text-base font-bold md:text-lg leading-7 text-navy transition-colors duration-[744ms] ${SPRING} card-open:text-white`}>
-            {name}
-          </p>
-          <p className="mt-1 max-h-6 overflow-hidden font-body text-sm text-[#839794] md:text-base opacity-100 transition-[opacity,max-height,margin] duration-300 ease-out card-open:mt-0 card-open:max-h-0 card-open:opacity-0">
-            {title}
-          </p>
-          <dl className="pointer-events-none flex max-h-0 flex-col gap-2.5 overflow-hidden opacity-0 transition-[max-height,opacity,margin] duration-500 ease-out card-open:pointer-events-auto card-open:mt-3 card-open:max-h-[220px] card-open:opacity-100">
-            {LINK_ROWS.filter(([key]) => links[key]).map(([key, label]) => (
+// The four corners of the photo's frame, like a viewfinder's marks
+const BRACKETS = [
+  'left-2.5 top-2.5 border-l border-t',
+  'right-2.5 top-2.5 border-r border-t',
+  'bottom-2.5 left-2.5 border-b border-l',
+  'bottom-2.5 right-2.5 border-b border-r',
+]
+
+function ProfessorCard({ photo, name, title, links, index }) {
+  const flip = useTapToFlip()
+  const rows = LINK_ROWS.filter(([key]) => links?.[key])
+  // A white card with a hairline border: the photo in a frame with viewfinder marks, a name strip under it with the role as a small
+  // mono line, and the index of the card on the right. Hovering (or a tap) lights the border in teal with a soft glow, and the strip
+  // rises to fill the card - turning navy, the photo fading away - with the name moving up to the top and the links listed under it.
+  return (
+    <div {...flip} className={`group relative h-[304px] w-full overflow-hidden rounded-xl border border-navy/10 bg-white transition-[border-color,box-shadow] duration-300 ${GLOW}`}>
+      <div className={`absolute inset-x-0 top-0 h-[224px] transition-opacity duration-[744ms] ${SPRING} card-open:opacity-0`}>
+        <img src={photo} alt={name} className="h-full w-full object-cover" />
+        <div className="absolute inset-x-0 bottom-0 h-12 bg-gradient-to-t from-white to-transparent" />
+        {BRACKETS.map((pos) => (
+          <span key={pos} className={`absolute size-3 border-[#3fb0b8] ${pos}`} />
+        ))}
+      </div>
+      <div
+        className={`absolute inset-x-0 bottom-0 h-[80px] border-t border-navy/10 bg-white transition-[height,background-color] duration-[744ms] ${SPRING} card-open:h-full card-open:border-transparent card-open:bg-navy`}
+      />
+      <span className="absolute right-4 top-[271px] font-mono text-[11px] tracking-[0.18em] text-navy/25 transition-opacity duration-300 card-open:opacity-0">
+        {String(index + 1).padStart(2, '0')}
+      </span>
+      {/* 242px = where the name and role are centred in the 80px strip (224 + (80 - 44) / 2) */}
+      <div className="absolute inset-x-4 top-[242px] flex flex-col transition-[top] duration-[744ms] ease-[cubic-bezier(0.34,1.3,0.64,1)] card-open:top-5">
+        <p className={`truncate font-heading text-[17px] font-bold leading-6 text-navy transition-colors duration-[744ms] ${SPRING} card-open:text-white`}>{name}</p>
+        <p className="mt-1 inline-flex max-h-4 items-center gap-1.5 overflow-hidden font-mono text-[11px] uppercase leading-4 tracking-[0.12em] text-[#1a7d90] opacity-100 transition-[opacity,max-height,margin] duration-300 ease-out card-open:mt-0 card-open:max-h-0 card-open:opacity-0">
+          <span className="size-1.5 shrink-0 rounded-full bg-[#3fb0b8] shadow-[0_0_6px_rgba(63,176,184,0.8)]" />
+          {title}
+        </p>
+        {rows.length > 0 && (
+          <dl className="pointer-events-none flex max-h-0 flex-col gap-3 overflow-hidden opacity-0 transition-[max-height,opacity,margin] duration-500 ease-out card-open:pointer-events-auto card-open:mt-4 card-open:max-h-[220px] card-open:opacity-100">
+            {rows.map(([key, label]) => (
               <div key={key}>
-                <dt className="font-heading text-xs font-semibold text-white/70">{label}:</dt>
+                <dt className="font-mono text-[10px] uppercase tracking-[0.16em] text-[#7fd4da]">{label}</dt>
                 <dd>
-                  <a
-                    href={links[key]}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="break-all font-body text-xs leading-snug text-white underline-offset-2 hover:underline"
-                  >
+                  <a href={links[key]} target="_blank" rel="noopener noreferrer" className="break-all font-body text-xs leading-snug text-white/85 underline-offset-2 hover:text-white hover:underline">
                     {links[key]}
                   </a>
                 </dd>
               </div>
             ))}
           </dl>
-        </div>
-      </div>
-    )
-  }
-
-  return (
-    <div {...flip} className="group relative h-[282px] w-[282px] overflow-hidden rounded-lg bg-white shadow-sm">
-      {photoEl}
-      <div
-        className={`absolute inset-x-0 bottom-0 flex h-[79px] flex-col justify-center gap-1 bg-white p-4 transition-[height,background-color] duration-[744ms] ${SPRING} card-open:h-full card-open:bg-navy`}
-      >
-        <p className={`font-heading text-base font-bold md:text-lg text-navy transition-colors duration-[744ms] ${SPRING} card-open:text-white`}>
-          {name}
-        </p>
-        <p className="font-body text-sm text-[#839794] md:text-base opacity-100 transition-opacity duration-200 card-open:opacity-0">
-          {title}
-        </p>
+        )}
       </div>
     </div>
   )
@@ -107,9 +94,9 @@ function ProfessorCard({ photo, name, title, links }) {
 
 export default function ProfessorGrid({ professors }) {
   return (
-    <div className="flex flex-1 flex-wrap justify-center gap-6 lg:justify-start">
+    <div className="grid w-full flex-1 grid-cols-[repeat(auto-fill,minmax(220px,1fr))] gap-5 lg:w-auto lg:self-start">
       {professors.map((p, i) => (
-        <ProfessorCard key={i} {...p} />
+        <ProfessorCard key={i} {...p} index={i} />
       ))}
     </div>
   )

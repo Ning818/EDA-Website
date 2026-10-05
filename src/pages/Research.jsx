@@ -14,7 +14,7 @@ export default function Research() {
   const theme = themeBySlug(slug)
   if (!theme) return <Navigate to="/research" replace />
   return (
-    <main>
+    <main style={{ '--theme': theme.color }}>
       <PageIntroBand category="Research" title={theme.name} decorated light decorVariant={decorVariantFor(theme, 'research')} decorColor={theme.color} decorPage="research">
         The EDA group undertakes research and development in Design Automation for standard digital CMOS ICs,
         Beyond-CMOS circuits and Electrical Energy Systems. For standard CMOS, the main activities are computer-aided

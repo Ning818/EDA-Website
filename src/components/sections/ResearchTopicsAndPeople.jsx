@@ -47,11 +47,12 @@ export default function ResearchTopicsAndPeople() {
 
         <div className="w-full lg:w-[352px] lg:shrink-0">
           <h2 className="py-2 font-heading text-2xl font-bold text-navy md:text-[32px]">Involved people</h2>
-          <div className="flex flex-wrap justify-between gap-x-4 gap-y-4">
+          {/* always two cards to a row on a phone, as many as fit from `md` up (cards are at least 150px wide); in the 352px desktop column, two of 168px */}
+          <div className="grid grid-cols-2 gap-4 md:grid-cols-[repeat(auto-fill,minmax(150px,1fr))]">
             {PEOPLE.map((person, i) => (
               // Name at the top (up to two lines), role pinned to the bottom as a small all-caps line with a teal dot, so the
               // role sits at the same height on every card whether the name takes one line or two.
-              <div key={`${person.name}-${i}`} className="flex min-h-[84px] w-[168px] flex-col justify-between gap-2 rounded-2xl border border-navy/15 bg-white px-4 py-3 transition-[border-color] duration-300 ease-out hover:border-[#279aae]">
+              <div key={`${person.name}-${i}`} className="flex min-h-[84px] w-full flex-col justify-between gap-2 rounded-2xl border border-navy/15 bg-white px-3 py-3 md:px-4 transition-[border-color] duration-300 ease-out hover:border-[color:var(--theme,#279aae)]">
                 <p className="font-heading text-sm font-semibold leading-snug text-navy md:text-[15px]">{person.name}</p>
                 <p className="inline-flex items-center gap-1.5 font-body text-[11px] uppercase tracking-[0.06em] text-[#839794] md:text-xs">
                   <span className="size-1.5 shrink-0 rounded-full bg-[#279aae]" />

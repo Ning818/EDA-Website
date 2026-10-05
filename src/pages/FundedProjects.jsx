@@ -26,7 +26,7 @@ export default function FundedProjects() {
   const theme = themeBySlug(slug)
   if (!theme) return <Navigate to="/research/funded-projects" replace />
   return (
-    <main>
+    <main style={{ '--theme': theme.color }}>
       <PageIntroBand category="Funded Projects" title={theme.name} decorated light decorVariant={decorVariantFor(theme, 'projects')} decorColor={theme.color} decorPage="projects" after={<StatsRow light />} />
 
       <ProjectCardsGrid title="Ongoing Projects" projects={ONGOING_PROJECTS} />

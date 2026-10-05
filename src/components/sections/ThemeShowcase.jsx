@@ -6,7 +6,7 @@ import { themeByName } from '../../themes'
  * One of the four alternating "theme" rows on the homepage (VLSI-CAD, Bioinformatics,
  * Smart City, Industry 4.0). `imageSide` flips which side the visual sits on.
  */
-export default function ThemeShowcase({ theme, imageSide = 'left', visual: customVisual, copy, gapAfter = 0, dwell = 60 }) {
+export default function ThemeShowcase({ theme, imageSide = 'left', visual: customVisual, copy, gapAfter = 0, dwell = 60, phoneLift = 0 }) {
   const visual = customVisual ?? (
     <ParticlePlaceholder label={`${theme} particle visual effect.`} className="h-[478px] w-full max-w-[531px] shrink-0" />
   )
@@ -14,10 +14,15 @@ export default function ThemeShowcase({ theme, imageSide = 'left', visual: custo
   // Phone layout: with the cloud on top (imageSide 'left') the copy sits 24px higher than the stack puts it (more room
   // under it) and may then overlap the cloud's lower edge, which is fine; with the cloud at the bottom ('right') the
   // copy comes first, a little lower to clear the header.
+  // `phoneLift` (px): lifts this theme's copy a further bit on the phone layout (with the cloud on top), e.g. where the cloud is small
+  // and leaves a wide gap above the text.
   // With the visual on the left the text block sits flush right, 500px wide - exactly where the social-media copy
   // (SocialCopy.jsx) sits, so the first and third themes line up with it.
   const links = (
-    <div className={`flex min-w-0 flex-1 flex-col items-start justify-center max-md:flex-none ${imageSide === 'left' ? 'max-md:-translate-y-6' : ''}`}>
+    <div
+      style={phoneLift ? { '--copy-lift': `${phoneLift}px` } : undefined}
+      className={`flex min-w-0 flex-1 flex-col items-start justify-center max-md:flex-none ${imageSide === 'left' ? 'max-md:translate-y-[calc(-1.5rem-var(--copy-lift,0px))]' : ''}`}
+    >
       <div className={`flex flex-col items-start gap-5 md:gap-8 lg:gap-11 ${imageSide === 'left' ? 'ml-auto w-[min(500px,100%)]' : ''}`}>
         {/* small all-caps label over the copy (the theme's name), like an eyebrow line */}
         <div className="flex flex-col items-start gap-2 md:gap-3">

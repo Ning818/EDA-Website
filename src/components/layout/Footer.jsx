@@ -2,6 +2,8 @@ import edaLogoText from '../../assets/images/eda-logo-text.png'
 import politoLogo from '../../assets/images/polito-logo.svg'
 import linkedinIcon from '../../assets/images/linkedin-icon.svg'
 import youtubeIcon from '../../assets/images/youtube-icon.svg'
+// the group's real channel / page, the same links the home page's social stage uses
+import { LINKEDIN_COPY, YOUTUBE_COPY } from '../sections/socialCopyText'
 
 // Recolored to a single-accent, line-drawn footer (deep navy - the same color the nav bar's own
 // text/underline uses - for both the rule lines and all the text). Image/text layout below is
@@ -64,10 +66,10 @@ export default function Footer() {
               Polito maps
             </p>
             <div className="flex items-center gap-6 pt-2">
-              <a href="https://www.linkedin.com" target="_blank" rel="noreferrer">
+              <a href={LINKEDIN_COPY.url} target="_blank" rel="noreferrer">
                 <img src={linkedinIcon} alt="LinkedIn" className="size-6" />
               </a>
-              <a href="https://www.youtube.com" target="_blank" rel="noreferrer">
+              <a href={YOUTUBE_COPY.url} target="_blank" rel="noreferrer">
                 <img src={youtubeIcon} alt="YouTube" className="h-5 w-[25px]" />
               </a>
             </div>

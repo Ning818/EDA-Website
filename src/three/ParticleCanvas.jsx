@@ -14,6 +14,7 @@ import { FileLoader } from 'three'
 import { matchClouds } from './morphMatch'
 import { makeCircleTexture } from './makeCircleTexture'
 import { brainState, isMobileView } from './cloudState'
+import { YOUTUBE_COPY, LINKEDIN_COPY } from '../content/social'
 
 /*
  * One fixed, viewport-sized WebGL "stage" that the particle clouds live on. Page text scrolls over
@@ -78,8 +79,8 @@ export const ARM_EXIT_SCREENS = 2.16 // scroll length (in screens) of the arm ->
 // (YoutubeSpotlight, LinkedInSection). Home.jsx's own Industry-4.0 `gap` needs to stay wide enough to
 // hold this scroll range before those sections scroll into view - see its own comment.
 // Click targets for the pressable logo layer of each social stage (opened in a new tab).
-const YOUTUBE_URL = 'https://www.youtube.com/@edagrouppolito329/videos'
-const LINKEDIN_URL = 'https://www.linkedin.com/company/edagroup-polito/posts/?feedView=all'
+const YOUTUBE_URL = YOUTUBE_COPY.url // the texts and links of the two stages are in src/content/social.js
+const LINKEDIN_URL = LINKEDIN_COPY.url
 export const SOCIAL_HOLD_SCREENS = 0.6 // scroll length (in screens) `social` holds before it morphs into `social2` (and `social2` holds after it)
 // social1 -> social2 is not scrubbed by the scrollbar: scrolling past the end of social1's hold starts it, and it then runs
 // to the end by itself over this many seconds (scrolling back past that point plays it in reverse). It takes no scroll

@@ -58,13 +58,15 @@ export default function Footer() {
 
           <div className="flex flex-col gap-3 font-body text-base text-navy md:text-lg">
             <p className="font-bold tracking-[-0.36px]">Visit</p>
-            <p className="leading-6">
-              Polito website
-              <br />
-              Department website
-              <br />
-              Polito maps
-            </p>
+            {/* the university's and the department's sites (new tab, like the social icons below) */}
+            <div className="flex flex-col leading-6">
+              <a href="https://www.polito.it/" target="_blank" rel="noreferrer" className="w-fit underline-offset-4 hover:underline">
+                Polito website
+              </a>
+              <a href="https://www.dauin.polito.it/en/" target="_blank" rel="noreferrer" className="w-fit underline-offset-4 hover:underline">
+                Department website
+              </a>
+            </div>
             <div className="flex items-center gap-6 pt-2">
               <a href={LINKEDIN_COPY.url} target="_blank" rel="noreferrer">
                 <img src={linkedinIcon} alt="LinkedIn" className="size-6" />

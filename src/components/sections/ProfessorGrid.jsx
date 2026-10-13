@@ -37,18 +37,10 @@ function useTapToFlip() {
 
 const GLOW = 'hover:border-[#3fb0b8] hover:shadow-[0_8px_28px_rgba(63,176,184,0.25)] data-[open]:border-[#3fb0b8] data-[open]:shadow-[0_8px_28px_rgba(63,176,184,0.25)]'
 
-// The four corners of the photo's frame, like a viewfinder's marks
-const BRACKETS = [
-  'left-2.5 top-2.5 border-l border-t',
-  'right-2.5 top-2.5 border-r border-t',
-  'bottom-2.5 left-2.5 border-b border-l',
-  'bottom-2.5 right-2.5 border-b border-r',
-]
-
 function ProfessorCard({ photo, name, title, links, index }) {
   const flip = useTapToFlip()
   const rows = LINK_ROWS.filter(([key]) => links?.[key])
-  // A white card with a hairline border: the photo in a frame with viewfinder marks, a name strip under it with the role as a small
+  // A white card with a hairline border: the photo, a name strip under it with the role as a small
   // mono line, and the index of the card on the right. Hovering (or a tap) lights the border in teal with a soft glow, and the strip
   // rises to fill the card - turning navy, the photo fading away - with the name moving up to the top and the links listed under it.
   return (
@@ -56,9 +48,6 @@ function ProfessorCard({ photo, name, title, links, index }) {
       <div className={`absolute inset-x-0 top-0 h-[224px] transition-opacity duration-[744ms] ${SPRING} card-open:opacity-0`}>
         <img src={photo} alt={name} className="h-full w-full object-cover" />
         <div className="absolute inset-x-0 bottom-0 h-12 bg-gradient-to-t from-white to-transparent" />
-        {BRACKETS.map((pos) => (
-          <span key={pos} className={`absolute size-3 border-[#3fb0b8] ${pos}`} />
-        ))}
       </div>
       <div
         className={`absolute inset-x-0 bottom-0 h-[80px] border-t border-navy/10 bg-white transition-[height,background-color] duration-[744ms] ${SPRING} card-open:h-full card-open:border-transparent card-open:bg-navy`}

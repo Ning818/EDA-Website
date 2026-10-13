@@ -7,7 +7,11 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "oxlint",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "check:content": "node scripts/check-content.mjs",
+    "check:effects": "node scripts/check-effects.mjs",
+    "check:pages": "node scripts/check-pages.mjs",
+    "check": "npm run lint && npm run check:content && npm run check:effects && npm run check:pages && npm run build"
   },
   "dependencies": {
     "@react-three/drei": "^10.7.8",

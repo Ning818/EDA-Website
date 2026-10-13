@@ -3,61 +3,54 @@ import ResearchTopicsAndPeople from '../components/sections/ResearchTopicsAndPeo
 import FeatureCard from '../components/sections/FeatureCard'
 import { Navigate, useLocation, useParams } from 'react-router-dom'
 import { themeBySlug, decorVariantFor } from '../themes'
-import thesisImage from '../assets/images/thesis-highlight.png'
-import fundedProjectsImage from '../assets/images/funded-projects-highlight.png'
+import { RESEARCH_BY_THEME } from '../content/research'
+import { INVOLVED_PEOPLE } from '../content/people'
 
-// One Research page per theme: VLSI-CAD at /research, the others at /research/:theme (placeholder copies of it for now).
+// One Research page per theme: VLSI-CAD at /research, the others at /research/:theme. The text is in src/content/research.js,
+// the header artwork is chosen by the theme's `header` in src/themes.js.
 export default function Research() {
   const { theme: slug = 'vlsi-cad' } = useParams()
   // Preview switch while the two looks are compared: /research?hl=light makes the Thesis card light too.
   const thesisTone = new URLSearchParams(useLocation().search).get('hl') === 'light' ? 'light' : 'dark'
   const theme = themeBySlug(slug)
   if (!theme) return <Navigate to="/research" replace />
+  const text = RESEARCH_BY_THEME[theme.slug]
   return (
     <main style={{ '--theme': theme.color }}>
       <PageIntroBand category="Research" title={theme.name} decorated light decorVariant={decorVariantFor(theme, 'research')} decorColor={theme.color} decorPage="research">
-        The EDA group undertakes research and development in Design Automation for standard digital CMOS ICs,
-        Beyond-CMOS circuits and Electrical Energy Systems. For standard CMOS, the main activities are computer-aided
-        design (CAD) algorithms, methodologies and prototype tools for low-power, variation-tolerant integrated
-        circuits, with particular emphasis on logical and physical synthesis. In Beyond-CMOS technologies, the focus
-        is on Graphene-based devices: electrical modeling and circuit-level simulation of Graphene P-N junctions and
-        Field-Effect Transistors, and the integration and optimization strategies that enable flexible circuits with
-        ultra low-power features.
+        {text.intro}
       </PageIntroBand>
 
-      <ResearchTopicsAndPeople />
+      <ResearchTopicsAndPeople topics={text.topics} people={INVOLVED_PEOPLE} />
 
       <FeatureCard
         tone={thesisTone}
         eyebrow="Highlight thesis"
-        title="L2MU: a spiking Legendre Memory Unit"
-        image={thesisImage}
-        imageAlt="Neuromorphic L2MU research visualization"
-        meta="Leto, Urgese, Macii, Fra · 2025"
-        tags={['Neuromorphic computing', 'State Space Models', 'Spiking networks']}
-        cta="Discover more theses"
+        title={text.thesis.title}
+        image={text.thesis.image}
+        imageAlt={text.thesis.imageAlt}
+        meta={text.thesis.meta}
+        tags={text.thesis.tags}
+        cta={text.thesis.cta}
         to="#"
         imageSide="left"
       >
-        Redesigning the Legendre Memory Unit with Leaky Integrate-and-Fire neurons brings State Space Models to
-        neuromorphic computing: the resulting L2MU outperforms recurrent spiking neural networks on event-based Braille
-        letter reading.
+        {text.thesis.body}
       </FeatureCard>
 
       <FeatureCard
         tone="light"
         eyebrow="Funded projects"
-        title="The projects that fund our research"
-        image={fundedProjectsImage}
-        imageAlt="TRISTAN project visualization"
+        title={text.fundedTeaser.title}
+        image={text.fundedTeaser.image}
+        imageAlt={text.fundedTeaser.imageAlt}
         stats
-        cta="Explore all funded projects"
+        cta={text.fundedTeaser.cta}
         to={theme.projects}
         button
         imageSide="right"
       >
-        Featured: TRISTAN expands the European RISC-V ecosystem by tackling Electronic Design Automation challenges
-        through open-source and industrial synergy.
+        {text.fundedTeaser.body}
       </FeatureCard>
 
       <div className="h-10 md:h-14" />

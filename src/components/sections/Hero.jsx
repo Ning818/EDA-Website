@@ -1,4 +1,5 @@
 import BrainScene from '../../three/BrainScene'
+import { HOME_HERO } from '../../content/home'
 
 // header height + hero height = 100vh on first load (a laptop screen shows exactly the header
 // and the hero, nothing more). --header-h is kept in sync with the real header by Header.jsx's
@@ -14,12 +15,8 @@ export default function Hero() {
   return (
     <section className="mx-auto flex h-[calc(100vh-var(--header-h,93px))] max-w-[1440px] flex-col items-center justify-start gap-5 px-8 pb-6 pt-8 md:flex-row md:justify-between md:gap-10 md:pb-0 md:pt-0 lg:px-[120px]">
       <div className="flex max-w-[539px] flex-col gap-6">
-        <h1 className="font-heading text-[32px] font-medium leading-none text-navy">EDA Group</h1>
-        <p className="font-body text-lg text-navy md:text-2xl">
-          EDA (Electronic Design Automation) Group is an interdepartmental research group including researchers from
-          the Department of Control and Computer Engineering (DAUIN) and the Interuniversity Department of Regional
-          and Urban Studies and Planning (DIST) of Politecnico di Torino.
-        </p>
+        <h1 className="font-heading text-[32px] font-medium leading-none text-navy">{HOME_HERO.title}</h1>
+        <p className="font-body text-lg text-navy md:text-2xl">{HOME_HERO.text}</p>
       </div>
       <BrainScene className="h-full max-h-[692px] w-full max-w-[615px] shrink-0 max-md:pointer-events-none max-md:h-auto max-md:min-h-0 max-md:max-h-[384px] max-md:flex-1 max-md:shrink max-md:-translate-y-[15%]" />
     </section>

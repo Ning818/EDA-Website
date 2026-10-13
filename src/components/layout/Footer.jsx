@@ -2,8 +2,9 @@ import edaLogoText from '../../assets/images/eda-logo-text.png'
 import politoLogo from '../../assets/images/polito-logo.svg'
 import linkedinIcon from '../../assets/images/linkedin-icon.svg'
 import youtubeIcon from '../../assets/images/youtube-icon.svg'
-// the group's real channel / page, the same links the home page's social stage uses
-import { LINKEDIN_COPY, YOUTUBE_COPY } from '../sections/socialCopyText'
+// the group's real channel / page (the same links the home page's social stage uses) and the footer's text: src/content
+import { LINKEDIN_COPY, YOUTUBE_COPY } from '../../content/social'
+import { FOOTER } from '../../content/site'
 
 // Recolored to a single-accent, line-drawn footer (deep navy - the same color the nav bar's own
 // text/underline uses - for both the rule lines and all the text). Image/text layout below is
@@ -43,16 +44,15 @@ export default function Footer() {
           </div>
 
           <div className="flex flex-col gap-3 font-body text-base text-navy md:text-lg">
-            <p className="font-bold tracking-[-0.36px]">Politecnico di Torino</p>
-            <p className="font-medium tracking-[-0.36px]">Department of Control and Computer Engineering (DAUIN)</p>
+            <p className="font-bold tracking-[-0.36px]">{FOOTER.university}</p>
+            <p className="font-medium tracking-[-0.36px]">{FOOTER.department}</p>
             <p className="leading-6">
-              Corso Duca Degli Abruzzi, 24
-              <br />
-              10129, Torino, Italy
-              <br />
-              Tel. +39 011 090 7042
-              <br />
-              Fax. +39 011 090 7099
+              {FOOTER.address.map((line, i) => (
+                <span key={line}>
+                  {i > 0 && <br />}
+                  {line}
+                </span>
+              ))}
             </p>
           </div>
 
@@ -60,12 +60,11 @@ export default function Footer() {
             <p className="font-bold tracking-[-0.36px]">Visit</p>
             {/* the university's and the department's sites (new tab, like the social icons below) */}
             <div className="flex flex-col leading-6">
-              <a href="https://www.polito.it/" target="_blank" rel="noreferrer" className="w-fit underline-offset-4 hover:underline">
-                Polito website
-              </a>
-              <a href="https://www.dauin.polito.it/en/" target="_blank" rel="noreferrer" className="w-fit underline-offset-4 hover:underline">
-                Department website
-              </a>
+              {FOOTER.links.map((link) => (
+                <a key={link.url} href={link.url} target="_blank" rel="noreferrer" className="w-fit underline-offset-4 hover:underline">
+                  {link.label}
+                </a>
+              ))}
             </div>
             <div className="flex items-center gap-6 pt-2">
               <a href={LINKEDIN_COPY.url} target="_blank" rel="noreferrer">
@@ -81,11 +80,11 @@ export default function Footer() {
 
       <div className="mx-auto max-w-[1440px] px-8 pb-6 pt-4 md:pt-6 lg:px-[120px]">
         <p className="font-body text-sm text-navy">
-          Copyright © 2026{' '}
-          <a href="https://eda.polito.it/" target="_blank" rel="noreferrer" className="underline">
-            EDA
+          Copyright © {FOOTER.copyright.year}{' '}
+          <a href={FOOTER.copyright.ownerUrl} target="_blank" rel="noreferrer" className="underline">
+            {FOOTER.copyright.owner}
           </a>
-          . All rights reserved. Theme Spacious by .... Powered by:...
+          . {FOOTER.copyright.rest}
         </p>
       </div>
     </footer>

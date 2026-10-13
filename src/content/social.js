@@ -1,5 +1,5 @@
-// The YouTube / LinkedIn copy: shown beside the social1 / social2 particle clouds (SocialCopy.jsx), and
-// still the text of the standalone YoutubeSpotlight / LinkedInSection sections.
+// The YouTube / LinkedIn copy and links: shown beside the social1 / social2 particle clouds on the home page (SocialCopy.jsx),
+// and the links are also the ones behind the footer's icons. `url` is where the cloud's logo, the copy's link and the footer icon go.
 export const YOUTUBE_COPY = {
   label: 'YouTube',
   text:

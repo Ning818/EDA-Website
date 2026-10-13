@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { ONGOING_PROJECTS, ENDED_PROJECTS, TOTAL_PROJECTS } from './projectStats'
+import { ONGOING_COUNT as ONGOING_PROJECTS, ENDED_COUNT as ENDED_PROJECTS, TOTAL_COUNT as TOTAL_PROJECTS } from '../../content/projects'
 
 // The Funded Projects page's headline numbers (shown inside the page-header band, see PageIntroBand's `after`): big
 // figures that count up when the page opens. The total is the sum of the other two. `light`: for a light band (navy

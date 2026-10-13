@@ -1,5 +1,5 @@
 import ArrowLink from '../ui/ArrowLink'
-import { YOUTUBE_COPY, LINKEDIN_COPY } from './socialCopyText'
+import { YOUTUBE_COPY, LINKEDIN_COPY } from '../../content/social'
 
 /**
  * The copy beside the social1 (YouTube) and social2 (LinkedIn) particle clouds. A fixed overlay on the

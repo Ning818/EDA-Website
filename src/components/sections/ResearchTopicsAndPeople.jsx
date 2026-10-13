@@ -1,43 +1,12 @@
-const TOPICS = [
-  'Low-power Design Techniques and Implementation Strategies',
-  'Power Modeling, Estimation and Optimization',
-  'Thermal-Aware and PV-tolerant Design Solutions',
-  'Design Techniques for Mitigating Aging Effects',
-  'Modeling and Estimation of Indirect Metrics: Temperature, Aging',
-  'System-Level, Behavioral-Level and RTL Synthesis',
-  'Layout-Driven Synthesis and Physical Design',
-  'Logic Synthesis and Optimization',
-  'Battery Modeling, Design and Management for Mobile Systems',
-  'Cyber-Physical Energy Systems',
-  'Electrical Modeling and Simulation of Graphene-based Devices',
-  'Implementation Strategies of Graphene-based Flexible Circuits',
-  'Ultra-low Power Solution for Graphene-based Flexible Circuits',
-  'Logic Synthesis Algorithms for Graphene-based Flexible Circuits',
-]
-
-const PEOPLE = [
-  { name: 'Gianvito Urgese', title: 'Assoc. Prof.' },
-  { name: 'Alessandro Aliberti', title: 'Asst. Prof.' },
-  { name: 'Lorenzo Bottaccioli', title: 'Assoc. Prof.' },
-  { name: 'Daniele Jahier Pagliari', title: 'Assoc. Prof.' },
-  { name: 'Edoardo Patti', title: 'Assoc. Prof.' },
-  { name: 'Enrico Macii', title: 'Full Prof.' },
-  { name: 'Alessio Burrello', title: 'Asst. Prof.' },
-  { name: 'Luca Barbierato', title: 'Asst. Prof.' },
-  { name: 'Santa Di Cataldo', title: 'Assoc. Prof.' },
-  { name: 'Sara Vinco', title: 'Assoc. Prof.' },
-  { name: 'Giuseppe Fanuli', title: 'Ext. Lecturer' }, // external teacher
-  { name: 'Alberto Bocca', title: 'PhD Student' },
-]
-
-export default function ResearchTopicsAndPeople() {
+// The topics and the people come from src/content (research.js, people.js); the page passes them in.
+export default function ResearchTopicsAndPeople({ topics, people }) {
   return (
     <section className="mx-auto max-w-[1440px] px-8 py-10 lg:px-[120px]">
       <div className="flex flex-col gap-10 lg:flex-row">
         <div className="flex-1">
           <h2 className="border-b border-[rgba(0,40,75,0.15)] py-2 font-heading text-2xl font-bold text-navy md:text-4xl">Research Topics</h2>
           <ul>
-            {TOPICS.map((topic) => (
+            {topics.map((topic) => (
               <li key={topic} className="border-b border-[rgba(182,176,156,0.5)] py-2 font-heading text-base text-navy md:text-xl">
                 {topic}
               </li>
@@ -49,7 +18,7 @@ export default function ResearchTopicsAndPeople() {
           <h2 className="pb-4 pt-2 font-heading text-2xl font-bold text-navy md:text-[32px]">Involved people</h2>
           {/* always two cards to a row on a phone, as many as fit from `md` up (cards are at least 150px wide); in the 352px desktop column, two of 168px */}
           <div className="grid grid-cols-2 gap-4 md:grid-cols-[repeat(auto-fill,minmax(150px,1fr))]">
-            {PEOPLE.map((person, i) => (
+            {people.map((person, i) => (
               // Name at the top (up to two lines), role pinned to the bottom as a small all-caps line with a teal dot, so the
               // role sits at the same height on every card of a row whether the name takes one line or two. On a phone the
               // cards have no minimum height and the role sits right under the name (not pinned to the bottom): the two lines of a

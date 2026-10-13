@@ -1,11 +1,11 @@
 // The Teaching page's sidebar: a white panel with a small console-style heading and one row per tab - an index number and the
 // name. A single lit bar (a teal glow on the left edge and a fading teal wash behind the row) slides to the selected row instead
 // of the row's own background changing, so picking another tab is a motion, not a swap.
-const NAV_ITEMS = ['Professors', 'Phd Students', 'Alumni', 'Administrative Clerks']
 const ROW = 52 // px: the rows' height, which the sliding bar moves by
 
-export default function TeachingSidebar({ active = 'Professors', onSelect }) {
-  const activeIndex = Math.max(0, NAV_ITEMS.indexOf(active))
+export default function TeachingSidebar({ groups, active, onSelect }) {
+  const items = groups.map((g) => g.label)
+  const activeIndex = Math.max(0, items.indexOf(active))
   return (
     <aside className="w-full shrink-0 rounded-2xl border border-navy/10 bg-white p-3 lg:sticky lg:top-6 lg:w-[273px] lg:self-start">
       <div className="flex items-center gap-2.5 px-3 pb-3 pt-1.5">
@@ -21,7 +21,7 @@ export default function TeachingSidebar({ active = 'Professors', onSelect }) {
         >
           <span className="absolute inset-y-2.5 left-0 w-[3px] rounded-full bg-[#3fb0b8] shadow-[0_0_10px_rgba(63,176,184,0.7)]" />
         </span>
-        {NAV_ITEMS.map((item, i) => {
+        {items.map((item, i) => {
           const isActive = item === active
           return (
             <button

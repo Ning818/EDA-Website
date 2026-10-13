@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 import { UNDERLINE_ANIM } from '../ui/ArrowLink'
-import { ONGOING_PROJECTS, ENDED_PROJECTS, TOTAL_PROJECTS } from './projectStats'
+import { ONGOING_COUNT as ONGOING_PROJECTS, ENDED_COUNT as ENDED_PROJECTS, TOTAL_COUNT as TOTAL_PROJECTS } from '../../content/projects'
 
 /**
  * A rounded "feature" card for the Research page: an image beside an eyebrow, a title, a short summary and a call to

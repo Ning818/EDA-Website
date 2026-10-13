@@ -1,7 +1,7 @@
 import ArrowLink from '../ui/ArrowLink'
 import meetingPhoto from '../../assets/images/linkedin-meeting-photo.png'
 
-import { LINKEDIN_COPY } from './socialCopyText'
+import { LINKEDIN_COPY } from '../../content/social'
 
 const LINKEDIN_URL = 'https://www.linkedin.com/company/eda-group-polito/'
 

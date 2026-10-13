@@ -5,55 +5,42 @@ import StatsRow from '../components/sections/StatsRow'
 import ProjectCardsGrid from '../components/sections/ProjectCardsGrid'
 import FundedProjectsListSection from '../components/sections/FundedProjectsListSection'
 import FeatureCard from '../components/sections/FeatureCard'
-import projectImage from '../assets/images/project-highlight.png'
+import { PROJECTS_BY_THEME } from '../content/projects'
 
-// The Figma source currently repeats this single placeholder card/list-item
-// across all slots — reproduced faithfully rather than inventing real data.
-const PROJECT = {
-  code: 'R2POWER300',
-  description: 'PREPARING R2 EXTENSIONS TO 300mm FOR BCD SMART POWER',
-  status: 'EU Funded · Active',
-}
-const ONGOING_PROJECTS = Array.from({ length: 5 }, () => PROJECT)
-
-const LIST_ITEM = { code: 'Funded Projects code', description: 'Description' }
-const ENDED_PROJECTS = Array.from({ length: 16 }, () => LIST_ITEM)
-
-// One Funded Projects page per theme: VLSI-CAD at /research/funded-projects, the others at /research/funded-projects/:theme
-// (placeholder copies of it for now).
+// One Funded Projects page per theme: VLSI-CAD at /research/funded-projects, the others at /research/funded-projects/:theme.
+// The projects and the highlight text are in src/content/projects.js.
 export default function FundedProjects() {
   const { theme: slug = 'vlsi-cad' } = useParams()
   const theme = themeBySlug(slug)
   if (!theme) return <Navigate to="/research/funded-projects" replace />
+  const data = PROJECTS_BY_THEME[theme.slug]
+  const { highlight } = data
   return (
     <main style={{ '--theme': theme.color }}>
       <PageIntroBand category="Funded Projects" title={theme.name} decorated light decorVariant={decorVariantFor(theme, 'projects')} decorColor={theme.color} decorPage="projects" after={<StatsRow light />} />
 
-      <ProjectCardsGrid title="Ongoing Projects" projects={ONGOING_PROJECTS} />
+      <ProjectCardsGrid title="Ongoing Projects" projects={data.ongoing} />
 
       <FeatureCard
         tone="dark"
         eyebrow="Highlight project"
-        title={
-          <>
-            TRISTAN:
-            <br />
-            open-source EDA for RISC-V
-          </>
-        }
-        image={projectImage}
-        imageAlt="TRISTAN project visualization"
-        tags={['RISC-V', 'Open-source EDA', 'European project']}
-        cta="Discover this project"
+        title={highlight.title.map((line, i) => (
+          <span key={line}>
+            {i > 0 && <br />}
+            {line}
+          </span>
+        ))}
+        image={highlight.image}
+        imageAlt={highlight.imageAlt}
+        tags={highlight.tags}
+        cta={highlight.cta}
         to="#"
         imageSide="left"
       >
-        TRISTAN expands the European RISC-V ecosystem by tackling Electronic Design Automation challenges through
-        open-source and industrial synergy, with an EDA flow that streamlines the early design phases of RISC-V
-        systems.
+        {highlight.body}
       </FeatureCard>
 
-      <FundedProjectsListSection title="Ended Projects" items={ENDED_PROJECTS} splitAt={6} />
+      <FundedProjectsListSection title="Ended Projects" items={data.ended} splitAt={data.endedSplitAt} />
     </main>
   )
 }

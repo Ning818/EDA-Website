@@ -1,7 +1,7 @@
 import ArrowLink from '../ui/ArrowLink'
 import youtubeThumbnail from '../../assets/images/youtube-thumbnail.png'
 
-import { YOUTUBE_COPY } from './socialCopyText'
+import { YOUTUBE_COPY } from '../../content/social'
 
 const CHANNEL_URL = YOUTUBE_COPY.url
 

@@ -24,9 +24,9 @@ const CURVE_SEGMENTS = 48
 export const CITY_PARTICLE_SIZE = 0.03
 const PARTICLE_SIZE = CITY_PARTICLE_SIZE
 
-// smart-city11.dxf's two named layers (same as smart-city10.dxf's): "亮色road" and "主题色建筑"
+// smart-city11.dxf's two named layers (same as smart-city10.dxf's): the bright-color road layer and the theme-color buildings layer
 // (theme-color buildings).
-// Anything on "亮色road" gets ROAD_COLOR; everything else (including layer "0"/unnamed) gets
+// Anything on the bright-color road layer gets ROAD_COLOR; everything else (including layer "0"/unnamed) gets
 // BUILDING_COLOR. BUILDING_COLOR is Smart City's own accent (it was a blue-teal, '#4a9db3', too close to
 // the VLSI-CAD cloud's teal; a plain blue was then too close to Industry 4.0's purple and an orchid didn't fit the
 // palette, so it is a deeper, greener ocean blue now - darker and bluer than the VLSI teal, clear of the purple - it also
@@ -56,8 +56,8 @@ const ROAD_COLOR = '#e0a94a'
 // exactly as level as it was (a local spin about Y can't change how "up" itself eventually projects
 // to screen, only what's currently facing the camera), so no further roll correction was needed.
 export const CITY_ORIENTATION = [0.19482193940602194, -0.06647756366764312, -0.013223001801092357, 0.9784938925094315]
-// The center of the one big closed loop on the "亮色road" layer (a roundabout) - found by loading
-// smart-city10.dxf, walking every "亮色road" chain, keeping the closed ones (first vertex ~= last)
+// The center of the one big closed loop on the bright-color road layer (a roundabout) - found by loading
+// smart-city10.dxf, walking every bright-color road chain, keeping the closed ones (first vertex ~= last)
 // and picking the one with the largest average distance from its own centroid to that centroid
 // (radius 34.46 raw units, near-perfectly circular: (max-min radius)/avg radius = 0.031). Converted
 // into this model's centered/scaled local-unit space the same way buildCityCloud's own points are
@@ -69,7 +69,7 @@ export const CITY_PIVOT = [-0.019938461538462467, -0.4699020494628277, 0]
 
 /** The Smart City particle data, shared by the scene and the page-wide shared canvas. */
 export function buildCityCloud(text) {
-    // rejectOutliers: smart-city10.dxf carried one stray "亮色road" chain ~570 units from the rest of
+    // rejectOutliers: smart-city10.dxf carried one stray bright-color road chain ~570 units from the rest of
     // the model (and outside the file's own $EXTMIN/$EXTMAX) - a leftover from the source CAD file,
     // not part of the city itself. Left in, it alone stretched the model's bounding box 6x+ over what
     // the real content needs, so the real content - everything actually meant to be here - got scaled
@@ -85,7 +85,7 @@ export function buildCityCloud(text) {
     // source too, for all but one remaining duplicate - dedupeChains still catches that last one, so
     // this stays on.
     const geo = sampleDXF(text, { targetExtent: TARGET_EXTENT, spacing: EDGE_SPACING, curveSegments: CURVE_SEGMENTS, rejectOutliers: true, dedupeChains: true })
-    const colors = colorByGroup(geo.groups, { '亮色road': ROAD_COLOR, '主题色建筑': BUILDING_COLOR }, BUILDING_COLOR)
+    const colors = colorByGroup(geo.groups, { '亮色road': ROAD_COLOR, '主题色建筑': BUILDING_COLOR }, BUILDING_COLOR) // layers: bright-color road / theme-color buildings
     return { ...geo, colors }
 }
 

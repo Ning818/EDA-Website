@@ -299,7 +299,7 @@ function expandedSource(aCloud, bCloud, { target, extra }) {
 
 /**
  * Like matchedTarget, but for a morph that ends on a cloud whose draw order matters (the social clouds: depth
- * test off, "...背面" points must be submitted before the front ones). The source cloud is reordered so its
+ * test off, "...back side" points must be submitted before the front ones). The source cloud is reordered so its
  * points are sorted by the index of the target point they land on - since the target cloud is already
  * back-first, the morph's last frame then has the same draw order as the social cloud it hands over to.
  * Returns { src, tgt } (src = aCloud reordered, tgt = b's data for each reordered a point).
@@ -605,7 +605,7 @@ function Clouds() {
     const armStage = rotated(arm.positions, qArm).map((v) => v * 260)
     // The arm has more points than the city: match the arm to the city and grow the extras out of it.
     const ex4 = expandedSource(city, arm, matchClouds(armStage, cityStage))
-    const social = buildSocialMediaCloud(socialText, false, YOUTUBE_BRAND_COLOR, { '次级芯片-颜色2': YOUTUBE_SAT2_COLOR, '次级芯片-颜色2上的图案': YOUTUBE_SAT2_COLOR }, { skipOutermost: true })
+    const social = buildSocialMediaCloud(socialText, false, YOUTUBE_BRAND_COLOR, { '次级芯片-颜色2': YOUTUBE_SAT2_COLOR, '次级芯片-颜色2上的图案': YOUTUBE_SAT2_COLOR }, { skipOutermost: true }) // layers: satellite chip color 2 and the pattern on it
     // Circuit-trace drawing is switched off per request; pass `true` as a 2nd arg to bring it back.
     const social2 = buildSocialMediaCloud(social2Text, false, LINKEDIN_BRAND_COLOR, null, true)
     const qSocial = new THREE.Quaternion(...SOCIAL_ORIENTATION)
@@ -653,10 +653,10 @@ function Clouds() {
       armToSocial: makePoints(map, armToSocialMatch.src, { a: ARM_PARTICLE_SIZE, b: SOCIAL_PARTICLE_SIZE, depthTest: false, depthWrite: false }, armToSocialMatch.tgt),
       // Pure line art now (social-media4.dxf only - per request, the mesh-surface fill that used to
       // come from social-media-light.glb has been removed entirely, for every chip). depthTest:false
-      // since this cloud's own real 3D depth isn't reliably camera-accurate for its "...背面" pairs (a
+      // since this cloud's own real 3D depth isn't reliably camera-accurate for its "...back side" pairs (a
       // hand-authored back-face curve can sit measurably *nearer* the established camera than its
       // front counterpart; confirmed numerically, see this file's own git history), so correctness
-      // comes entirely from buildSocialMediaCloud's own reorderBackFirst (背面 points submitted first)
+      // comes entirely from buildSocialMediaCloud's own reorderBackFirst (back-side points submitted first)
       // - with depth testing off, the later-submitted (front) point simply paints over whatever's
       // already there, regardless of either point's real depth.
       social: makePoints(map, social, { a: SOCIAL_PARTICLE_SIZE, orthographic: true, depthTest: false, depthWrite: false }),
@@ -1037,7 +1037,7 @@ function Clouds() {
     {
       const u = scene.cityToArm.material.uniforms
       // Model-frame turn about the model's vertical axis through CITY_PIVOT (SmartCityParticles.jsx -
-      // the big roundabout's own center on the "亮色road" layer), not the cloud's bounding-box center:
+      // the big roundabout's own center on the bright-color road layer), not the cloud's bounding-box center:
       // R0 = swayQ * qCity (resting orientation), R = R0 * Ry(theta) (with the turn); uOffA carries the
       // translation a pivoted rotation needs on top of a pure origin-centered one (R0*P - R*P, so a
       // point at the pivot itself doesn't move).

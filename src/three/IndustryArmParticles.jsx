@@ -20,8 +20,8 @@ const EDGE_SPACING = 0.035
 export const ARM_PARTICLE_SIZE = 0.03
 const PARTICLE_SIZE = ARM_PARTICLE_SIZE
 // Industry 4.0's theme accent from particle_brain_demo_logo_24.html's anchor set (lab3), for the
-// plain "需要的边界" (needed boundary) layer. The "亮色的机械臂" (bright-color robotic arm) layer
-// reuses Smart City's ROAD_COLOR, same as DNA's "亮色DNA" layer does, so a highlighted arm section
+// plain "needed boundary" layer. The "bright-color robotic arm" layer
+// reuses Smart City's ROAD_COLOR, same as DNA's "bright-color DNA" layer does, so a highlighted arm section
 // reads as a distinct accent the same way across every scene.
 const ARM_COLOR = '#6a6fc4'
 const HIGHLIGHT_COLOR = '#e0a94a'
@@ -42,14 +42,14 @@ export const ARM_ORIENTATION = [0.6752496924215704, -0.17605708611673884, 0.0118
 /** The robotic-arm particle data, shared by the scene and the page-wide shared canvas. */
 export function buildArmCloud(gltf) {
     const geo = sampleGLBLines(gltf.scene, { targetExtent: TARGET_EXTENT, spacing: EDGE_SPACING })
-    const colors = colorByGroup(geo.groups, { '亮色的机械臂': HIGHLIGHT_COLOR, '需要的边界': ARM_COLOR }, ARM_COLOR)
+    const colors = colorByGroup(geo.groups, { '亮色的机械臂': HIGHLIGHT_COLOR, '需要的边界': ARM_COLOR }, ARM_COLOR) // layers: bright-color robotic arm / needed boundary
     return { ...geo, colors }
 }
 
 /**
  * Particle-cloud rendering of the Industry 4.0 robotic-arm model, from a line-strip GLB export
- * (industry-arm.glb: ~800 THREE.Line meshes grouped under two named top-level nodes, "需要的边界"
- * and "亮色的机械臂", matching the DXF layer split this scene used previously). Exploding the
+ * (industry-arm.glb: ~800 THREE.Line meshes grouped under two named top-level nodes, "needed boundary"
+ * and "bright-color robotic arm", matching the DXF layer split this scene used previously). Exploding the
  * source model's blocks for a clean DXF export caused new problems, so this went back to the GLB
  * pipeline - parseGLBLines.js's chain extraction + sampleLineStrips.js's resampleChains for even
  * point spacing, colored by layer the same way as the DXF version was.

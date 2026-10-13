@@ -19,7 +19,7 @@ const PARTICLE_SIZE = VLSI_PARTICLE_SIZE
 // hand itself) blend this far toward white, so the near side reads clearly in front of it.
 const HAND_BACK_WHITE_FADE = 0.6
 // VLSI-CAD's theme accent - the remaining anchor color from particle_brain_demo_logo_24.html's
-// set not already used by another scene. "亮色的芯片" (bright chip) reuses the shared highlight.
+// set not already used by another scene. the "bright-color chip" layer reuses the shared highlight.
 const CHIP_COLOR = '#3fb0b8'
 const HIGHLIGHT_COLOR = '#e0a94a'
 // Matched to the user's latest (chips8) Rhino perspective screenshot: the GLB's +z is the board's
@@ -30,14 +30,14 @@ export const VLSI_ORIENTATION = [0.2536126990082286, -0.8043567179878038, 0.5124
 
 /** The VLSI-CAD particle data, shared by the scene below and the scroll-driven morph overlay. */
 export function buildVLSICloud(gltf) {
-  const geo = sampleGLBLinesAndMesh(gltf.scene, { targetExtent: TARGET_EXTENT, spacing: EDGE_SPACING, meshSpacing: MESH_SPACING, meshTipSpacing: MESH_TIP_SPACING, tipGroup: '亮色的芯片' })
-  const colors = colorByGroup(geo.groups, { '亮色的芯片': HIGHLIGHT_COLOR, '亮色的手': HIGHLIGHT_COLOR, '线框': CHIP_COLOR }, CHIP_COLOR)
+  const geo = sampleGLBLinesAndMesh(gltf.scene, { targetExtent: TARGET_EXTENT, spacing: EDGE_SPACING, meshSpacing: MESH_SPACING, meshTipSpacing: MESH_TIP_SPACING, tipGroup: '亮色的芯片' }) // tip group: the bright-color chip layer
+  const colors = colorByGroup(geo.groups, { '亮色的芯片': HIGHLIGHT_COLOR, '亮色的手': HIGHLIGHT_COLOR, '线框': CHIP_COLOR }, CHIP_COLOR) // layers: bright-color chip / bright-color hand / wireframe
   return { ...geo, colors }
 }
 
 /**
  * Particle-cloud rendering of the VLSI-CAD scene (chips.glb): a line-art motherboard/chips
- * wireframe ("线框", "亮色的芯片" bright chip) plus a triangulated hand mesh ("亮色的手") reaching
+ * wireframe (the "wireframe" and "bright-color chip" layers) plus a triangulated hand mesh (the "bright-color hand" layer) reaching
  * toward it. Lines are resampled at even arc-length spacing; the hand becomes an evenly spread
  * surface point cloud (parseGLBLines.js's sampleGLBLinesAndMesh), both sharing one transform.
  */

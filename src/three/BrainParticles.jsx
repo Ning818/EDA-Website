@@ -22,10 +22,10 @@ const WHITE_FADE = 0.7
 // closest to (see colorByAnchors). Anchor positions are unchanged from before - only the colors
 // themselves are this new palette.
 const ANCHORS = [
-  { pos: [-0.48, 0.24, 0.13], color: new THREE.Color('#6a6fc4') }, // 紫色
-  { pos: [0.48, 0.24, 0.13], color: new THREE.Color('#2f86b3') }, // 偏绿的海洋蓝（智慧城市的主题色，同 SmartCityParticles.jsx 的 SMART_CITY_COLOR）
-  { pos: [-0.39, -0.3, 0.17], color: new THREE.Color('#3fb0b8') }, // 蓝绿色
-  { pos: [0.39, -0.3, 0.17], color: new THREE.Color('#4ab47a') }, // 绿色
+  { pos: [-0.48, 0.24, 0.13], color: new THREE.Color('#6a6fc4') }, // purple
+  { pos: [0.48, 0.24, 0.13], color: new THREE.Color('#2f86b3') }, // greenish ocean blue (Smart City's theme color, the same as SMART_CITY_COLOR in SmartCityParticles.jsx)
+  { pos: [-0.39, -0.3, 0.17], color: new THREE.Color('#3fb0b8') }, // teal
+  { pos: [0.39, -0.3, 0.17], color: new THREE.Color('#4ab47a') }, // green
 ]
 
 /**

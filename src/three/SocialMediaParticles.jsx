@@ -21,21 +21,21 @@ const TARGET_EXTENT = 2.2
 // the molecule diagram's one long, complex chain (a single ~1.4-unit spline tracing a big "atom"
 // circle, a connector, and 2 more "atom" circles all in one path) dilutes down to so few points its
 // own round parts stop reading as circles (confirmed by checking that chain's point count directly:
-// spacing 0.03 left it only ~48 points for that whole path). Nudged up from 0.016 per request ("线稿
-// 的点距离增大一点") - a modest step toward that danger zone, not all the way to it.
+// spacing 0.03 left it only ~48 points for that whole path). Nudged up from 0.016 per request ("make the
+// line art's dots a bit farther apart") - a modest step toward that danger zone, not all the way to it.
 const EDGE_SPACING = 0.02
 const CURVE_SEGMENTS = 48
 export const SOCIAL_PARTICLE_SIZE = 0.025 // smaller than VLSI_PARTICLE_SIZE/CITY_PARTICLE_SIZE/ARM_PARTICLE_SIZE's
-// shared 0.03 per request ("粒子小一点", tuned to 0.025) - this cloud's point density is much higher
+// shared 0.03 per request ("make the particles a bit smaller", tuned to 0.025) - this cloud's point density is much higher
 // than those scenes' at the same on-screen scale, so smaller particles read more cleanly here.
 
 // Each of social-media4.dxf's layers gets one of the site's own particle-cloud accent colors (not
 // arbitrary new ones) - reused from DNAParticles.jsx/IndustryArmParticles.jsx/SmartCityParticles.jsx/
 // VLSICADParticles.jsx so this scene reads as part of the same established palette. Different source
-// layers -> different colors, per request. Each chip's own picture-pattern layer ("...上的图案")
+// layers -> different colors, per request. Each chip's own picture-pattern layer (the "pattern on <chip>" layers, see GROUP_COLORS)
 // shares that chip's own true color - no separate lightened variant (per explicit correction this
-// session: "面向镜头的粒子保持原色" - full color is the only state these ever need, since they have
-// no "背面" counterpart - see below).
+// session: "particles facing the camera keep their original color" - full color is the only state these ever need, since they have
+// no "back side" counterpart - see below).
 const CENTER_COLOR = '#4a9db3' // Smart City's building teal (BUILDING_COLOR)
 const SAT2_COLOR = '#6a6fc4' // Industry Arm's ARM_COLOR - a callback since this scene follows the arm
 const SAT3_COLOR = '#e0a94a' // the shared highlight/amber used across DNA, Smart City, Arm and VLSI-CAD
@@ -49,33 +49,33 @@ const YOUTUBE_COLOR = '#c0574f'
 const LINKEDIN_COLOR = '#1f73c4' // more saturated than this palette's other blues (SAT2 indigo, CENTER
 // teal) on purpose - confirmed by direct render check that a closer-to-muted blue blended into the
 // existing navy/teal-heavy cluster too much to read as its own distinct node
-const YOUTUBE_GROUP = 'YouTube芯片'
-const LINKEDIN_GROUP = 'LinkedIn芯片'
+const YOUTUBE_GROUP = 'YouTube芯片' // "YouTube chip"
+const LINKEDIN_GROUP = 'LinkedIn芯片' // "LinkedIn chip"
 const GROUP_COLORS = {
-  '中心芯片-颜色1': CENTER_COLOR,
-  '中心芯片的侧纹路': CENTER_COLOR,
-  '中心芯片上面的图案': CENTER_COLOR,
-  '次级芯片-颜色2': SAT2_COLOR,
-  '次级芯片-颜色2上的图案': SAT2_COLOR,
-  '次级芯片-颜色3': SAT3_COLOR,
-  '次级芯片-颜色3上的图案': SAT3_COLOR,
-  '次级芯片-颜色4': SAT4_COLOR,
-  '次级芯片-颜色4上的图案': SAT4_COLOR,
-  '用于连接电路板线路的起始线': TRACE_COLOR,
+  '中心芯片-颜色1': CENTER_COLOR, // center chip, color 1
+  '中心芯片的侧纹路': CENTER_COLOR, // center chip's side texture
+  '中心芯片上面的图案': CENTER_COLOR, // pattern on top of the center chip
+  '次级芯片-颜色2': SAT2_COLOR, // satellite chip, color 2
+  '次级芯片-颜色2上的图案': SAT2_COLOR, // pattern on satellite chip color 2
+  '次级芯片-颜色3': SAT3_COLOR, // satellite chip, color 3
+  '次级芯片-颜色3上的图案': SAT3_COLOR, // pattern on satellite chip color 3
+  '次级芯片-颜色4': SAT4_COLOR, // satellite chip, color 4
+  '次级芯片-颜色4上的图案': SAT4_COLOR, // pattern on satellite chip color 4
+  '用于连接电路板线路的起始线': TRACE_COLOR, // the start lines that feed the circuit-board traces (pin-hatch ticks)
   [YOUTUBE_GROUP]: YOUTUBE_COLOR,
   [LINKEDIN_GROUP]: LINKEDIN_COLOR,
 }
 
-// social-media4.dxf pairs most structural layers with a manually-authored "...背面" twin (e.g.
-// "中心芯片-颜色1" / "中心芯片-颜色1背面") - the user has already decided, line by line in Rhino,
+// social-media4.dxf pairs most structural layers with a manually-authored "...back side" twin (e.g.
+// "center chip, color 1" / "center chip, color 1 back side") - the user has already decided, line by line in Rhino,
 // which curves sit on a face turned away from the established camera. Rather than re-deriving that
 // from geometry (every attempt at computing it this session kept landing on self-consistent-but-wrong
-// answers - see this file's git history), trust that labeling directly: a "...背面" layer always
+// answers - see this file's git history), trust that labeling directly: a "...back side" layer always
 // renders lightened, a plain layer always renders at full color, independent of any camera/normal
 // math. BACK_LIGHTEN matches the visual strength of this scene's own established backA (0.6, the
 // same fade amount VLSI-CAD's hand mesh and the brain's own back-facing points use).
 const BACK_LIGHTEN = 0.6
-const BACK_SUFFIX = '背面'
+const BACK_SUFFIX = '背面' // "back side": the suffix of every back-face twin layer
 function lighten(hex, amount) {
   const c = new THREE.Color(hex)
   c.lerp(new THREE.Color('#ffffff'), amount)
@@ -92,7 +92,7 @@ const FULL_GROUP_COLORS = withBackVariants(GROUP_COLORS)
 // picture-pattern layer (the logo itself) - every other layer keeps the multi-accent palette.
 export const YOUTUBE_BRAND_COLOR = '#f01c1c'
 export const LINKEDIN_BRAND_COLOR = '#0a66c2'
-const LOGO_GROUP = '中心芯片上面的图案'
+const LOGO_GROUP = '中心芯片上面的图案' // pattern on top of the center chip
 const PIN_TICK_SIZE_SCALE = 0.9 // pin-hatch ticks' radius relative to the other outline points'
 const FILL_SIZE_SCALE = 0.6 // hover-fill points' radius relative to the outline points'
 const BRAND_CHIP_LIGHTEN = 0.15 // the chip body/side texture read as a paler tint of the logo layer's color
@@ -100,6 +100,7 @@ const BRAND_CHIP_LIGHTEN = 0.15 // the chip body/side texture read as a paler ti
 export const YOUTUBE_SAT2_COLOR = '#d93a5c' // rose-leaning shift of YouTube red, not the same red
 function brandGroupColors(color, overrides = null) {
   const body = lighten(color, BRAND_CHIP_LIGHTEN)
+  // layer keys: pattern on top of the center chip -> the brand color; center chip color 1 and its side texture -> the paler body tint
   return withBackVariants({ ...GROUP_COLORS, '中心芯片上面的图案': color, '中心芯片-颜色1': body, '中心芯片的侧纹路': body, ...overrides })
 }
 
@@ -129,9 +130,9 @@ function brandGroupColors(color, overrides = null) {
 //    to be built in the first place.)
 //
 // Pitch sign and yaw were solved for this corrected setup the same way as before - computing each
-// satellite chip's own raw DXF center (the "次级芯片-颜色4" layer bundles 2 separate chips) and
-// finding the rotation that reproduces the reference screenshot's arrangement (颜色4's pair up top,
-// split left/right; 颜色3/颜色2 at the bottom, split left/right).
+// satellite chip's own raw DXF center (the "satellite chip, color 4" layer bundles 2 separate chips) and
+// finding the rotation that reproduces the reference screenshot's arrangement (color 4's pair up top,
+// split left/right; colors 3 / 2 at the bottom, split left/right).
 const SOCIAL_PITCH = -Math.asin(1 / Math.sqrt(3))
 const SOCIAL_YAW = (330 * Math.PI) / 180
 export const SOCIAL_ORIENTATION = new THREE.Quaternion().setFromEuler(new THREE.Euler(SOCIAL_PITCH, SOCIAL_YAW, 0, 'XYZ')).toArray()
@@ -151,13 +152,13 @@ function groupBBox(chains, groups, groupName) {
   return { min, max, center: [(min[0] + max[0]) / 2, (min[1] + max[1]) / 2, (min[2] + max[2]) / 2] }
 }
 
-/** '次级芯片-颜色4' bundles 2 physically separate ~40x40 chip boxes (confirmed by inspection) - a
+/** The satellite-chip color-4 layer bundles 2 physically separate ~40x40 chip boxes (confirmed by inspection) - a
  * single bounding box over both doesn't correspond to either chip's real footprint, so split its
  * chains into 2 clusters by X position (they sit clearly apart, one pair of coordinates in each). */
 function splitSat4(chains, groups) {
   const entries = []
   for (let i = 0; i < chains.length; i++) {
-    if (groups[i] !== '次级芯片-颜色4') continue
+    if (groups[i] !== '次级芯片-颜色4') continue // satellite chip, color 4
     const ch = chains[i]
     let cx = 0
     const n = ch.length / 3
@@ -179,7 +180,7 @@ function splitSat4(chains, groups) {
   return [bboxOf(entries.filter((e) => e.cx < splitX)), bboxOf(entries.filter((e) => e.cx >= splitX))]
 }
 
-const STUB_GROUP = '用于连接电路板线路的起始线'
+const STUB_GROUP = '用于连接电路板线路的起始线' // the start lines that feed the circuit-board traces (pin-hatch ticks)
 
 /** Converts a desired on-screen pixel offset from the viewport's own center into a raw DXF-space
  * (x,y) at a given raw z - replicates this cloud's full render pipeline (resampleChains' own
@@ -235,9 +236,9 @@ function screenTargetToRaw(chains, screenX, screenY, rawZ) {
  */
 function buildCircuitForSocial(chains, groups) {
   const [sat4a, sat4b] = splitSat4(chains, groups)
-  const satellites = [groupBBox(chains, groups, '次级芯片-颜色2'), groupBBox(chains, groups, '次级芯片-颜色3'), sat4a, sat4b]
+  const satellites = [groupBBox(chains, groups, '次级芯片-颜色2'), groupBBox(chains, groups, '次级芯片-颜色3'), sat4a, sat4b] // satellite chips: color 2, color 3, then the two color-4 chips
   const [sat2, sat3] = satellites
-  const allBoxes = [groupBBox(chains, groups, '中心芯片-颜色1'), ...satellites]
+  const allBoxes = [groupBBox(chains, groups, '中心芯片-颜色1'), ...satellites] // center chip (color 1) + the satellites
 
   const overall = { min: [Infinity, Infinity], max: [-Infinity, -Infinity] }
   for (const ch of chains) for (let k = 0; k < ch.length; k += 3) for (let a = 0; a < 2; a++) {
@@ -246,7 +247,7 @@ function buildCircuitForSocial(chains, groups) {
   }
   const W = overall.max[0] - overall.min[0], H = overall.max[1] - overall.min[1]
   // How far past the chip cluster's own footprint the background buses/vias spread - per request
-  // ("覆盖全屏"), generous margins on every side so the network reaches well beyond the 5 chips.
+  // ("cover the whole screen"), generous margins on every side so the network reaches well beyond the 5 chips.
   const workMin = [overall.min[0] - W * 0.9, overall.min[1] - H * 0.9]
   const workMax = [overall.max[0] + W * 0.9, overall.max[1] + H * 0.9]
 
@@ -302,7 +303,7 @@ function buildCircuitForSocial(chains, groups) {
     const sorted = [...pins].sort((a, b) => a.end[axis] - b.end[axis])
     const n = sorted.length
     // Spread kept close to the pins' own original ~10-unit spacing at the main chip (not compressed
-    // into the target's own width) per request ("别太密") - the bundle runs roughly parallel instead
+    // into the target's own width) per request ("not so dense") - the bundle runs roughly parallel instead
     // of narrowing into a tight row right at the chip edge.
     const halfSpread = Math.max((target.max[axis] - target.min[axis]) * 0.45, (n - 1) * 5)
     sorted.forEach((stub, k) => {
@@ -371,7 +372,7 @@ function buildCircuitForSocial(chains, groups) {
   // self-non-crossing technique, reused directly - see its own comment in git history). ---
   function chipFanOut(box, group = STUB_GROUP, towardCluster = null) {
     const w = box.max[0] - box.min[0], h = box.max[1] - box.min[1]
-    const pitch = Math.max(16, Math.min(w, h) / 2) // wider spacing per request ("别太密") - fewer, more spread-out pins
+    const pitch = Math.max(16, Math.min(w, h) / 2) // wider spacing per request ("not so dense") - fewer, more spread-out pins
     let sides = [
       { u: [0, -1], t: [1, 0], n: Math.max(1, Math.floor(w / pitch)), origin: (k) => [box.min[0] + pitch / 2 + k * pitch, box.min[1]] },
       { u: [0, 1], t: [1, 0], n: Math.max(1, Math.floor(w / pitch)), origin: (k) => [box.min[0] + pitch / 2 + k * pitch, box.max[1]] },
@@ -614,13 +615,13 @@ export function buildSocialMediaCloud(text, withTraces = false, brandColor = nul
   const positions = new Float32Array(geo.positions)
 
   // social-media4.dxf already marks, per layer, which curves sit on a face turned away from the
-  // established camera (every "...背面" layer) - FULL_GROUP_COLORS maps those straight to a
+  // established camera (every "...back side" layer) - FULL_GROUP_COLORS maps those straight to a
   // pre-lightened color and everything else to its full color, so this is a plain per-point color
   // lookup with no geometry or camera math involved.
   const colors = colorByGroup(geo.groups, brandColor ? brandGroupColors(brandColor, groupOverrides) : FULL_GROUP_COLORS, TRACE_COLOR)
 
-  // The pin-hatch ticks (the layer feeding the circuit traces, and its 背面 twin) read better with finer dots.
-  for (let i = 0; i < n; i++) if (geo.groups[i]?.startsWith('用于连接电路板线路的起始线')) geo.sizes[i] *= PIN_TICK_SIZE_SCALE
+  // The pin-hatch ticks (the layer feeding the circuit traces, and its back-side twin) read better with finer dots.
+  for (let i = 0; i < n; i++) if (geo.groups[i]?.startsWith('用于连接电路板线路的起始线')) geo.sizes[i] *= PIN_TICK_SIZE_SCALE // the start lines that feed the circuit-board traces
 
   // A genuine reflection (mirroring X), not just a yaw rotation - a rotation alone can never fix a
   // front/back chirality flip (mirrored avatar faces, a mirrored overall chip arrangement). Confirmed
@@ -678,7 +679,7 @@ export function buildSocialMediaCloud(text, withTraces = false, brandColor = nul
  * chip's own edge/notch pattern, and the pin-hatch ticks along its edges - all genuine curve geometry
  * (ARC/SPLINE/POLYLINE), sampled from social-media4.dxf the same way as DNAParticles.jsx/
  * SmartCityParticles.jsx (parseDXF.js's sampleDXF). social-media4.dxf pairs most of its layers with a
- * manually-authored "...背面" twin, already marking which curves sit on a face turned away from this
+ * manually-authored "...back side" twin, already marking which curves sit on a face turned away from this
  * scene's camera (see FULL_GROUP_COLORS) - pure line art, no mesh-surface fill (removed per request).
  * Not wired into the page as its own pinned theme card - ParticleCanvas.jsx morphs the arm straight
  * into buildSocialMediaCloud's data as the page's final backdrop. This default export exists for

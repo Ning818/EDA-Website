@@ -25,7 +25,7 @@ export const DNA_PARTICLE_SIZE = 0.028
 const PARTICLE_SIZE = DNA_PARTICLE_SIZE
 // Bioinformatics' theme accent from particle_brain_demo_logo_24.html's anchor set - the one
 // remaining anchor color not already claimed by Smart City ('#2f86b3', formerly '#4a9db3') or Industry 4.0
-// ('#6a6fc4'). Used for the plain "DNA" layer; the "亮色DNA" (bright-color DNA) layer reuses
+// ('#6a6fc4'). Used for the plain "DNA" layer; the "bright-color DNA" layer reuses
 // Smart City's ROAD_COLOR so a highlighted strand reads as a distinct accent the same way Smart
 // City's road network does.
 const DNA_COLOR = '#4ab47a'
@@ -34,14 +34,14 @@ const HIGHLIGHT_COLOR = '#e0a94a'
 /** The DNA particle data, shared by the scene and the page-wide shared canvas. */
 export function buildDNACloud(text) {
     const geo = sampleDXF(text, { targetExtent: TARGET_EXTENT, spacing: EDGE_SPACING, curveSegments: CURVE_SEGMENTS })
-    const colors = colorByGroup(geo.groups, { '亮色DNA': HIGHLIGHT_COLOR, DNA: DNA_COLOR }, DNA_COLOR)
+    const colors = colorByGroup(geo.groups, { '亮色DNA': HIGHLIGHT_COLOR, DNA: DNA_COLOR }, DNA_COLOR) // layers: bright-color DNA / plain DNA
     return { ...geo, colors }
 }
 
 /**
  * Particle-cloud rendering of the DNA double-helix model, from a genuine-curve DXF source
  * (dna6.dxf: 14 SPLINE entities for the backbone strands + 197 LINE entities for the base-pair
- * rungs, split across two layers - "DNA" (171 entities) and "亮色DNA"/bright-color DNA (40
+ * rungs, split across two layers - "DNA" (171 entities) and "bright-color DNA" (40
  * entities, one strand singled out) - rather than the dna.fbx mesh this scene started with. Same
  * DXF pipeline as Smart City's (parseDXF.js's curve evaluation + sampleLineStrips.js's
  * resampleChains for even point spacing), reused as-is since it's already format-agnostic, colored

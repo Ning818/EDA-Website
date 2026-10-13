@@ -1,6 +1,6 @@
 import { Navigate, useParams } from 'react-router-dom'
 import PageIntroBand from '../components/sections/PageIntroBand'
-import { themeBySlug, decorVariantFor } from '../themes'
+import { themeBySlug } from '../themes'
 import StatsRow from '../components/sections/StatsRow'
 import ProjectCardsGrid from '../components/sections/ProjectCardsGrid'
 import FundedProjectsListSection from '../components/sections/FundedProjectsListSection'
@@ -17,7 +17,7 @@ export default function FundedProjects() {
   const { highlight } = data
   return (
     <main style={{ '--theme': theme.color }}>
-      <PageIntroBand category="Funded Projects" title={theme.name} decorated light decorVariant={decorVariantFor(theme, 'projects')} decorColor={theme.color} decorPage="projects" after={<StatsRow light />} />
+      <PageIntroBand category="Funded Projects" title={theme.name} decorated light decorVariant={theme.header} decorColor={theme.color} decorPage="projects" after={<StatsRow light />} />
 
       <ProjectCardsGrid title="Ongoing Projects" projects={data.ongoing} />
 

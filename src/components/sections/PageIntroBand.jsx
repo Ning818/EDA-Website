@@ -1,11 +1,5 @@
-import HeaderDecor from './HeaderDecor'
-import FactoryDecor from './FactoryDecor'
-import FactoryParticles from './FactoryParticles'
+import { headerEffectFor } from '../../effects/headerEffects'
 import HeaderDots from './HeaderDots'
-import HelixDecor from './HelixDecor'
-import HelixParticles from './HelixParticles'
-import SkylineDecor from './SkylineDecor'
-import SkylineParticles from './SkylineParticles'
 
 /**
  * The dark navy title band used at the top of Research/Funded Projects pages:
@@ -16,9 +10,10 @@ import SkylineParticles from './SkylineParticles'
  * the band under the title. `light`: that variant on the page's own light background (navy type, a hairline under it)
  * instead of the navy block.
  *
- * `decorVariant` picks the artwork: the circuit's variant ('research' | 'projects', see HeaderDecor), 'skyline' (a line-art
- * city in `decorColor`, see SkylineDecor), 'helix-particles' (Bioinformatics' DNA made of flat particles, see HelixParticles, whose two looks `decorPage` picks; 'helix' is the same in thin lines, see HelixDecor), 'factory-particles' (Industry 4.0's smart factory made of flat particles, see FactoryParticles, whose two looks `decorPage` picks; 'factory' is the same in thin lines, see FactoryDecor), 'skyline-particles' (the same city made of flat particles, see SkylineParticles; `decorPage`, 'research' | 'projects', picks
- * which of its two looks), or 'none' to leave that area empty (a theme page whose artwork is not designed yet).
+ * `decorVariant` picks the artwork: a key of the header-effects registry (src/effects/headerEffects.js - 'circuit', 'helix-particles',
+ * 'skyline-particles', 'factory-particles', or the thin-line 'helix' | 'skyline' | 'factory'), normally the theme's `header` from themes.js;
+ * `decorPage` ('research' | 'projects') picks which of the artwork's two looks is drawn, `decorColor` is the theme's colour. 'none' (or
+ * nothing) leaves that area empty (a theme page whose artwork is not designed yet).
  *
  * `backdrop` (with `textWidth`): the plain band with a picture of its own drawn behind the text, see the branch below; with a `title`
  * the category is the small eyebrow over a big title (as on the decorated pages), without one it is the page's heading; `titleVeil`: a feathered translucent layer of the page's colour behind the title block, to pale the backdrop there; `bandBg`: the
@@ -31,23 +26,9 @@ import SkylineParticles from './SkylineParticles'
 export default function PageIntroBand({ category, title, children, decorated = false, light = false, decorVariant, decorColor, decorPage, after, backdrop, textWidth = '', backdropPad = 'pb-10 lg:pb-14', bandBg = 'bg-navy', bandRule = true, titleVeil = false }) {
   const onLight = decorated && light
   const hero = decorated && children
-  const showDecor = decorated && decorVariant !== 'none'
-  const decor =
-    decorVariant === 'skyline' ? (
-      <SkylineDecor color={decorColor} light={light} />
-    ) : decorVariant === 'helix-particles' ? (
-      <HelixParticles color={decorColor} variant={decorPage} />
-    ) : decorVariant === 'helix' ? (
-      <HelixDecor color={decorColor} />
-    ) : decorVariant === 'factory-particles' ? (
-      <FactoryParticles color={decorColor} variant={decorPage} />
-    ) : decorVariant === 'factory' ? (
-      <FactoryDecor color={decorColor} light={light} />
-    ) : decorVariant === 'skyline-particles' ? (
-      <SkylineParticles color={decorColor} variant={decorPage} />
-    ) : (
-      <HeaderDecor variant={decorVariant} />
-    )
+  const effect = decorated ? headerEffectFor(decorVariant) : null
+  const showDecor = effect !== null
+  const decor = effect && <effect.component {...effect.props({ color: decorColor, page: decorPage, light })} />
   const eyebrow = (
     <>
       <p className={`font-body text-sm font-medium uppercase tracking-[0.08em] md:text-base ${onLight ? 'text-[#1a7d90]' : 'text-[#279aae]'}`}>{category}</p>

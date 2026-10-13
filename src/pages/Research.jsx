@@ -2,7 +2,7 @@ import PageIntroBand from '../components/sections/PageIntroBand'
 import ResearchTopicsAndPeople from '../components/sections/ResearchTopicsAndPeople'
 import FeatureCard from '../components/sections/FeatureCard'
 import { Navigate, useLocation, useParams } from 'react-router-dom'
-import { themeBySlug, decorVariantFor } from '../themes'
+import { themeBySlug } from '../themes'
 import { RESEARCH_BY_THEME } from '../content/research'
 import { INVOLVED_PEOPLE } from '../content/people'
 
@@ -17,7 +17,7 @@ export default function Research() {
   const text = RESEARCH_BY_THEME[theme.slug]
   return (
     <main style={{ '--theme': theme.color }}>
-      <PageIntroBand category="Research" title={theme.name} decorated light decorVariant={decorVariantFor(theme, 'research')} decorColor={theme.color} decorPage="research">
+      <PageIntroBand category="Research" title={theme.name} decorated light decorVariant={theme.header} decorColor={theme.color} decorPage="research">
         {text.intro}
       </PageIntroBand>
 

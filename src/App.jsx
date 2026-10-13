@@ -1,4 +1,4 @@
-import { useLayoutEffect } from 'react'
+import { lazy, Suspense, useLayoutEffect } from 'react'
 import { Routes, Route, useLocation } from 'react-router-dom'
 import Header from './components/layout/Header'
 import Footer from './components/layout/Footer'
@@ -7,6 +7,10 @@ import Research from './pages/Research'
 import FundedProjects from './pages/FundedProjects'
 import Collaborations from './pages/Collaborations'
 import Teaching from './pages/Teaching'
+
+// Development-only preview pages (docs/HOW-TO-MODIFY-AN-EFFECT.md): the condition is a build-time constant, so a production build drops
+// them and their chunk entirely.
+const DevEffects = import.meta.env.DEV ? lazy(() => import('./pages/dev/DevEffects')) : null
 
 // Every navigation (nav bar, in-page links, same-page links, hash links) lands at the top of the page. Keyed on
 // `location.key` rather than the path so clicking a link to the page you are already on also goes to the top;
@@ -32,6 +36,16 @@ export default function App() {
         <Route path="/research/:theme" element={<Research />} />
         <Route path="/collaborations" element={<Collaborations />} />
         <Route path="/teaching" element={<Teaching />} />
+        {DevEffects && (
+          <Route
+            path="/dev/effects"
+            element={
+              <Suspense fallback={null}>
+                <DevEffects />
+              </Suspense>
+            }
+          />
+        )}
       </Routes>
       <Footer />
     </div>

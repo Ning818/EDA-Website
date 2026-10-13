@@ -57,14 +57,11 @@ export default function FactoryDecor({ color = '#6a6fc4', light = true }) {
         {/* data from the cloud to the machines: flowing dashes ending in a node */}
         <g strokeWidth="1" opacity="0.6">
           {DATA_LINES.map((l, i) => (
-            <g key={i} className="line-fade" style={at(l.node[0], 1.1)}>
+            <g key={i} className="line-fade" style={at(l.to[0], 1.1)}>
               <path d={l.d} strokeDasharray="2 5" className="line-flow" />
-              <path d={circ(l.node[0], l.node[1], 2.6)} fill={bg} />
+              <path d={circ(l.to[0], l.to[1], 2.6)} fill={bg} />
             </g>
           ))}
-          <g className="line-fade" style={at(60, 1.1)}>
-            <path d="M106 80 H152" strokeDasharray="2 5" className="line-flow" />
-          </g>
         </g>
 
         {/* the dashboard card and the cloud: they float */}

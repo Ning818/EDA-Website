@@ -30,8 +30,13 @@ function FitTitle({ fit, boxRef, className, children }) {
     }
     run()
     window.addEventListener('resize', run)
+    // `fonts.ready` can settle before the title's typeface has even been requested, so measure again whenever a font finishes loading
     document.fonts?.ready.then(run)
-    return () => window.removeEventListener('resize', run)
+    document.fonts?.addEventListener('loadingdone', run)
+    return () => {
+      window.removeEventListener('resize', run)
+      document.fonts?.removeEventListener('loadingdone', run)
+    }
   }, [fit, boxRef, children])
   return (
     <p ref={ref} className={`${fit ? 'lg:whitespace-nowrap ' : ''}${className}`}>

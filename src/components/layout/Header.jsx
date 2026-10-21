@@ -141,7 +141,7 @@ export default function Header() {
                 outer row alone isn't enough, since the nav links' reserved underline space pulls
                 their text a few px higher than plain "EDA Group" text at the same box center. */}
             <span className="flex flex-col items-center gap-1">
-              <span className="font-heading text-lg font-medium text-navy lg:text-2xl">EDA Group</span>
+              <span className="type-brand text-navy">EDA Group</span>
               <span className="h-[2px] w-full" aria-hidden="true" />
             </span>
           </NavLink>
@@ -166,14 +166,14 @@ export default function Header() {
                   {/* Research/Projects have no page of their own to jump to - they only
                       exist to host the dropdown below, so they aren't links. */}
                   {link.dropdown ? (
-                    <span className="flex cursor-default flex-col items-center gap-1 font-heading text-base font-medium text-navy lg:text-xl">
+                    <span className="flex cursor-default flex-col items-center gap-1 type-action text-navy">
                       {label}
                     </span>
                   ) : (
                     <NavLink
                       to={link.to}
                       end
-                      className="flex flex-col items-center gap-1 font-heading text-base font-medium text-navy lg:text-xl"
+                      className="flex flex-col items-center gap-1 type-action text-navy"
                     >
                       {label}
                     </NavLink>
@@ -196,7 +196,7 @@ export default function Header() {
                             <NavLink
                               to={item.to}
                               style={{ transitionDelay: `${i * 80}ms, 0ms, 0ms` }}
-                              className="block px-5 py-2.5 font-body text-base text-navy opacity-0 transition-[opacity,background-color,color] duration-300 ease-out hover:bg-navy hover:text-mint group-hover:opacity-100"
+                              className="block px-5 py-2.5 type-action text-navy opacity-0 transition-[opacity,background-color,color] duration-300 ease-out hover:bg-navy hover:text-mint group-hover:opacity-100"
                             >
                               {item.label}
                             </NavLink>
@@ -260,8 +260,8 @@ export default function Header() {
                           type="button"
                           aria-expanded={groupOpen}
                           onClick={() => setOpenGroup(groupOpen ? null : link.label)}
-                          className={`flex w-full items-center justify-between py-3.5 font-heading text-lg text-navy ${
-                            isActiveLink(pathname, link) ? 'font-bold' : 'font-medium'
+                          className={`flex w-full items-center justify-between py-3.5 type-nav text-navy ${
+                            isActiveLink(pathname, link) ? 'font-bold' : ''
                           }`}
                         >
                           {link.label}
@@ -289,7 +289,7 @@ export default function Header() {
                               <li key={item.label}>
                                 <NavLink
                                   to={item.to}
-                                  className="block py-2.5 pl-4 font-body text-base text-navy active:bg-navy/10"
+                                  className="block py-2.5 pl-4 type-action text-navy active:bg-navy/10"
                                 >
                                   {item.label}
                                 </NavLink>
@@ -302,8 +302,8 @@ export default function Header() {
                       <NavLink
                         to={link.to}
                         end
-                        className={`block py-3.5 font-heading text-lg text-navy ${
-                          isActiveLink(pathname, link) ? 'font-bold' : 'font-medium'
+                        className={`block py-3.5 type-nav text-navy ${
+                          isActiveLink(pathname, link) ? 'font-bold' : ''
                         }`}
                       >
                         {link.label}

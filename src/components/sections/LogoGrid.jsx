@@ -22,7 +22,7 @@ export default function LogoGrid({ title, logos, tone = 'flat' }) {
     const dark = tone === 'dark'
     return (
       <section className="relative mx-auto max-w-[1440px] px-8 pt-12 lg:px-[120px]">
-        <h2 className={`pb-7 font-heading text-2xl font-bold md:text-4xl ${dark ? 'text-white' : 'text-navy'}`}>{title}</h2>
+        <h2 className={`pb-7 type-h2 ${dark ? 'text-white' : 'text-navy'}`}>{title}</h2>
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
           {logos.map((logo, i) =>
             logo ? (
@@ -43,7 +43,7 @@ export default function LogoGrid({ title, logos, tone = 'flat' }) {
                   className="pointer-events-none absolute inset-0 flex items-center justify-center bg-gradient-to-br from-[#1d6a91] to-[#124a68] p-3 text-center opacity-0 transition-opacity duration-300 ease-out group-hover:opacity-100"
                   aria-hidden="true"
                 >
-                  <span className="font-heading text-base font-bold text-[#f5f4f6] md:text-xl">{logo.alt}</span>
+                  <span className="type-compact font-semibold text-[#f5f4f6]">{logo.alt}</span>
                 </div>
               </div>
             ) : (
@@ -57,7 +57,7 @@ export default function LogoGrid({ title, logos, tone = 'flat' }) {
 
   return (
     <section className="mx-auto max-w-[1440px] px-8 pt-10 lg:px-[120px]">
-      <h2 className="pb-5 font-heading text-2xl font-bold md:text-4xl text-navy">{title}</h2>
+      <h2 className="pb-5 type-h2 text-navy">{title}</h2>
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5">
         {logos.map((logo, i) =>
           logo ? (
@@ -73,7 +73,7 @@ export default function LogoGrid({ title, logos, tone = 'flat' }) {
                 className="pointer-events-none absolute inset-0 flex items-center justify-center bg-[#185a7d] p-3 text-center opacity-0 transition-opacity duration-300 ease-out group-hover:opacity-100"
                 aria-hidden="true"
               >
-                <span className="font-heading text-base font-bold text-[#f5f4f6] md:text-xl">{logo.alt}</span>
+                <span className="type-compact font-semibold text-[#f5f4f6]">{logo.alt}</span>
               </div>
             </div>
           ) : (

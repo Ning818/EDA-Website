@@ -2,25 +2,24 @@ import { useState } from 'react'
 
 /**
  * Hovering a professor card triggers a spring animation (~0.744s) from the front state (photo +
- * 80px name/role strip) to a "back" state where the info panel expands to fill the whole card,
+ * 88px name/role strip) to a "back" state where the info panel expands to fill the whole card,
  * the photo fades out and the name moves up to the top.
  *
- * The back state also lists the person's contact links under their name (Polito Page, Department Website, ORCID
- * Publication, LinkedIn, IRIS - the polito.it publications repository) when the person has a `links` entry. Each link is one
- * line - long addresses are cut short with an ellipsis (the whole address is the link's title) - so that all of them fit on
- * the card. The Figma placeholder used one person's links on every card, so only people with real data of their own get
- * this block.
+ * The back state also lists the person's contact links under their name when the person has a `links` entry: each one is
+ * named for where it goes (Polito profile, Department page, ORCID profile, LinkedIn, Publications - IRIS, the polito.it
+ * publications repository) rather than showing its address, and its accessible name carries the person's name. The Figma
+ * placeholder used one person's links on every card, so only people with real data of their own get this block.
  *
  * The flip is the `card-open:` variant (index.css): the hover on a desktop (hover-capable pointer, md and up), a tap on
  * the phone layout / touch devices - there a tap slides the panel up, another tap folds it back down, and a tap on one
  * of the links inside follows the link as usual.
  */
 const LINK_ROWS = [
-  ['polito', 'Polito Page'],
-  ['dept', 'Department Website'],
-  ['orcid', 'ORCID Publication'],
+  ['polito', 'Polito profile'],
+  ['dept', 'Department page'],
+  ['orcid', 'ORCID profile'],
   ['linkedin', 'LinkedIn'],
-  ['iris', 'IRIS'],
+  ['iris', 'Publications (IRIS)'],
 ]
 
 const SPRING = 'ease-[cubic-bezier(0.34,1.56,0.64,1)]'
@@ -67,28 +66,34 @@ function ProfessorCard({ photo, name, title, links }) {
         <div className="absolute inset-x-0 bottom-0 h-12 bg-gradient-to-t from-white to-transparent" />
       </div>
       <div
-        className={`absolute inset-x-0 bottom-0 h-[80px] border-t border-navy/10 bg-white transition-[height,background-color] duration-[744ms] ${SPRING} card-open:h-full card-open:border-transparent card-open:bg-navy`}
+        className={`absolute inset-x-0 bottom-0 h-[88px] border-t border-navy/10 bg-white transition-[height,background-color] duration-[744ms] ${SPRING} card-open:h-full card-open:border-transparent card-open:bg-navy`}
       />
-      {/* 242px = where the name and role are centred in the 80px strip (224 + (80 - 44) / 2) */}
-      <div className="absolute inset-x-4 top-[242px] flex flex-col transition-[top] duration-[744ms] ease-[cubic-bezier(0.34,1.3,0.64,1)] card-open:top-5">
-        <p className={`truncate font-heading text-[17px] font-bold leading-6 text-navy transition-colors duration-[744ms] ${SPRING} card-open:text-white`}>{name}</p>
-        <p className="mt-1 inline-flex max-h-4 items-center gap-1.5 overflow-hidden font-mono text-[11px] uppercase leading-4 tracking-[0.12em] text-[#1a7d90] opacity-100 transition-[opacity,max-height,margin] duration-300 ease-out card-open:mt-0 card-open:max-h-0 card-open:opacity-0">
+      {/* centred in the 88px strip (its middle is 260px down) whether the name takes one line or two; moves to the top when open */}
+      <div className="absolute inset-x-4 top-[260px] flex -translate-y-1/2 flex-col transition-[top,translate] duration-[744ms] ease-[cubic-bezier(0.34,1.3,0.64,1)] card-open:top-5 card-open:translate-y-0">
+        <p className={`type-name text-navy transition-colors duration-[744ms] ${SPRING} card-open:text-white`}>{name}</p>
+        <p className="mt-0.5 inline-flex max-h-6 items-center gap-1.5 overflow-hidden type-meta text-[#1a7d90] opacity-100 transition-[opacity,max-height,margin] duration-300 ease-out card-open:mt-0 card-open:max-h-0 card-open:opacity-0">
           <span className="size-1.5 shrink-0 rounded-full bg-[#3fb0b8] shadow-[0_0_6px_rgba(63,176,184,0.8)]" />
           {title}
         </p>
         {rows.length > 0 && (
-          <dl className="pointer-events-none flex max-h-0 flex-col gap-2.5 overflow-hidden opacity-0 transition-[max-height,opacity,margin] duration-500 ease-out card-open:pointer-events-auto card-open:mt-4 card-open:max-h-[220px] card-open:opacity-100">
+          <ul className="pointer-events-none flex max-h-0 flex-col gap-2 overflow-hidden opacity-0 transition-[max-height,opacity,margin] duration-500 ease-out card-open:pointer-events-auto card-open:mt-4 card-open:max-h-[220px] card-open:opacity-100">
             {rows.map(([key, label]) => (
-              <div key={key}>
-                <dt className="font-mono text-[10px] uppercase tracking-[0.16em] text-[#7fd4da]">{label}</dt>
-                <dd>
-                  <a href={links[key]} title={links[key]} target="_blank" rel="noopener noreferrer" className="block truncate font-body text-xs leading-snug text-white/85 underline-offset-2 hover:text-white hover:underline">
-                    {links[key]}
-                  </a>
-                </dd>
-              </div>
+              <li key={key}>
+                <a
+                  href={links[key]}
+                  aria-label={`${name}: ${label}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 type-compact text-white/90 underline-offset-2 hover:text-white hover:underline"
+                >
+                  {label}
+                  <svg viewBox="0 0 24 24" fill="none" stroke="#7fd4da" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="size-4 shrink-0" aria-hidden="true">
+                    <path d="M7 17 17 7M8 7h9v9" />
+                  </svg>
+                </a>
+              </li>
             ))}
-          </dl>
+          </ul>
         )}
       </div>
     </div>

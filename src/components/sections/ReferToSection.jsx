@@ -15,8 +15,8 @@ function ReferCard({ name }) {
         {initials}
       </span>
       <div className="min-w-0">
-        <p className="font-heading text-base font-semibold leading-snug text-navy">{name}</p>
-        <p className="mt-1 inline-flex items-center gap-1.5 font-body text-xs uppercase tracking-[0.08em] text-[#839794]">
+        <p className="type-name text-navy">{name}</p>
+        <p className="mt-1 inline-flex items-center gap-1.5 type-meta text-[#5f7370]">
           <span className="size-1.5 shrink-0 rounded-full bg-[color:var(--theme,#279aae)]" />
           {ROLES[name]}
         </p>
@@ -31,7 +31,7 @@ function ReferCard({ name }) {
 export default function ReferToSection({ people, tight = false }) {
   return (
     <section className="mx-auto max-w-[1440px] px-8 lg:px-[120px]">
-      <h2 className={`font-heading text-2xl font-bold md:text-4xl text-navy ${tight ? 'pt-8' : 'pt-20'}`}>Refer to</h2>
+      <h2 className={`type-h2 text-navy ${tight ? 'pt-8' : 'pt-20'}`}>Refer to</h2>
       <div className="grid gap-4 pb-20 pt-8 md:grid-cols-[repeat(auto-fill,270px)]">
         {people.map((name) => (
           <ReferCard key={name} name={name} />

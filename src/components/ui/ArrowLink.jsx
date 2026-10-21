@@ -7,7 +7,7 @@ import arrowCircleNavy from '../../assets/images/arrow-circle-navy.svg'
  * A "Label →" style link.
  * - `variant="line"` (default): plain rotated arrow glyph, used by the theme showcase rows.
  * - `variant="circle"`: filled circular arrow button, used by the YouTube/LinkedIn CTAs.
- * `tone` picks navy-on-light vs. white-on-dark coloring.
+ * `tone` picks navy-on-light vs. white-on-dark coloring. `textClass` overrides the label's type (the action role, `type-action`, by default).
  * `animatedUnderline`: an underline that draws in from left to right under the label on hover (the arrow is
  * not underlined). Used by the homepage's body-copy links.
  */
@@ -29,11 +29,11 @@ export default function ArrowLink({ to = '#', children, tone = 'navy', variant =
 
   if (variant === 'circle') {
     return (
-      <Anchor href={to} {...ext} className={`${group}inline-flex items-center gap-4 font-heading ${textClass ?? 'text-xl md:text-[32px]'} font-normal ${toneClasses} ${underline ? 'underline' : ''}`}>
+      <Anchor href={to} {...ext} className={`${group}inline-flex items-center gap-4 ${textClass ?? 'type-action'} ${toneClasses} ${underline ? 'underline' : ''}`}>
         <img
           src={tone === 'white' ? arrowCircleWhite : arrowCircleNavy}
           alt=""
-          className="size-10 md:size-[56px]"
+          className="size-10"
           style={{ transform: 'rotate(180deg) scaleY(-1)' }}
         />
         {label}
@@ -41,10 +41,17 @@ export default function ArrowLink({ to = '#', children, tone = 'navy', variant =
     )
   }
 
+  // Inline flow, not flex: a label that wraps keeps the arrow after its last word, the two held together on one line.
+  const words = typeof children === 'string' ? children.split(' ') : [children]
+  const last = words.pop()
+  const part = (text) => (animatedUnderline ? <span className={UNDERLINE_ANIM}>{text}</span> : text)
   return (
-    <Anchor href={to} className={`${group}inline-flex items-center gap-2 font-heading ${textClass ?? 'text-lg md:text-[28px] lg:text-[32px]'} font-normal ${toneClasses}`}>
-      {label}
-      <img src={arrowIcon} alt="" className={`size-8 rotate-90 md:size-12 ${tone === 'white' ? 'invert' : ''}`} />
+    <Anchor href={to} className={`${group}inline-block ${textClass ?? 'type-action'} ${toneClasses}`}>
+      {words.length > 0 && <>{part(words.join(' '))} </>}
+      <span className="whitespace-nowrap">
+        {part(last)}
+        <img src={arrowIcon} alt="" className={`ml-2 inline-block size-7 rotate-90 align-middle ${tone === 'white' ? 'invert' : ''}`} />
+      </span>
     </Anchor>
   )
 }

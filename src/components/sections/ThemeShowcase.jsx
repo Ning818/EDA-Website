@@ -36,15 +36,15 @@ export default function ThemeShowcase({ theme, imageSide = 'left', visual, still
             : `flex flex-col items-start gap-5 md:gap-8 lg:gap-11 ${imageSide === 'left' ? 'ml-auto w-[min(500px,100%)]' : ''}`
         }
       >
-        {/* small all-caps label over the copy (the theme's name), like an eyebrow line */}
+        {/* the theme's name heads its section */}
         <div className="flex flex-col items-start gap-2 md:gap-3">
-          <p className="font-body text-sm uppercase text-navy md:text-base">{theme}</p>
-          {copy && <p className={`font-body text-base leading-[1.45] text-navy md:text-2xl ${imageSide === 'left' ? '' : 'max-w-[554px]'}`}>{copy}</p>}
+          <h2 className={`type-h2 text-navy ${imageSide === 'left' ? '' : 'max-w-[554px]'}`}>{theme}</h2>
+          {copy && <p className={`type-body text-navy ${imageSide === 'left' ? '' : 'max-w-[554px]'}`}>{copy}</p>}
         </div>
         {/* the two links read as one block: no blank line between them */}
         <div className="flex flex-col items-start">
-          <ArrowLink to={themeByName(theme)?.research ?? '/research'} textClass="text-base md:text-2xl" animatedUnderline>{`Discover ${linkName} Research`}</ArrowLink>
-          <ArrowLink to={themeByName(theme)?.projects ?? '/research/funded-projects'} textClass="text-base md:text-2xl" animatedUnderline>{`View ${linkName} Funded Projects`}</ArrowLink>
+          <ArrowLink to={themeByName(theme)?.research ?? '/research'} animatedUnderline>{`Discover ${linkName} Research`}</ArrowLink>
+          <ArrowLink to={themeByName(theme)?.projects ?? '/research/funded-projects'} animatedUnderline>{`View ${linkName} Funded Projects`}</ArrowLink>
         </div>
       </div>
     </div>

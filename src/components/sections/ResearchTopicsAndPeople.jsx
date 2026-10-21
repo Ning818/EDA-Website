@@ -107,10 +107,10 @@ export default function ResearchTopicsAndPeople({ theme = 'vlsi-cad' }) {
     <section className="mx-auto max-w-[1440px] px-8 py-10 lg:px-[120px]">
       <div className="flex flex-col gap-10 lg:flex-row">
         <div className="flex-1">
-          <h2 className="border-b border-[rgba(0,40,75,0.15)] py-2 font-heading text-2xl font-bold text-navy md:text-4xl">Research Topics</h2>
+          <h2 className="border-b border-[rgba(0,40,75,0.15)] py-2 type-h2 text-navy">Research Topics</h2>
           <ul>
             {topics.map((topic) => (
-              <li key={topic} className="border-b border-[rgba(182,176,156,0.5)] py-2 font-heading text-base text-navy md:text-xl">
+              <li key={topic} className="border-b border-[rgba(182,176,156,0.5)] py-2 type-body text-navy">
                 {topic}
               </li>
             ))}
@@ -118,7 +118,7 @@ export default function ResearchTopicsAndPeople({ theme = 'vlsi-cad' }) {
         </div>
 
         <div className="w-full lg:w-[352px] lg:shrink-0">
-          <h2 className="pb-4 pt-2 font-heading text-2xl font-bold text-navy md:text-[32px]">Involved people</h2>
+          <h2 className="pb-4 pt-2 type-h2 text-navy">Involved people</h2>
           {/* always two cards to a row on a phone, as many as fit from `md` up (cards are at least 150px wide); in the 352px desktop column, two of 168px */}
           <div className="grid grid-cols-2 gap-4 md:grid-cols-[repeat(auto-fill,minmax(150px,1fr))]">
             {people.map((name) => (

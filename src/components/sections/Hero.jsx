@@ -25,8 +25,8 @@ export default function Hero({ still = false }) {
       }
     >
       <div className="flex max-w-[539px] flex-col gap-6">
-        <h1 className="font-heading text-[32px] font-medium leading-none text-navy">EDA Group</h1>
-        <p className="font-body text-lg text-navy md:text-2xl">
+        <h1 className="type-h1 text-navy">EDA Group</h1>
+        <p className="type-lead text-navy">
           EDA (Electronic Design Automation) Group is an interdepartmental research group including researchers from
           the Department of Control and Computer Engineering (DAUIN) and the Interuniversity Department of Regional
           and Urban Studies and Planning (DIST) of Politecnico di Torino.

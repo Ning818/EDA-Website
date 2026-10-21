@@ -27,10 +27,10 @@ function StatTeaser({ counts, light }) {
     <div className="flex gap-6 md:gap-10">
       {items.map(([label, value, color, dot]) => (
         <div key={label}>
-          <p className="font-heading text-3xl font-bold leading-none tabular-nums md:text-4xl" style={{ color }}>
+          <p className="type-stat-sm" style={{ color }}>
             {value}
           </p>
-          <p className={`mt-2 inline-flex items-center gap-1.5 font-body text-[11px] uppercase tracking-[0.08em] md:text-xs ${light ? 'text-navy/70' : 'text-white/70'}`}>
+          <p className={`mt-2 inline-flex items-center gap-1.5 type-meta uppercase tracking-[0.08em] ${light ? 'text-navy/70' : 'text-white/70'}`}>
             <span className="size-1.5 rounded-full" style={{ background: dot }} />
             {label}
           </p>
@@ -70,13 +70,13 @@ export default function FeatureCard({
   )
 
   const ctaLabel = (
-    <span className={`inline-flex items-center gap-2 font-heading text-base font-medium ${light ? 'text-navy' : 'text-white'}`}>
+    <span className={`inline-flex items-center gap-2 type-action ${light ? 'text-navy' : 'text-white'}`}>
       <span className={UNDERLINE_ANIM}>{cta}</span>
       {ARROW}
     </span>
   )
   const ctaButton = (
-    <span className="inline-flex items-center gap-2 rounded-full bg-navy px-6 py-3 font-heading text-base font-medium text-white transition-colors duration-300 group-hover:bg-[#1a7d90]">
+    <span className="inline-flex items-center gap-2 rounded-full bg-navy px-6 py-3 type-action text-white transition-colors duration-300 group-hover:bg-[#1a7d90]">
       {cta}
       {ARROW}
     </span>
@@ -84,21 +84,21 @@ export default function FeatureCard({
 
   const textBlock = (
     <div className="relative z-10 flex flex-col items-start gap-4 md:gap-5">
-      <p className={`font-body text-sm font-medium uppercase tracking-[0.08em] ${light ? 'text-[#1a7d90]' : 'text-[#279aae]'}`}>{eyebrow}</p>
-      <h2 className={`font-heading text-2xl font-bold leading-tight md:text-3xl ${light ? 'text-navy' : 'text-white'}`}>{title}</h2>
+      <p className={`type-meta font-medium uppercase tracking-[0.08em] ${light ? 'text-[#1a7d90]' : 'text-[#279aae]'}`}>{eyebrow}</p>
+      <h2 className={`type-h2 ${light ? 'text-navy' : 'text-white'}`}>{title}</h2>
       {meta && (
-        <div className={`-mt-1 font-body text-sm ${light ? 'text-navy/60' : 'text-white/60'}`}>
+        <div className={`-mt-1 type-meta ${light ? 'text-navy/60' : 'text-white/60'}`}>
           {[].concat(meta).map((line, i) => (
             <p key={i}>{line}</p>
           ))}
         </div>
       )}
       {stats && <StatTeaser counts={stats} light={light} />}
-      <p className={`font-body text-base leading-[1.5] ${light ? 'text-navy/85' : 'text-white/85'}`}>{children}</p>
+      <p className={`type-compact ${light ? 'text-navy/85' : 'text-white/85'}`}>{children}</p>
       {tags && (
         <ul className="flex flex-wrap gap-2">
           {tags.map((tag) => (
-            <li key={tag} className={`rounded-full border px-3 py-1 font-body text-xs ${light ? 'border-navy/15 text-navy/80' : 'border-white/25 text-white/80'}`}>
+            <li key={tag} className={`rounded-full border px-3 py-1 type-meta ${light ? 'border-navy/15 text-navy/80' : 'border-white/25 text-white/80'}`}>
               {tag}
             </li>
           ))}

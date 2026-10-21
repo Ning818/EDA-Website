@@ -42,10 +42,10 @@ export default function Footer() {
             </div>
           </div>
 
-          <div className="flex flex-col gap-3 font-body text-base text-navy md:text-lg">
-            <p className="font-bold tracking-[-0.36px]">Politecnico di Torino</p>
-            <p className="font-medium tracking-[-0.36px]">Department of Control and Computer Engineering (DAUIN)</p>
-            <p className="leading-6">
+          <div className="flex flex-col gap-3 type-compact text-navy">
+            <p className="font-semibold">Politecnico di Torino</p>
+            <p className="font-medium">Department of Control and Computer Engineering (DAUIN)</p>
+            <p>
               Corso Duca Degli Abruzzi, 24
               <br />
               10129, Torino, Italy
@@ -56,10 +56,10 @@ export default function Footer() {
             </p>
           </div>
 
-          <div className="flex flex-col gap-3 font-body text-base text-navy md:text-lg">
-            <p className="font-bold tracking-[-0.36px]">Visit</p>
+          <div className="flex flex-col gap-3 type-compact text-navy">
+            <p className="font-semibold">Visit</p>
             {/* the university's and the department's sites (new tab, like the social icons below) */}
-            <div className="flex flex-col leading-6">
+            <div className="flex flex-col">
               <a href="https://www.polito.it/" target="_blank" rel="noreferrer" className="w-fit underline-offset-4 hover:underline">
                 Polito website
               </a>
@@ -80,7 +80,7 @@ export default function Footer() {
       </div>
 
       <div className="mx-auto max-w-[1440px] px-8 pb-6 pt-4 md:pt-6 lg:px-[120px]">
-        <p className="font-body text-sm text-navy">
+        <p className="type-caption text-navy">
           Copyright © 2026 EDA Group, Politecnico di Torino. All rights reserved.
         </p>
       </div>

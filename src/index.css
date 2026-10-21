@@ -1,14 +1,122 @@
 @import "tailwindcss";
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Roboto:wght@400;500;700&display=swap');
 
+/* Poppins and Roboto are bundled with the site (@fontsource, imported in main.jsx) rather than fetched from Google Fonts: an
+   `@import url(...)` here came after Tailwind's own rules once they were inlined, and an @import that is not at the top of the
+   sheet is dropped, so the fonts never loaded. The system stacks after them are the fallbacks while they load (font-display: swap)
+   or if they cannot. */
 @theme {
-  --font-heading: 'Poppins', sans-serif;
-  --font-body: 'Roboto', sans-serif;
+  --font-heading: 'Poppins', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+  --font-body: 'Roboto Variable', Roboto, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
 
   --color-navy: #002843;
   --color-navy-soft: #5a7385;
   --color-mint: #eef8f3;
   --color-mint-deep: #dcefe6;
+}
+
+/* The type scale: one class per text role, so the same kind of text has the same size on every page. Three steps: phone (below
+   768px), tablet / small laptop (768-1199px) and wide desktop (1200px and up); a role with one size keeps it at every width. Sizes are
+   in rem so they follow the visitor's own text size; line heights are unitless. Family and weight come with the role (headings, names
+   and stats in Poppins, reading text and metadata in Roboto); colour, letter-spacing and case are left to the component.
+   - type-h1: the page title.              - type-lead: a short intro summary.     - type-meta: roles, dates, labels, eyebrows,
+   - type-h2: a section title.             - type-body: longer reading text.         status, counts.
+   - type-h3: a card / sub-section title.  - type-compact: card and list text.     - type-caption: copyright, captions.
+   - type-name: a person's name.           - type-action: links, buttons, nav.     - type-nav: the phone menu's items.
+   - type-brand: "EDA Group" by the logo.  - type-stat / type-stat-sm: display figures (big on a page header, small inside a card). */
+@utility type-h1 {
+  font-family: var(--font-heading);
+  font-weight: 600;
+  font-size: 2.25rem;
+  line-height: 1.15;
+  @media (width >= 48rem) { font-size: 2.75rem; }
+  @media (width >= 75rem) { font-size: 3rem; }
+}
+@utility type-h2 {
+  font-family: var(--font-heading);
+  font-weight: 600;
+  font-size: 1.75rem;
+  line-height: 1.25;
+  @media (width >= 48rem) { font-size: 2rem; }
+}
+@utility type-h3 {
+  font-family: var(--font-heading);
+  font-weight: 600;
+  font-size: 1.25rem;
+  line-height: 1.3;
+  @media (width >= 48rem) { font-size: 1.5rem; }
+}
+@utility type-lead {
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: 1.125rem;
+  line-height: 1.5;
+  @media (width >= 48rem) { font-size: 1.25rem; }
+}
+@utility type-body {
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: 1rem;
+  line-height: 1.6;
+  @media (width >= 48rem) { font-size: 1.125rem; }
+}
+@utility type-compact {
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: 1rem;
+  line-height: 1.5;
+}
+@utility type-name {
+  font-family: var(--font-heading);
+  font-weight: 600;
+  font-size: 1.125rem;
+  line-height: 1.4;
+}
+@utility type-action {
+  font-family: var(--font-heading);
+  font-weight: 500;
+  font-size: 1rem;
+  line-height: 1.5;
+}
+@utility type-nav {
+  font-family: var(--font-heading);
+  font-weight: 500;
+  font-size: 1.125rem;
+  line-height: 1.5;
+}
+@utility type-meta {
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: 0.875rem;
+  line-height: 1.45;
+}
+@utility type-caption {
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+@utility type-brand {
+  font-family: var(--font-heading);
+  font-weight: 500;
+  font-size: 1.25rem;
+  line-height: 1.3;
+}
+@utility type-stat {
+  font-family: var(--font-heading);
+  font-weight: 600;
+  font-size: 2.5rem;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+  @media (width >= 48rem) { font-size: 3rem; }
+  @media (width >= 75rem) { font-size: 3.5rem; }
+}
+@utility type-stat-sm {
+  font-family: var(--font-heading);
+  font-weight: 600;
+  font-size: 1.75rem;
+  line-height: 1.15;
+  font-variant-numeric: tabular-nums;
+  @media (width >= 48rem) { font-size: 2rem; }
 }
 
 /* "Flipped" state of a Teaching professor card (a `group`): on a real desktop (hover-capable pointer, md and up) it is

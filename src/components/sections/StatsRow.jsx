@@ -36,11 +36,11 @@ function Stat({ target, label, color, dot, labelClass }) {
   const value = useCountUp(target)
   return (
     <div className="flex flex-col">
-      <p className="font-heading text-5xl font-bold leading-none tabular-nums md:text-7xl" style={{ color }} aria-hidden="true">
+      <p className="type-stat" style={{ color }} aria-hidden="true">
         {value}
       </p>
       <span className="sr-only">{target}</span>
-      <p className={`mt-3 inline-flex items-center gap-2 font-body text-xs uppercase tracking-[0.08em] md:text-sm ${labelClass}`}>
+      <p className={`mt-3 inline-flex items-center gap-2 type-meta uppercase tracking-[0.08em] ${labelClass}`}>
         {dot && <span className="size-2 rounded-full" style={{ background: dot }} />}
         {label}
       </p>

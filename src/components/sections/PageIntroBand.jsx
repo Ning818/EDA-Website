@@ -84,9 +84,9 @@ export default function PageIntroBand({ category, title, children, decorated = f
     )
   const eyebrow = (
     <>
-      <p className={`font-body text-sm font-medium uppercase tracking-[0.08em] md:text-base ${onLight ? 'text-[#1a7d90]' : 'text-[#279aae]'}`}>{category}</p>
+      <p className={`type-meta font-medium uppercase tracking-[0.08em] ${onLight ? 'text-[#1a7d90]' : 'text-[#279aae]'}`}>{category}</p>
       {title && (
-        <FitTitle fit={titleFit} boxRef={boxRef} className={`text-balance font-heading text-4xl font-bold tracking-tight md:text-6xl ${onLight ? 'text-navy' : 'text-white'}`}>
+        <FitTitle fit={titleFit} boxRef={boxRef} className={`text-balance type-h1 tracking-tight ${onLight ? 'text-navy' : 'text-white'}`}>
           {title}
         </FitTitle>
       )}
@@ -114,13 +114,13 @@ export default function PageIntroBand({ category, title, children, decorated = f
                       className={`pointer-events-none absolute -inset-x-10 -inset-y-7 -z-10 [mask-image:radial-gradient(closest-side,black_55%,transparent)] ${light ? 'bg-mint/85' : 'bg-navy/70'}`}
                     />
                   )}
-                  <p className={`font-body text-sm font-medium uppercase tracking-[0.08em] md:text-base ${light ? 'text-[#1a7d90]' : 'text-[#279aae]'}`}>{category}</p>
-                  <p className={`font-heading text-4xl font-bold tracking-tight md:text-6xl ${light ? 'text-navy' : 'text-white'}`}>{title}</p>
+                  <p className={`type-meta font-medium uppercase tracking-[0.08em] ${light ? 'text-[#1a7d90]' : 'text-[#279aae]'}`}>{category}</p>
+                  <p className={`type-h1 tracking-tight ${light ? 'text-navy' : 'text-white'}`}>{title}</p>
                 </div>
               ) : (
-                <p className="font-heading text-[28px] font-bold md:text-[36px] tracking-tight text-[#279aae]">{category}</p>
+                <p className="type-h1 tracking-tight text-[#279aae]">{category}</p>
               )}
-              {children && <p className={`font-body text-base leading-6 md:text-lg ${light ? 'text-navy/85' : 'text-[#f5f4f6]'}`}>{children}</p>}
+              {children && <p className={`type-lead ${light ? 'text-navy/85' : 'text-[#f5f4f6]'}`}>{children}</p>}
               {after}
             </div>
           </div>
@@ -150,7 +150,7 @@ export default function PageIntroBand({ category, title, children, decorated = f
                   feathered at its edges (index.css, .intro-veil; it reaches past the paragraph's right edge, where it fades), pales the
                   particles there */}
               {showDecor && introVeil && <span aria-hidden="true" className={`intro-veil pointer-events-none absolute -inset-y-4 -left-6 -right-20 z-[5] hidden lg:block ${onLight ? 'bg-mint/80' : 'bg-navy/70'}`} />}
-              <p className={`relative z-10 pt-6 font-body text-base leading-6 ${onLight ? 'text-navy/85' : 'text-[#f5f4f6]'}`}>{children}</p>
+              <p className={`relative z-10 pt-6 type-body ${onLight ? 'text-navy/85' : 'text-[#f5f4f6]'}`}>{children}</p>
             </div>
           </div>
         </div>
@@ -169,14 +169,14 @@ export default function PageIntroBand({ category, title, children, decorated = f
               eyebrow
             ) : (
               <>
-                <p className="font-heading text-[28px] font-bold md:text-[36px] tracking-tight text-[#279aae]">{category}</p>
-                {title && <p className="font-heading text-[28px] font-bold md:text-[36px] tracking-tight text-white">{title}</p>}
+                <p className="type-h1 tracking-tight text-[#279aae]">{category}</p>
+                {title && <p className="type-h1 tracking-tight text-white">{title}</p>}
               </>
             )}
           </div>
           {children && (
             <div className="mx-auto max-w-[1440px] px-8 pb-10 pt-6 lg:px-[120px]">
-              <p className={`font-body text-base leading-6 md:text-lg ${onLight ? 'text-navy/85' : 'text-[#f5f4f6]'}`}>{children}</p>
+              <p className={`type-body ${onLight ? 'text-navy/85' : 'text-[#f5f4f6]'}`}>{children}</p>
             </div>
           )}
           {after}

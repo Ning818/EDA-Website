@@ -16,10 +16,10 @@ function CopyText({ copy }) {
   return (
     <div className="flex flex-col gap-5 md:gap-8">
       <div className="flex flex-col gap-2 md:gap-3">
-        <p className="font-body text-sm uppercase text-navy md:text-base">{copy.label}</p>
-        <p className="font-body text-base leading-[1.45] text-navy md:text-2xl">{copy.text}</p>
+        <p className="type-meta font-medium uppercase tracking-[0.08em] text-navy">{copy.label}</p>
+        <p className="type-body text-navy">{copy.text}</p>
       </div>
-      <ArrowLink to={copy.url} variant="circle" external textClass="text-base md:text-2xl" animatedUnderline>
+      <ArrowLink to={copy.url} variant="circle" external animatedUnderline>
         {copy.cta}
       </ArrowLink>
     </div>

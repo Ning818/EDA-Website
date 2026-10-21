@@ -49,6 +49,16 @@
   }
 }
 
+/* The veil over the artwork behind a Research page's intro paragraph (PageIntroBand.jsx): solid over the paragraph, fading out at its
+   top and bottom edges and over its last 80px on the right, so no hard edge shows across the particles. */
+.intro-veil {
+  mask-image:
+    linear-gradient(to right, #000 calc(100% - 80px), transparent),
+    linear-gradient(to bottom, transparent, #000 24px, #000 calc(100% - 24px), transparent);
+  mask-composite: intersect;
+  -webkit-mask-composite: source-in;
+}
+
 /* Line art that draws itself in once (the Smart City page headers' skyline, SkylineDecor.jsx): `.line-draw` strokes a path
    that carries pathLength="1" from nothing to whole, `.line-fade` fades a shape in. */
 @keyframes line-draw {

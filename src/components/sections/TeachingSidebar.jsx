@@ -1,7 +1,7 @@
 // The Teaching page's sidebar: a white panel with a small console-style heading and one row per tab - an index number and the
 // name. A single lit bar (a teal glow on the left edge and a fading teal wash behind the row) slides to the selected row instead
 // of the row's own background changing, so picking another tab is a motion, not a swap.
-const NAV_ITEMS = ['Professors', 'Phd Students', 'Alumni', 'Administrative Clerks']
+const NAV_ITEMS = ['Professors', 'PhD Students & Research Fellows', 'Alumni']
 const ROW = 52 // px: the rows' height, which the sliding bar moves by
 
 export default function TeachingSidebar({ active = 'Professors', onSelect }) {
@@ -10,7 +10,7 @@ export default function TeachingSidebar({ active = 'Professors', onSelect }) {
     <aside className="w-full shrink-0 rounded-2xl border border-navy/10 bg-white p-3 lg:sticky lg:top-6 lg:w-[273px] lg:self-start">
       <div className="flex items-center gap-2.5 px-3 pb-3 pt-1.5">
         <span className="size-1.5 rounded-full bg-[#3fb0b8] shadow-[0_0_8px_rgba(63,176,184,0.8)]" />
-        <h2 className="font-mono text-xs uppercase tracking-[0.22em] text-[#1a7d90]">Teaching</h2>
+        <h2 className="font-mono text-xs uppercase tracking-[0.22em] text-[#1a7d90]">People</h2>
         <span className="h-px flex-1 bg-gradient-to-r from-[#3fb0b8]/50 to-transparent" />
       </div>
       <nav className="relative flex flex-col">
@@ -34,7 +34,7 @@ export default function TeachingSidebar({ active = 'Professors', onSelect }) {
               <span className={`font-mono text-[11px] tracking-[0.18em] transition-colors duration-300 ${isActive ? 'text-[#1a7d90]' : 'text-navy/30 group-hover:text-[#1a7d90]/70'}`}>
                 {String(i + 1).padStart(2, '0')}
               </span>
-              <span className={`font-heading text-[15px] font-semibold transition-colors duration-300 md:text-base ${isActive ? 'text-navy' : 'text-navy/60 group-hover:text-navy'}`}>{item}</span>
+              <span className={`font-heading text-[15px] font-semibold leading-tight transition-colors duration-300 md:text-base ${isActive ? 'text-navy' : 'text-navy/60 group-hover:text-navy'}`}>{item}</span>
             </button>
           )
         })}

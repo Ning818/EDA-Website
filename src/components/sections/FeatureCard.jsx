@@ -1,14 +1,13 @@
 import { Link } from 'react-router-dom'
 import { UNDERLINE_ANIM } from '../ui/ArrowLink'
-import { ONGOING_PROJECTS, ENDED_PROJECTS, TOTAL_PROJECTS } from './projectStats'
 
 /**
  * A rounded "feature" card for the Research page: an image beside an eyebrow, a title, a short summary and a call to
  * action - the page's two highlights (a thesis, the funded projects).
  *
  * `tone`: 'dark' (navy card, light type) or 'light' (white card with a hairline border that lights up in the page's theme colour (`--theme`, teal without it) on hover - the
- * same card language as the project / people cards). `meta`: a muted line under the title (authors, year). `tags`: small
- * keyword pills. `stats`: the funded-project numbers as a
+ * same card language as the project / people cards). `meta`: a muted line under the title (authors, year), or a list of such lines (each on its own line). `tags`: small
+ * keyword pills. `stats`: the funded-project numbers ({ ongoing, ended, total }, see projectStats.js) as a
  * teaser row. `button`: the call to action is a solid button instead of an underlined text link - used where the card is
  * there to lead people on to another page; the whole card is then the link (`to`).
  */
@@ -18,11 +17,11 @@ const ARROW = (
   </svg>
 )
 
-function StatTeaser({ light }) {
+function StatTeaser({ counts, light }) {
   const items = [
-    ['Ongoing', ONGOING_PROJECTS, '#279aae', '#279aae'],
-    ['Ended', ENDED_PROJECTS, light ? '#002843' : '#ffffff', light ? 'rgba(0,40,67,0.35)' : 'rgba(255,255,255,0.4)'],
-    ['Total', TOTAL_PROJECTS, light ? '#002843' : '#ffffff', light ? '#61a5b1' : '#468c9e'],
+    ['Ongoing', counts.ongoing, '#279aae', '#279aae'],
+    ['Ended', counts.ended, light ? '#002843' : '#ffffff', light ? 'rgba(0,40,67,0.35)' : 'rgba(255,255,255,0.4)'],
+    ['Total', counts.total, light ? '#002843' : '#ffffff', light ? '#61a5b1' : '#468c9e'],
   ]
   return (
     <div className="flex gap-6 md:gap-10">
@@ -86,8 +85,14 @@ export default function FeatureCard({
     <div className="relative z-10 flex flex-col items-start gap-4 md:gap-5">
       <p className={`font-body text-sm font-medium uppercase tracking-[0.08em] ${light ? 'text-[#1a7d90]' : 'text-[#279aae]'}`}>{eyebrow}</p>
       <h2 className={`font-heading text-2xl font-bold leading-tight md:text-3xl ${light ? 'text-navy' : 'text-white'}`}>{title}</h2>
-      {meta && <p className={`-mt-1 font-body text-sm ${light ? 'text-navy/60' : 'text-white/60'}`}>{meta}</p>}
-      {stats && <StatTeaser light={light} />}
+      {meta && (
+        <div className={`-mt-1 font-body text-sm ${light ? 'text-navy/60' : 'text-white/60'}`}>
+          {[].concat(meta).map((line, i) => (
+            <p key={i}>{line}</p>
+          ))}
+        </div>
+      )}
+      {stats && <StatTeaser counts={stats} light={light} />}
       <p className={`font-body text-base leading-[1.5] ${light ? 'text-navy/85' : 'text-white/85'}`}>{children}</p>
       {tags && (
         <ul className="flex flex-wrap gap-2">
@@ -102,7 +107,7 @@ export default function FeatureCard({
         {button ? (
           ctaButton
         ) : external ? (
-          <a href={to} className="group/cta inline-flex">
+          <a href={to} {...(to.startsWith('http') ? { target: '_blank', rel: 'noopener noreferrer' } : {})} className="group/cta inline-flex">
             {ctaLabel}
           </a>
         ) : (

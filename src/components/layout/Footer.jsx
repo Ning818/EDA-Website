@@ -81,11 +81,7 @@ export default function Footer() {
 
       <div className="mx-auto max-w-[1440px] px-8 pb-6 pt-4 md:pt-6 lg:px-[120px]">
         <p className="font-body text-sm text-navy">
-          Copyright © 2026{' '}
-          <a href="https://eda.polito.it/" target="_blank" rel="noreferrer" className="underline">
-            EDA
-          </a>
-          . All rights reserved. Theme Spacious by .... Powered by:...
+          Copyright © 2026 EDA Group, Politecnico di Torino. All rights reserved.
         </p>
       </div>
     </footer>

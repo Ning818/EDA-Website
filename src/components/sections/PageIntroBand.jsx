@@ -1,3 +1,4 @@
+import { useLayoutEffect, useRef } from 'react'
 import HeaderDecor from './HeaderDecor'
 import FactoryDecor from './FactoryDecor'
 import FactoryParticles from './FactoryParticles'
@@ -6,6 +7,38 @@ import HelixDecor from './HelixDecor'
 import HelixParticles from './HelixParticles'
 import SkylineDecor from './SkylineDecor'
 import SkylineParticles from './SkylineParticles'
+
+/**
+ * The page title, optionally kept on ONE line from `lg` up (`fit`): it is laid out without wrapping at its usual size and, when
+ * that is wider than the band's content box (`boxRef`), the font size is scaled down just enough to fit - re-measured on resize
+ * and once the fonts have loaded, so it also holds when a wider typeface replaces the fallback. Below `lg` it wraps as usual
+ * (one line would need a tiny type size there, and the artwork sits behind the title row from `md`).
+ */
+function FitTitle({ fit, boxRef, className, children }) {
+  const ref = useRef(null)
+  useLayoutEffect(() => {
+    if (!fit) return undefined
+    const el = ref.current
+    const run = () => {
+      el.style.fontSize = ''
+      const box = boxRef.current
+      if (!box || !window.matchMedia('(min-width: 1024px)').matches) return
+      const cs = getComputedStyle(box)
+      const avail = box.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight)
+      const width = el.scrollWidth
+      if (width > avail) el.style.fontSize = `${Math.floor((parseFloat(getComputedStyle(el).fontSize) * avail) / width)}px`
+    }
+    run()
+    window.addEventListener('resize', run)
+    document.fonts?.ready.then(run)
+    return () => window.removeEventListener('resize', run)
+  }, [fit, boxRef, children])
+  return (
+    <p ref={ref} className={`${fit ? 'lg:whitespace-nowrap ' : ''}${className}`}>
+      {children}
+    </p>
+  )
+}
 
 /**
  * The dark navy title band used at the top of Research/Funded Projects pages:
@@ -21,14 +54,15 @@ import SkylineParticles from './SkylineParticles'
  * which of its two looks), or 'none' to leave that area empty (a theme page whose artwork is not designed yet).
  *
  * `backdrop` (with `textWidth`): the plain band with a picture of its own drawn behind the text, see the branch below; with a `title`
- * the category is the small eyebrow over a big title (as on the decorated pages), without one it is the page's heading; `titleVeil`: a feathered translucent layer of the page's colour behind the title block, to pale the backdrop there; `bandBg`: the
+ * the category is the small eyebrow over a big title (as on the decorated pages), without one it is the page's heading; `titleVeil`: a feathered translucent layer of the page's colour behind the title block, to pale the backdrop there; `titleFit` (hero layout): keep the title on one line from `lg` up, shrinking its type only as far as needed (see FitTitle); `introVeil` (hero layout): a translucent veil over the artwork where the paragraph meets it, from `lg` up; `bandBg`: the
  * band's background class ('' to let the page's own show through, and the backdrop overflow the band instead of being cut at its edge); `light`: navy type and a hairline under the band (`bandRule={false}` leaves the hairline out), for a light page.
  *
  * Decorated with an intro paragraph (`children`) is a two-column header from `lg` up: eyebrow, title and paragraph stacked
  * in a left column that stops short of the circuit, the circuit vertically centred on the right. Below `lg` it is one
  * column - the circuit sits faintly behind the title and the paragraph runs full width underneath.
  */
-export default function PageIntroBand({ category, title, children, decorated = false, light = false, decorVariant, decorColor, decorPage, after, backdrop, textWidth = '', backdropPad = 'pb-10 lg:pb-14', bandBg = 'bg-navy', bandRule = true, titleVeil = false }) {
+export default function PageIntroBand({ category, title, children, decorated = false, light = false, decorVariant, decorColor, decorPage, after, backdrop, textWidth = '', backdropPad = 'pb-10 lg:pb-14', bandBg = 'bg-navy', bandRule = true, titleVeil = false, titleFit = false, introVeil = false }) {
+  const boxRef = useRef(null)
   const onLight = decorated && light
   const hero = decorated && children
   const showDecor = decorated && decorVariant !== 'none'
@@ -51,7 +85,11 @@ export default function PageIntroBand({ category, title, children, decorated = f
   const eyebrow = (
     <>
       <p className={`font-body text-sm font-medium uppercase tracking-[0.08em] md:text-base ${onLight ? 'text-[#1a7d90]' : 'text-[#279aae]'}`}>{category}</p>
-      {title && <p className={`font-heading text-4xl font-bold tracking-tight md:text-6xl ${onLight ? 'text-navy' : 'text-white'}`}>{title}</p>}
+      {title && (
+        <FitTitle fit={titleFit} boxRef={boxRef} className={`text-balance font-heading text-4xl font-bold tracking-tight md:text-6xl ${onLight ? 'text-navy' : 'text-white'}`}>
+          {title}
+        </FitTitle>
+      )}
     </>
   )
   const sectionClass = `relative overflow-hidden ${onLight ? 'border-b border-navy/10 bg-mint' : 'bg-navy'}`
@@ -95,9 +133,9 @@ export default function PageIntroBand({ category, title, children, decorated = f
       <section className={sectionClass}>
         {/* the dot grid covers the whole band, from its top edge to its bottom (not just the title row the artwork sits on below `lg`) */}
         <HeaderDots light={light} />
-        <div className="mx-auto max-w-[1440px] px-8 pb-10 pt-16 lg:px-[120px]">
+        <div ref={boxRef} className="mx-auto max-w-[1440px] px-8 pb-10 pt-16 lg:px-[120px]">
           {/* the left column's width: from its left edge up to just short of the circuit (see HeaderDecor's canvas width) */}
-          <div className="lg:max-w-[clamp(416px,calc(100vw-803px),640px)]">
+          <div className="lg:max-w-[clamp(456px,calc(100vw-763px),700px)]">
             {/* the circuit attaches to this row below `lg`, to the whole band from `lg` up */}
             <div className="relative lg:static">
               {/* on a phone the artwork stands from the band's top edge: its layer reaches up over the band's top padding (pt-16) instead of
@@ -106,7 +144,13 @@ export default function PageIntroBand({ category, title, children, decorated = f
               {showDecor && <div className="absolute inset-x-0 bottom-0 -top-16 md:inset-0 lg:contents">{decor}</div>}
               <div className="relative z-10 flex flex-col gap-2.5">{eyebrow}</div>
             </div>
-            <p className={`relative z-10 pt-6 font-body text-base leading-6 ${onLight ? 'text-navy/85' : 'text-[#f5f4f6]'}`}>{children}</p>
+            <div className="relative">
+              {/* `introVeil`: from `lg` up the paragraph meets the artwork's left edge; a translucent layer of the band's colour between them,
+                  feathered at its edges (index.css, .intro-veil; it reaches past the paragraph's right edge, where it fades), pales the
+                  particles there */}
+              {showDecor && introVeil && <span aria-hidden="true" className={`intro-veil pointer-events-none absolute -inset-y-4 -left-6 -right-20 z-[5] hidden lg:block ${onLight ? 'bg-mint/80' : 'bg-navy/70'}`} />}
+              <p className={`relative z-10 pt-6 font-body text-base leading-6 ${onLight ? 'text-navy/85' : 'text-[#f5f4f6]'}`}>{children}</p>
+            </div>
           </div>
         </div>
       </section>

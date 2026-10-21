@@ -5,9 +5,11 @@ import { useState } from 'react'
  * 80px name/role strip) to a "back" state where the info panel expands to fill the whole card,
  * the photo fades out and the name moves up to the top.
  *
- * The back state also lists the person's contact links under their name (Polito Page, ORCID
- * Publication, LinkedIn) when the professor has a `links` entry. The Figma placeholder used one
- * person's links on every card, so only professors with real data of their own get this block.
+ * The back state also lists the person's contact links under their name (Polito Page, Department Website, ORCID
+ * Publication, LinkedIn, IRIS - the polito.it publications repository) when the person has a `links` entry. Each link is one
+ * line - long addresses are cut short with an ellipsis (the whole address is the link's title) - so that all of them fit on
+ * the card. The Figma placeholder used one person's links on every card, so only people with real data of their own get
+ * this block.
  *
  * The flip is the `card-open:` variant (index.css): the hover on a desktop (hover-capable pointer, md and up), a tap on
  * the phone layout / touch devices - there a tap slides the panel up, another tap folds it back down, and a tap on one
@@ -15,8 +17,10 @@ import { useState } from 'react'
  */
 const LINK_ROWS = [
   ['polito', 'Polito Page'],
+  ['dept', 'Department Website'],
   ['orcid', 'ORCID Publication'],
   ['linkedin', 'LinkedIn'],
+  ['iris', 'IRIS'],
 ]
 
 const SPRING = 'ease-[cubic-bezier(0.34,1.56,0.64,1)]'
@@ -35,26 +39,36 @@ function useTapToFlip() {
   }
 }
 
+// The first letters of the first and the last word of the name.
+const initials = (name) => {
+  const words = name.split(' ')
+  return `${words[0][0]}${words[words.length - 1][0]}`
+}
+
 const GLOW = 'hover:border-[#3fb0b8] hover:shadow-[0_8px_28px_rgba(63,176,184,0.25)] data-[open]:border-[#3fb0b8] data-[open]:shadow-[0_8px_28px_rgba(63,176,184,0.25)]'
 
-function ProfessorCard({ photo, name, title, links, index }) {
+function ProfessorCard({ photo, name, title, links }) {
   const flip = useTapToFlip()
   const rows = LINK_ROWS.filter(([key]) => links?.[key])
   // A white card with a hairline border: the photo, a name strip under it with the role as a small
-  // mono line, and the index of the card on the right. Hovering (or a tap) lights the border in teal with a soft glow, and the strip
+  // mono line. Hovering (or a tap) lights the border in teal with a soft glow, and the strip
   // rises to fill the card - turning navy, the photo fading away - with the name moving up to the top and the links listed under it.
   return (
     <div {...flip} className={`group relative h-[304px] w-full overflow-hidden rounded-xl border border-navy/10 bg-white transition-[border-color,box-shadow] duration-300 ${GLOW}`}>
       <div className={`absolute inset-x-0 top-0 h-[224px] transition-opacity duration-[744ms] ${SPRING} card-open:opacity-0`}>
-        <img src={photo} alt={name} className="h-full w-full object-cover" />
+        {photo ? (
+          <img src={photo} alt={name} className="h-full w-full object-cover" />
+        ) : (
+          // no photo: the person's initials on a soft teal ground
+          <div aria-hidden="true" className="flex h-full w-full items-center justify-center bg-[radial-gradient(circle_at_50%_38%,#cfeaec,#eef8f3_75%)]">
+            <span className="font-heading text-6xl font-bold tracking-wide text-[#3fb0b8]/55">{initials(name)}</span>
+          </div>
+        )}
         <div className="absolute inset-x-0 bottom-0 h-12 bg-gradient-to-t from-white to-transparent" />
       </div>
       <div
         className={`absolute inset-x-0 bottom-0 h-[80px] border-t border-navy/10 bg-white transition-[height,background-color] duration-[744ms] ${SPRING} card-open:h-full card-open:border-transparent card-open:bg-navy`}
       />
-      <span className="absolute right-4 top-[271px] font-mono text-[11px] tracking-[0.18em] text-navy/25 transition-opacity duration-300 card-open:opacity-0">
-        {String(index + 1).padStart(2, '0')}
-      </span>
       {/* 242px = where the name and role are centred in the 80px strip (224 + (80 - 44) / 2) */}
       <div className="absolute inset-x-4 top-[242px] flex flex-col transition-[top] duration-[744ms] ease-[cubic-bezier(0.34,1.3,0.64,1)] card-open:top-5">
         <p className={`truncate font-heading text-[17px] font-bold leading-6 text-navy transition-colors duration-[744ms] ${SPRING} card-open:text-white`}>{name}</p>
@@ -63,12 +77,12 @@ function ProfessorCard({ photo, name, title, links, index }) {
           {title}
         </p>
         {rows.length > 0 && (
-          <dl className="pointer-events-none flex max-h-0 flex-col gap-3 overflow-hidden opacity-0 transition-[max-height,opacity,margin] duration-500 ease-out card-open:pointer-events-auto card-open:mt-4 card-open:max-h-[220px] card-open:opacity-100">
+          <dl className="pointer-events-none flex max-h-0 flex-col gap-2.5 overflow-hidden opacity-0 transition-[max-height,opacity,margin] duration-500 ease-out card-open:pointer-events-auto card-open:mt-4 card-open:max-h-[220px] card-open:opacity-100">
             {rows.map(([key, label]) => (
               <div key={key}>
                 <dt className="font-mono text-[10px] uppercase tracking-[0.16em] text-[#7fd4da]">{label}</dt>
                 <dd>
-                  <a href={links[key]} target="_blank" rel="noopener noreferrer" className="break-all font-body text-xs leading-snug text-white/85 underline-offset-2 hover:text-white hover:underline">
+                  <a href={links[key]} title={links[key]} target="_blank" rel="noopener noreferrer" className="block truncate font-body text-xs leading-snug text-white/85 underline-offset-2 hover:text-white hover:underline">
                     {links[key]}
                   </a>
                 </dd>
@@ -85,7 +99,7 @@ export default function ProfessorGrid({ professors }) {
   return (
     <div className="grid w-full flex-1 grid-cols-[repeat(auto-fill,minmax(220px,1fr))] gap-5 lg:w-auto lg:self-start">
       {professors.map((p, i) => (
-        <ProfessorCard key={i} {...p} index={i} />
+        <ProfessorCard key={i} {...p} />
       ))}
     </div>
   )

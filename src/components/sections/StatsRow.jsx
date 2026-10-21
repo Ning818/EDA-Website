@@ -1,13 +1,8 @@
 import { useEffect, useState } from 'react'
-import { ONGOING_PROJECTS, ENDED_PROJECTS, TOTAL_PROJECTS } from './projectStats'
 
 // The Funded Projects page's headline numbers (shown inside the page-header band, see PageIntroBand's `after`): big
-// figures that count up when the page opens. The total is the sum of the other two. `light`: for a light band (navy
+// figures that count up when the page opens. `counts`: { ongoing, ended, total } (projectStats.js). `light`: for a light band (navy
 // figures) instead of the dark one (white figures).
-const ONGOING = ONGOING_PROJECTS
-const ENDED = ENDED_PROJECTS
-const TOTAL = TOTAL_PROJECTS
-
 const TEAL = '#279aae'
 
 /** 0 -> target over `ms` (ease-out), after `delay` ms; straight to the target when the user prefers reduced motion. */
@@ -53,15 +48,15 @@ function Stat({ target, label, color, dot, labelClass }) {
   )
 }
 
-export default function StatsRow({ light = false }) {
+export default function StatsRow({ counts, light = false }) {
   const ink = light ? '#002843' : '#ffffff'
   const labelClass = light ? 'text-navy/70' : 'text-white/70'
   return (
     <div className="mx-auto max-w-[1440px] px-8 pb-14 pt-10 lg:px-[120px]">
       <div className="flex gap-8 md:gap-16">
-        <Stat target={ONGOING} label="Ongoing" color={TEAL} dot={TEAL} labelClass={labelClass} />
-        <Stat target={ENDED} label="Ended" color={ink} dot={light ? 'rgba(0,40,67,0.35)' : 'rgba(255,255,255,0.4)'} labelClass={labelClass} />
-        <Stat target={TOTAL} label="Total" color={ink} dot={light ? '#61a5b1' : '#468c9e'} labelClass={labelClass} />
+        <Stat target={counts.ongoing} label="Ongoing" color={TEAL} dot={TEAL} labelClass={labelClass} />
+        <Stat target={counts.ended} label="Ended" color={ink} dot={light ? 'rgba(0,40,67,0.35)' : 'rgba(255,255,255,0.4)'} labelClass={labelClass} />
+        <Stat target={counts.total} label="Total" color={ink} dot={light ? '#61a5b1' : '#468c9e'} labelClass={labelClass} />
       </div>
     </div>
   )

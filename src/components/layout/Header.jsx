@@ -25,7 +25,7 @@ const NAV_LINKS = [
     dropdown: THEMES.map((theme) => ({ label: theme.name, to: theme.projects })),
   },
   { label: 'Collaborations', to: '/collaborations' },
-  { label: 'Teaching', to: '/teaching' },
+  { label: 'People', to: '/people' },
 ]
 
 export default function Header() {
@@ -180,7 +180,9 @@ export default function Header() {
                   )}
 
                   {link.dropdown && (
-                    <div className="invisible absolute left-0 top-full z-20 w-56 pt-3 group-hover:visible">
+                    // `w-max min-w-56`: as wide as the longest item needs (Industry 4.0 and Smart Manufacturing), so every item is one line - the
+                    // rows grow open only to `max-h-12`, a second line would be cut off
+                    <div className="invisible absolute left-0 top-full z-20 w-max min-w-56 pt-3 group-hover:visible">
                       <ul className="bg-mint shadow-lg">
                         {link.dropdown.map((item, i) => (
                           // Each row is collapsed to 0 height and grows open on its own delay, so the

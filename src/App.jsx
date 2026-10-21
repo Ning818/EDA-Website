@@ -1,5 +1,5 @@
 import { useLayoutEffect } from 'react'
-import { Routes, Route, useLocation } from 'react-router-dom'
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import Header from './components/layout/Header'
 import Footer from './components/layout/Footer'
 import Home from './pages/Home'
@@ -31,7 +31,8 @@ export default function App() {
         <Route path="/research/funded-projects/:theme" element={<FundedProjects />} />
         <Route path="/research/:theme" element={<Research />} />
         <Route path="/collaborations" element={<Collaborations />} />
-        <Route path="/teaching" element={<Teaching />} />
+        <Route path="/people" element={<Teaching />} />
+        <Route path="/teaching" element={<Navigate to="/people" replace />} />
       </Routes>
       <Footer />
     </div>

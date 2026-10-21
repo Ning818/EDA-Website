@@ -1,0 +1,31 @@
+// A person's role as written on the small people cards (the Research pages' "Involved people", the Funded Projects pages' "Refer to"):
+// the same wherever they appear, so it is kept once, here. From the group's People page (April 2026 snapshot): the professors by their
+// rank, the PhD candidates, and "Former member" for those on its Wall of Fame.
+export const ROLES = {
+  'Enrico Macii': 'Full Prof.',
+  'Alberto Macii': 'Full Prof.',
+  'Massimo Poncino': 'Full Prof.',
+  'Andrea Calimera': 'Full Prof.',
+  'Daniele Jahier Pagliari': 'Assoc. Prof.',
+  'Edoardo Patti': 'Assoc. Prof.',
+  'Gianvito Urgese': 'Assoc. Prof.',
+  'Lorenzo Bottaccioli': 'Assoc. Prof.',
+  'Santa Di Cataldo': 'Assoc. Prof.',
+  'Sara Vinco': 'Assoc. Prof.',
+  'Alessandro Aliberti': 'Asst. Prof.',
+  'Francesco Ponzio': 'Asst. Prof.',
+  'Luca Barbierato': 'Asst. Prof.',
+  'Valentino Peluso': 'Asst. Prof.',
+  'Marta Lovino': 'Former member',
+  'Yukai Chen': 'Former member',
+  'Alberto Bocca': 'PhD Student',
+  'Antonio Cipolletta': 'Former member',
+  'Chen Xie': 'PhD Student',
+  'Davide Cannizzaro': 'PhD Student',
+  'Evelina Forno': 'PhD Student',
+  'Luca Mocerino': 'Former member',
+  'Marco Massano': 'PhD Student',
+  'Matteo Grimaldi': 'PhD Student',
+  'Matteo Orlando': 'PhD Student',
+  'Roberto Giorgio Rizzo': 'Former member',
+}

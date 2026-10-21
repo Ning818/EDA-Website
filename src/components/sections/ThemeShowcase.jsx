@@ -18,6 +18,8 @@ export default function ThemeShowcase({ theme, imageSide = 'left', visual: custo
   // and leaves a wide gap above the text.
   // With the visual on the left the text block sits flush right, 500px wide - exactly where the social-media copy
   // (SocialCopy.jsx) sits, so the first and third themes line up with it.
+  // The links name the theme in their text; a long theme name uses its short form there so each link stays on one line.
+  const linkName = themeByName(theme)?.short ?? theme
   const links = (
     <div
       style={phoneLift ? { '--copy-lift': `${phoneLift}px` } : undefined}
@@ -31,8 +33,8 @@ export default function ThemeShowcase({ theme, imageSide = 'left', visual: custo
         </div>
         {/* the two links read as one block: no blank line between them */}
         <div className="flex flex-col items-start">
-          <ArrowLink to={themeByName(theme)?.research ?? '/research'} textClass="text-base md:text-2xl" animatedUnderline>{`Discover ${theme} Research`}</ArrowLink>
-          <ArrowLink to={themeByName(theme)?.projects ?? '/research/funded-projects'} textClass="text-base md:text-2xl" animatedUnderline>{`View ${theme} Funded Projects`}</ArrowLink>
+          <ArrowLink to={themeByName(theme)?.research ?? '/research'} textClass="text-base md:text-2xl" animatedUnderline>{`Discover ${linkName} Research`}</ArrowLink>
+          <ArrowLink to={themeByName(theme)?.projects ?? '/research/funded-projects'} textClass="text-base md:text-2xl" animatedUnderline>{`View ${linkName} Funded Projects`}</ArrowLink>
         </div>
       </div>
     </div>

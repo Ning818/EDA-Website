@@ -15,20 +15,14 @@
  * 'dark': for a dark page. The logos are drawn for a light ground (several have the site's mint as their own opaque background), so
  * each one sits on a plate of that same mint - a flat plate so the opaque ones show no seam - lifted off the dark page: a hairline
  * border, a highlight along its top edge and a soft shadow under it; hovering raises it and lights the border in teal before the
- * name label comes up. The heading gets a rule and a count of the partners.
+ * name label comes up.
  */
 export default function LogoGrid({ title, logos, tone = 'flat' }) {
-  const count = logos.filter(Boolean).length
-
   if (tone === 'dark' || tone === 'light') {
     const dark = tone === 'dark'
     return (
       <section className="relative mx-auto max-w-[1440px] px-8 pt-12 lg:px-[120px]">
-        <div className="flex items-center gap-4 pb-7">
-          <h2 className={`font-heading text-2xl font-bold md:text-4xl ${dark ? 'text-white' : 'text-navy'}`}>{title}</h2>
-          <span className={`h-px flex-1 bg-gradient-to-r to-transparent ${dark ? 'from-white/25' : 'from-navy/25'}`} />
-          <span className={`hidden font-mono text-xs tracking-[0.18em] sm:block ${dark ? 'text-white/40' : 'text-navy/40'}`}>{String(count).padStart(2, '0')} PARTNERS</span>
-        </div>
+        <h2 className={`pb-7 font-heading text-2xl font-bold md:text-4xl ${dark ? 'text-white' : 'text-navy'}`}>{title}</h2>
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
           {logos.map((logo, i) =>
             logo ? (

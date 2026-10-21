@@ -17,7 +17,7 @@ const VISUAL_BOX =
 const THEMES = [
   {
     theme: 'VLSI-CAD',
-    copy: 'Our group conducts research in Design Automation for standard digital CMOS circuits and Beyond-CMOS technologies. We develop computer-aided design algorithms, methodologies and prototype tools for low-power, variation-tolerant integrated circuits, with a focus on logical and physical synthesis. We also model and simulate Graphene-based devices to enable flexible, ultra-low-power circuits.',
+    copy: 'The EDA group works on Design Automation for standard digital CMOS circuits, Beyond-CMOS technologies and Electrical Energy Systems. We develop CAD algorithms and prototype tools for low-power, variation-tolerant integrated circuits, model Graphene-based devices for flexible, ultra-low-power circuits, and build simulation and run-time charge and thermal management for hybrid-source energy systems.',
     imageSide: 'left',
     dwell: 60, // vh of scroll the finished cloud holds still
     gap: 161, // vh of scroll for the transition into the next theme (VLSI's timeline is 0.87 long: the transition spans gap + 100vh = 0.87 x 300vh)
@@ -25,7 +25,7 @@ const THEMES = [
   },
   {
     theme: 'Bioinformatics',
-    copy: 'We apply our design-automation expertise to the life sciences, building computational tools that accelerate the analysis of large-scale biological and genomic data. By combining high-performance, energy-aware computing with machine learning, we help researchers turn complex biological data into reliable insights faster and at a lower energy cost.',
+    copy: 'With long-term experience in bioinformatics, the EDA group designs software and hardware-software solutions to manage, analyze and interpret complex biological and medical data. Our work spans gene expression and regulatory networks, sequencing data, medical image analysis, GPU and FPGA acceleration and neuromorphic computing, with hospitals and research centers.',
     imageSide: 'right',
     dwell: 60,
     gap: 161, // 0.87 x 300vh - see scatteredTimeline in ParticleCanvas.jsx
@@ -33,7 +33,7 @@ const THEMES = [
   },
   {
     theme: 'Smart City',
-    copy: 'Our research supports the digital transformation of cities and energy systems. We build digital twins, co-simulation environments and data-driven models of cyber-physical infrastructures, from buildings and batteries to smart grids. These tools help planners and operators predict, optimize and manage urban resources in a more sustainable way.',
+    copy: 'ICT is key to optimizing energy use in the Smart City, and that is where our software solutions come in. We research distributed software and middleware that make energy, environmental and user-feedback data interoperable, visual web interfaces giving real-time feedback on energy impact, and building information models linked to real-time data.',
     imageSide: 'left',
     dwell: 60,
     gap: 161, // 0.87 x 300vh - see scatteredTimeline in ParticleCanvas.jsx
@@ -41,8 +41,8 @@ const THEMES = [
     visual: <SmartCityScene className={VISUAL_BOX} />,
   },
   {
-    theme: 'Industry 4.0',
-    copy: 'We bring design automation and artificial intelligence to the factory floor. Our work covers digital twins, edge machine learning and co-simulation of cyber-physical production systems, enabling predictive maintenance, quality monitoring and flexible, efficient manufacturing across connected industrial processes.',
+    theme: 'Industry 4.0 and Smart Manufacturing', // must equal the name in themes.js (the home page looks the theme's links up by it)
+    copy: 'In the fourth industrial revolution, connected products and massive IoT and Big Data usage demand a new technology infrastructure. The EDA group applies its expertise in IoT, cyber-physical systems, wireless sensor networks and machine learning to make manufacturing more efficient, responsive to demand and optimized across supply chains.',
     imageSide: 'right',
     // vh of scroll after the arm's pin releases, all spent on the social-media stage: the arm -> social1 transition,
     // the social1 hold, then the social2 hold (the same length as social1's) before the footer scrolls in. The

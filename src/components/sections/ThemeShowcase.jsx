@@ -1,15 +1,11 @@
 import ArrowLink from '../ui/ArrowLink'
-import ParticlePlaceholder from '../ui/ParticlePlaceholder'
 import { themeByName } from '../../themes'
 
 /**
  * One of the four alternating "theme" rows on the homepage (VLSI-CAD, Bioinformatics,
  * Smart City, Industry 4.0). `imageSide` flips which side the visual sits on.
  */
-export default function ThemeShowcase({ theme, imageSide = 'left', visual: customVisual, copy, gapAfter = 0, dwell = 60, phoneLift = 0 }) {
-  const visual = customVisual ?? (
-    <ParticlePlaceholder label={`${theme} particle visual effect.`} className="h-[478px] w-full max-w-[531px] shrink-0" />
-  )
+export default function ThemeShowcase({ theme, imageSide = 'left', visual, copy, gapAfter = 0, dwell = 60, phoneLift = 0 }) {
 
   // Phone layout: with the cloud on top (imageSide 'left') the copy sits 24px higher than the stack puts it (more room
   // under it) and may then overlap the cloud's lower edge, which is fine; with the cloud at the bottom ('right') the

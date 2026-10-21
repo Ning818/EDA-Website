@@ -1,11 +1,11 @@
 import PageIntroBand from '../components/sections/PageIntroBand'
 import ResearchTopicsAndPeople from '../components/sections/ResearchTopicsAndPeople'
 import FeatureCard from '../components/sections/FeatureCard'
+import ProjectWall from '../components/sections/ProjectWall'
 import { Navigate, useLocation, useParams } from 'react-router-dom'
 import { themeBySlug, decorVariantFor } from '../themes'
 import { projectStatsFor } from '../components/sections/projectStats'
 import { highlightImage } from '../components/sections/highlightImages'
-import fundedProjectsImage from '../assets/images/funded-projects-highlight.png'
 
 // The paragraph under each theme's page title (the Home page has its own, shorter summary of each theme). Kept to about 9 lines
 // in the header's text column on a desktop screen.
@@ -106,8 +106,7 @@ export default function Research() {
         tone="light"
         eyebrow="Funded projects"
         title="The projects that fund our research"
-        image={fundedProjectsImage}
-        imageAlt="TRISTAN project visualization"
+        visual={<ProjectWall theme={slug} />}
         stats={projectStatsFor(slug)}
         cta="Explore all funded projects"
         to={theme.projects}

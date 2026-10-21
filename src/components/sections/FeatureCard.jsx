@@ -8,7 +8,7 @@ import { UNDERLINE_ANIM } from '../ui/ArrowLink'
  * `tone`: 'dark' (navy card, light type) or 'light' (white card with a hairline border that lights up in the page's theme colour (`--theme`, teal without it) on hover - the
  * same card language as the project / people cards). `meta`: a muted line under the title (authors, year), or a list of such lines (each on its own line). `tags`: small
  * keyword pills. `stats`: the funded-project numbers ({ ongoing, ended, total }, see projectStats.js) as a
- * teaser row. `button`: the call to action is a solid button instead of an underlined text link - used where the card is
+ * teaser row. `visual`: an element shown in the image's place (in the same 4:3 frame, e.g. ProjectWall) when `image` is not given. `button`: the call to action is a solid button instead of an underlined text link - used where the card is
  * there to lead people on to another page; the whole card is then the link (`to`).
  */
 const ARROW = (
@@ -46,6 +46,7 @@ export default function FeatureCard({
   children,
   image,
   imageAlt,
+  visual,
   meta,
   tags,
   stats = false,
@@ -64,7 +65,7 @@ export default function FeatureCard({
 
   const imageBlock = (
     <div className={`overflow-hidden rounded-2xl max-md:order-first ${imageSide === 'right' ? 'md:order-2' : ''}`}>
-      <img src={image} alt={imageAlt} className="aspect-[4/3] w-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.04]" />
+      {visual ?? <img src={image} alt={imageAlt} className="aspect-[4/3] w-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.04]" />}
     </div>
   )
 

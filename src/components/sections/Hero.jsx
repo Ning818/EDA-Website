@@ -1,4 +1,8 @@
 import BrainScene from '../../three/BrainScene'
+import StillCloud, { STILL_BRAIN_BOX } from './StillCloud'
+import { STILL_CLOUDS } from './stillClouds'
+
+const BRAIN_BOX = 'h-full max-h-[692px] w-full max-w-[615px] shrink-0 max-md:pointer-events-none max-md:h-auto max-md:min-h-0 max-md:max-h-[384px] max-md:flex-1 max-md:shrink max-md:-translate-y-[15%]'
 
 // header height + hero height = 100vh on first load (a laptop screen shows exactly the header
 // and the hero, nothing more). --header-h is kept in sync with the real header by Header.jsx's
@@ -10,9 +14,16 @@ import BrainScene from '../../three/BrainScene'
 // and is capped at 384px tall (the brain is up to ~0.9 of its box height wide, so that is the most that fits the
 // width). The section keeps its one-screen height: the brain's scroll-0 position (and with it the brain -> VLSI-CAD
 // transition) is measured from it.
-export default function Hero() {
+export default function Hero({ still = false }) {
   return (
-    <section className="mx-auto flex h-[calc(100vh-var(--header-h,93px))] max-w-[1440px] flex-col items-center justify-start gap-5 px-8 pb-6 pt-8 md:flex-row md:justify-between md:gap-10 md:pb-0 md:pt-0 lg:px-[120px]">
+    <section
+      className={
+        still
+          ? // the still layout: at least one screen high, the copy and the brain stacked below xl (from the top, 24px under the header) and side by side from xl up
+            'mx-auto flex h-[calc(100vh-var(--header-h,93px))] min-h-[min-content] max-w-[1440px] flex-col items-center justify-start gap-6 px-8 pb-8 pt-6 xl:h-[calc(100vh-var(--header-h,93px))] xl:flex-row xl:justify-between xl:gap-10 xl:px-[120px] xl:pb-0 xl:pt-0'
+          : 'mx-auto flex h-[calc(100vh-var(--header-h,93px))] max-w-[1440px] flex-col items-center justify-start gap-5 px-8 pb-6 pt-8 md:flex-row md:justify-between md:gap-10 md:pb-0 md:pt-0 lg:px-[120px]'
+      }
+    >
       <div className="flex max-w-[539px] flex-col gap-6">
         <h1 className="font-heading text-[32px] font-medium leading-none text-navy">EDA Group</h1>
         <p className="font-body text-lg text-navy md:text-2xl">
@@ -21,7 +32,8 @@ export default function Hero() {
           and Urban Studies and Planning (DIST) of Politecnico di Torino.
         </p>
       </div>
-      <BrainScene className="h-full max-h-[692px] w-full max-w-[615px] shrink-0 max-md:pointer-events-none max-md:h-auto max-md:min-h-0 max-md:max-h-[384px] max-md:flex-1 max-md:shrink max-md:-translate-y-[15%]" />
+      {/* the particle canvas is out of order: the brain's picture stands in its box */}
+      {still ? <StillCloud cloud={STILL_CLOUDS.brain} className={STILL_BRAIN_BOX} near="top" /> : <BrainScene className={BRAIN_BOX} />}
     </section>
   )
 }

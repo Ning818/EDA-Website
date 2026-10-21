@@ -1,6 +1,8 @@
 import PageIntroBand from '../components/sections/PageIntroBand'
 import GlobeParticles from '../components/sections/GlobeParticles'
 import LogoGrid from '../components/sections/LogoGrid'
+import IntroFacts from '../components/sections/IntroFacts'
+import JointProjects from '../components/sections/JointProjects'
 
 import brown from '../assets/images/universities/brown.png'
 import columbia from '../assets/images/universities/columbia.png'
@@ -79,6 +81,39 @@ const COMPANIES = [
   null,
 ]
 
+// Examples of joint projects with collaborators from the logo walls, from the projects' records on CORDIS (the EU's research information service): the project, its
+// funding programme and years, who coordinated it, and its other partners that are among the collaborators below (the record names Fraunhofer as the
+// Fraunhofer-Gesellschaft, not its institute FIT).
+const JOINT_PROJECTS = [
+  {
+    code: 'DIMMER',
+    name: 'District Information Modeling and Management for Energy Reduction',
+    funding: 'EU FP7',
+    years: '2013–2016',
+    coordinator: 'Politecnico di Torino',
+    partners: ['Arup', 'CNet Svenska', 'IREN', 'Fraunhofer', 'The University of Manchester', 'Università degli Studi di Torino'],
+    url: 'https://cordis.europa.eu/project/id/609084',
+  },
+  {
+    code: 'CONTREX',
+    name: 'Design of embedded mixed-criticality CONTRol systems under consideration of EXtra-functional properties',
+    funding: 'EU FP7',
+    years: '2013–2016',
+    coordinator: 'OFFIS',
+    partners: ['Intel', 'STMicroelectronics', 'Politecnico di Milano'],
+    url: 'https://cordis.europa.eu/project/id/611146',
+  },
+  {
+    code: 'R3-PowerUP',
+    name: '300mm Pilot Line for Smart Power and Power Discretes',
+    funding: 'EU H2020 (ECSEL)',
+    years: '2017–2023',
+    coordinator: 'STMicroelectronics',
+    partners: ['Politecnico di Milano', 'Università di Bologna'],
+    url: 'https://cordis.europa.eu/project/id/737417',
+  },
+]
+
 export default function Collaborations() {
   return (
     // A light page, like Teaching: the site's mint ground with a faint dot grid and soft glows of teal (behind the globe) and blue (down the
@@ -88,15 +123,21 @@ export default function Collaborations() {
       <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 bottom-0 -top-24 bg-[radial-gradient(ellipse_55%_40%_at_82%_calc(96px+(100%-96px)*0.1),rgba(63,176,184,0.16),transparent_70%),radial-gradient(ellipse_45%_30%_at_6%_calc(96px+(100%-96px)*0.42),rgba(47,134,179,0.10),transparent_70%)]" />
       <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-[radial-gradient(rgba(0,40,67,0.10)_1px,transparent_1.3px)] bg-[length:24px_24px] [mask-image:linear-gradient(to_bottom,black_30%,transparent_92%)]" />
 
-      <PageIntroBand category="EDA Group" title="Collaborations" light bandRule={false} bandBg="" backdrop={<GlobeParticles light />} textWidth="lg:max-w-[clamp(380px,min(max(calc(17vw+285px),calc(100vw-711px)),calc(50vw+9px)),900px)]">
-        Our research thrives on a vast, global network of strategic partnerships, bridging the gap between
-        cutting-edge academic inquiry and practical industrial implementation. By working in close collaboration
-        with prestigious universities, specialized research institutes, and industry-leading companies, we foster an
-        environment of continuous innovation. These synergistic relationships allow us to push the boundaries of
-        design automation, integrate interdisciplinary expertise, and deliver robust technological solutions that
-        address the complex challenges of tomorrow's digital and energy landscapes.
+      <PageIntroBand category="EDA Group" title="Collaborations" light bandRule={false} bandBg="" backdrop={<GlobeParticles light />} textWidth="lg:max-w-[clamp(380px,min(max(calc(17vw+285px),calc(100vw-711px)),calc(50vw+9px)),900px)]"
+        after={
+          <IntroFacts
+            items={[
+              [UNIVERSITIES.length, 'Universities'],
+              [INSTITUTES.filter(Boolean).length, 'Institutes'],
+              [COMPANIES.filter(Boolean).length, 'Companies'],
+            ]}
+          />
+        }
+      >
+        We carry out joint projects with universities, research institutes and companies, for example the EU projects DIMMER, CONTREX and R3-PowerUP, shown below.
       </PageIntroBand>
 
+      <JointProjects title="Examples of Joint Projects" projects={JOINT_PROJECTS} />
       <LogoGrid tone="light" title="Collaboration Universities" logos={UNIVERSITIES} />
       <LogoGrid tone="light" title="Collaboration Institutes" logos={INSTITUTES} />
       <LogoGrid tone="light" title="Collaboration Companies" logos={COMPANIES} />

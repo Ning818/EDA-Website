@@ -167,12 +167,9 @@ export default function Teaching() {
       <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_60%_40%_at_14%_52%,rgba(63,176,184,0.12),transparent)]" />
       <NetworkParticles />
       <PageIntroBand category="EDA Group" title="People" light bandRule={false} titleVeil bandBg="" backdrop={null}>
-        Our academic community is structured around three groups that sustain our research and educational mission.
-        Our Professors spearhead advanced pedagogical and scientific inquiry within the domains of design automation
-        and complex systems. Working in close synergy with them are our PhD Students and Research Fellows, who drive
-        empirical and theoretical innovation in the group's research. Our distinguished Alumni, whose professional
-        trajectories extend our institutional impact globally, remain an essential part of the collective we form
-        together.
+        Our community is structured around three groups. Our Professors lead research in design automation and complex
+        systems. Working with them, our PhD Students and Research Fellows carry out the group's research. Our Alumni
+        remain an essential part of the collective we form together.
       </PageIntroBand>
 
       <div className="relative mx-auto flex max-w-[1440px] flex-col gap-6 px-8 pt-4 lg:flex-row lg:gap-8 lg:px-[120px]">

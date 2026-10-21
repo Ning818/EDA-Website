@@ -14,7 +14,7 @@
  *
  * 'dark': for a dark page. The logos are drawn for a light ground (several have the site's mint as their own opaque background), so
  * each one sits on a plate of that same mint - a flat plate so the opaque ones show no seam - lifted off the dark page: a hairline
- * border, a highlight along its top edge and a soft shadow under it; hovering raises it and lights the border in teal before the
+ * border, a highlight along its top edge and a soft shadow under it; hovering lights the border in teal before the
  * name label comes up.
  */
 export default function LogoGrid({ title, logos, tone = 'flat' }) {
@@ -28,7 +28,7 @@ export default function LogoGrid({ title, logos, tone = 'flat' }) {
             logo ? (
               <div
                 key={i}
-                className={`group relative h-[120px] overflow-hidden rounded-xl border bg-[#eef8f3] transition-[transform,border-color,box-shadow] duration-300 ease-out hover:-translate-y-0.5 ${
+                className={`group relative h-[120px] overflow-hidden rounded-xl border bg-[#eef8f3] transition-[border-color,box-shadow] duration-300 ease-out ${
                   dark
                     ? 'border-white/15 shadow-[inset_0_1px_0_rgba(255,255,255,0.9),0_12px_28px_-14px_rgba(0,0,0,0.7)] hover:border-[#3fb0b8]/80 hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.9),0_0_0_1px_rgba(63,176,184,0.35),0_16px_36px_-10px_rgba(63,176,184,0.45)]'
                     : 'border-navy/10 shadow-[inset_0_1px_0_rgba(255,255,255,0.9),0_6px_18px_-10px_rgba(0,40,67,0.28)]'

@@ -1,6 +1,10 @@
+import { useState } from 'react'
 import Hero from '../components/sections/Hero'
+import CanvasBoundary from '../components/ui/CanvasBoundary'
+import StillCloud, { STILL_BOX } from '../components/sections/StillCloud'
+import { STILL_CLOUDS } from '../components/sections/stillClouds'
 import ThemeShowcase from '../components/sections/ThemeShowcase'
-import SocialCopy from '../components/sections/SocialCopy.jsx'
+import SocialCopy, { SocialStill } from '../components/sections/SocialCopy.jsx'
 import IndustryArmScene from '../three/IndustryArmScene'
 import SmartCityScene from '../three/SmartCityScene'
 import DNAScene from '../three/DNAScene'
@@ -22,6 +26,8 @@ const THEMES = [
     dwell: 60, // vh of scroll the finished cloud holds still
     gap: 161, // vh of scroll for the transition into the next theme (VLSI's timeline is 0.87 long: the transition spans gap + 100vh = 0.87 x 300vh)
     visual: <VLSICADScene className={VISUAL_BOX} />,
+    still: <StillCloud cloud={STILL_CLOUDS.vlsi} className={STILL_BOX} near="bottom" />,
+    snapUp: true, // the still page's phone layout snaps to this row a little further down
   },
   {
     theme: 'Bioinformatics',
@@ -30,6 +36,7 @@ const THEMES = [
     dwell: 60,
     gap: 161, // 0.87 x 300vh - see scatteredTimeline in ParticleCanvas.jsx
     visual: <DNAScene className={VISUAL_BOX} />,
+    still: <StillCloud cloud={STILL_CLOUDS.dna} className={STILL_BOX} near="top" />,
   },
   {
     theme: 'Smart City',
@@ -39,6 +46,8 @@ const THEMES = [
     gap: 161, // 0.87 x 300vh - see scatteredTimeline in ParticleCanvas.jsx
     phoneLift: 40, // px: on the phone the copy sits this much higher than the other left-hand themes' (the cloud above is small)
     visual: <SmartCityScene className={VISUAL_BOX} />,
+    still: <StillCloud cloud={STILL_CLOUDS.city} className={STILL_BOX} near="bottom" />,
+    snapUp: true,
   },
   {
     theme: 'Industry 4.0 and Smart Manufacturing', // must equal the name in themes.js (the home page looks the theme's links up by it)
@@ -49,26 +58,37 @@ const THEMES = [
     // social1 -> social2 morph in between plays by itself (time-based), so it takes no scroll of its own.
     gap: (ARM_EXIT_SCREENS + 2 * SOCIAL_HOLD_SCREENS) * 100,
     visual: <IndustryArmScene className={VISUAL_BOX} />,
+    still: <StillCloud cloud={STILL_CLOUDS.arm} className={STILL_BOX} near="top" />,
   },
 ]
 
+// If the page-wide particle canvas fails (a model file does not load, no WebGL) the CanvasBoundary leaves it out and each cloud's still picture
+// (stillClouds.js) takes the place of its live cloud - at the same size from xl up, where the picture stands beside the copy as the cloud does.
+// Without the animation there is nothing to scroll through, so every row is one plain screen at least (no stretches of empty scroll), the
+// social blocks are ordinary rows too, and below xl a row is the picture and the copy stacked. The header and the footer are not part of it.
 export default function Home() {
+  // Preview switch, like Research's ?hl=light: /?still shows the page as it is when the canvas has failed.
+  const [canvasFailed, setCanvasFailed] = useState(() => new URLSearchParams(window.location.search).has('still'))
   return (
     <>
-      <ParticleCanvas />
+      {!canvasFailed && (
+        <CanvasBoundary onError={() => setCanvasFailed(true)}>
+          <ParticleCanvas />
+        </CanvasBoundary>
+      )}
       <main className="relative z-10">
-      <Hero />
+      <Hero still={canvasFailed} />
       {/* Empty scroll: the brain's move + scatter + regather needs a stretch of its own. The VLSI-CAD cloud's slide
           left is time-based now (not scrolled), so this was cut from 200vh by that step's share of the old
           timeline (0.28 of 300vh = 84vh) instead of stretching the other steps out. */}
-      <div aria-hidden style={{ height: '116vh' }} />
-      {THEMES.map((t, i) => (
-        <ThemeShowcase key={t.theme} theme={t.theme} imageSide={t.imageSide} visual={t.visual} copy={t.copy} dwell={t.dwell} gapAfter={t.gap ?? 100} phoneLift={t.phoneLift} />
+      {!canvasFailed && <div aria-hidden style={{ height: '116vh' }} />}
+      {THEMES.map((t) => (
+        <ThemeShowcase key={t.theme} theme={t.theme} imageSide={t.imageSide} visual={canvasFailed ? t.still : t.visual} still={canvasFailed} snapUp={t.snapUp} copy={t.copy} dwell={t.dwell} gapAfter={t.gap ?? 100} phoneLift={t.phoneLift} />
       ))}
       </main>
       {/* The YouTube / LinkedIn copy sits beside the social1 / social2 clouds now (it used to be the two standalone
           YoutubeSpotlight / LinkedInSection sections here, which are no longer rendered). */}
-      <SocialCopy />
+      {canvasFailed ? <SocialStill /> : <SocialCopy />}
     </>
   )
 }

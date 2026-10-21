@@ -53,7 +53,7 @@ function FitTitle({ fit, boxRef, className, children }) {
  * city in `decorColor`, see SkylineDecor), 'helix-particles' (Bioinformatics' DNA made of flat particles, see HelixParticles, whose two looks `decorPage` picks; 'helix' is the same in thin lines, see HelixDecor), 'factory-particles' (Industry 4.0's smart factory made of flat particles, see FactoryParticles, whose two looks `decorPage` picks; 'factory' is the same in thin lines, see FactoryDecor), 'skyline-particles' (the same city made of flat particles, see SkylineParticles; `decorPage`, 'research' | 'projects', picks
  * which of its two looks), or 'none' to leave that area empty (a theme page whose artwork is not designed yet).
  *
- * `backdrop` (with `textWidth`): the plain band with a picture of its own drawn behind the text, see the branch below; with a `title`
+ * `backdrop` (with `textWidth`; `after` goes under the paragraph here too): the plain band with a picture of its own drawn behind the text, see the branch below; with a `title`
  * the category is the small eyebrow over a big title (as on the decorated pages), without one it is the page's heading; `titleVeil`: a feathered translucent layer of the page's colour behind the title block, to pale the backdrop there; `titleFit` (hero layout): keep the title on one line from `lg` up, shrinking its type only as far as needed (see FitTitle); `introVeil` (hero layout): a translucent veil over the artwork where the paragraph meets it, from `lg` up; `bandBg`: the
  * band's background class ('' to let the page's own show through, and the backdrop overflow the band instead of being cut at its edge); `light`: navy type and a hairline under the band (`bandRule={false}` leaves the hairline out), for a light page.
  *
@@ -121,6 +121,7 @@ export default function PageIntroBand({ category, title, children, decorated = f
                 <p className="font-heading text-[28px] font-bold md:text-[36px] tracking-tight text-[#279aae]">{category}</p>
               )}
               {children && <p className={`font-body text-base leading-6 md:text-lg ${light ? 'text-navy/85' : 'text-[#f5f4f6]'}`}>{children}</p>}
+              {after}
             </div>
           </div>
         </div>

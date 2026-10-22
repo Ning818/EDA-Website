@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
+import CanvasBoundary from '../components/ui/CanvasBoundary'
 import PageIntroBand from '../components/sections/PageIntroBand'
 import TeachingSidebar from '../components/sections/TeachingSidebar'
 import NetworkParticles from '../components/sections/NetworkParticles'
@@ -147,15 +148,17 @@ const ALUMNI = [
   { photo: photoFor('donkyu-baek'), name: 'Donkyu Baek', title: 'Former member', links: { linkedin: 'https://www.linkedin.com/in/donkyu-baek-69b079bb/', dept: 'http://www.dauin.polito.it/personale/scheda/(nominativo)/donkyu.baek', iris: 'https://iris.polito.it/cris/rp/rp51411' } },
 ]
 
-const PEOPLE_BY_TAB = {
-  Professors: PROFESSORS,
-  'PhD Students & Research Fellows': [...RESEARCH_FELLOWS, ...PHD_STUDENTS],
-  Alumni: ALUMNI,
-}
+// The three groups, each with an address of its own - /people?group=<slug> (Professors, the first, is plain /people) - so the group a visitor is looking at
+// survives a refresh, the back button and a shared link. An unknown ?group= shows Professors.
+const GROUPS = [
+  { slug: 'professors', name: 'Professors', to: '/people', people: PROFESSORS },
+  { slug: 'phd-students', name: 'PhD Students & Research Fellows', to: '/people?group=phd-students', people: [...RESEARCH_FELLOWS, ...PHD_STUDENTS] },
+  { slug: 'alumni', name: 'Alumni', to: '/people?group=alumni', people: ALUMNI },
+]
 
 export default function Teaching() {
-  const [active, setActive] = useState('Professors')
-  const people = PEOPLE_BY_TAB[active] ?? []
+  const [params] = useSearchParams()
+  const { slug, name, people } = GROUPS.find((group) => group.slug === params.get('group')) ?? GROUPS[0]
 
   return (
     // A light page: the site's mint ground with a faint dot grid and a soft teal glow behind the sidebar. The header band has no background
@@ -165,7 +168,9 @@ export default function Teaching() {
     <main className="relative pb-6">
       <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-[radial-gradient(rgba(0,40,67,0.10)_1px,transparent_1.3px)] bg-[length:24px_24px] [mask-image:linear-gradient(to_bottom,black_94%,transparent)]" />
       <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_60%_40%_at_14%_52%,rgba(63,176,184,0.12),transparent)]" />
-      <NetworkParticles />
+      <CanvasBoundary>
+        <NetworkParticles />
+      </CanvasBoundary>
       <PageIntroBand category="EDA Group" title="People" light bandRule={false} titleVeil bandBg="" backdrop={null}>
         Our community is structured around three groups. Our Professors lead research in design automation and complex
         systems. Working with them, our PhD Students and Research Fellows carry out the group's research. Our Alumni
@@ -173,7 +178,11 @@ export default function Teaching() {
       </PageIntroBand>
 
       <div className="relative mx-auto flex max-w-[1440px] flex-col gap-6 px-8 pt-4 lg:flex-row lg:gap-8 lg:px-[120px]">
-        <TeachingSidebar active={active} onSelect={setActive} />
+        <TeachingSidebar items={GROUPS} active={slug} />
+        {/* what the change of group does to the list, for a screen reader (nothing to see) */}
+        <p role="status" className="sr-only">
+          Showing {name}: {people.length} {people.length === 1 ? 'person' : 'people'}
+        </p>
         <ProfessorGrid professors={people} />
       </div>
     </main>

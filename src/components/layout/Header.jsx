@@ -4,24 +4,21 @@ import edaLogo from '../../assets/images/eda-logo.png'
 import { THEMES } from '../../themes'
 
 // The four research themes shown on the Home page - reused here as the Research / Projects dropdown items; each links to
-// its own Research / Funded Projects page (see themes.js).
-// Research and Projects aren't pages themselves, so they count as the current page for any of their themes' pages.
+// its own Research / Funded Projects page (see themes.js). Research and Projects are not pages themselves: they only open that list, and count as
+// the current page for any of its pages.
 const isActiveLink = (pathname, link) => {
-  if (link.label === 'Research') return pathname === '/research' || (pathname.startsWith('/research/') && !pathname.startsWith('/research/funded-projects'))
-  if (link.label === 'Projects') return pathname.startsWith('/research/funded-projects')
-  return pathname === link.to
+  const path = pathname.replace(/\/+$/, '') || '/'
+  return link.dropdown ? link.dropdown.some((item) => item.to === path) : path === link.to
 }
 
 const NAV_LINKS = [
   { label: 'Home', to: '/' },
   {
     label: 'Research',
-    to: '/research',
     dropdown: THEMES.map((theme) => ({ label: theme.name, to: theme.research })),
   },
   {
     label: 'Projects',
-    to: '/research/funded-projects',
     dropdown: THEMES.map((theme) => ({ label: theme.name, to: theme.projects })),
   },
   { label: 'Collaborations', to: '/collaborations' },
@@ -39,9 +36,14 @@ export default function Header() {
   // under the logo row. Research / Projects (which only host a dropdown on desktop) are accordion groups in it.
   const [menuOpen, setMenuOpen] = useState(false)
   const [openGroup, setOpenGroup] = useState(null)
+  // Desktop: which of the Research / Projects dropdowns is open by the keyboard or a click (hovering opens them as well, in CSS).
+  const [openMenu, setOpenMenu] = useState(null)
+  const navRef = useRef(null)
+  const toggleRefs = useRef({})
   useEffect(() => {
     setMenuOpen(false) // any navigation (a menu link, the logo, back/forward) folds the menu away
     setOpenGroup(null)
+    setOpenMenu(null)
   }, [key])
   useEffect(() => {
     if (!menuOpen) return
@@ -49,6 +51,14 @@ export default function Header() {
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
   }, [menuOpen])
+
+  // a click or a tap outside the nav folds an open dropdown
+  useEffect(() => {
+    if (!openMenu) return undefined
+    const onDown = (e) => navRef.current && !navRef.current.contains(e.target) && setOpenMenu(null)
+    document.addEventListener('pointerdown', onDown)
+    return () => document.removeEventListener('pointerdown', onDown)
+  }, [openMenu])
 
   // On the Home page: hide the header on scroll-down (slides up and off the top), reveal it
   // again on scroll-up (slides back down into view).
@@ -122,6 +132,7 @@ export default function Header() {
           // above page content that has its own z-index, e.g. the decorated page-header band.
           isHome ? 'fixed inset-x-0 top-0 z-50' : 'relative z-40'
         }`}
+        onFocus={() => setHidden(false)} // a control in it has the focus: it must be in view, not slid off the top
         style={{
           transition: 'transform 300ms ease-in-out, background-color 300ms ease',
           transform: isHome && hidden ? 'translateY(-100%)' : 'translateY(0)',
@@ -146,7 +157,7 @@ export default function Header() {
             </span>
           </NavLink>
 
-          <nav className="hidden flex-wrap items-center gap-4 md:flex lg:gap-10">
+          <nav ref={navRef} aria-label="Main" className="hidden flex-wrap items-center gap-4 md:flex lg:gap-10">
             {NAV_LINKS.map((link) => {
               const isActive = isActiveLink(pathname, link)
               const label = (
@@ -160,29 +171,65 @@ export default function Header() {
                   />
                 </>
               )
+              const open = openMenu === link.label
 
               return (
-                <div key={link.to} className="group relative">
-                  {/* Research/Projects have no page of their own to jump to - they only
-                      exist to host the dropdown below, so they aren't links. */}
+                <div
+                  key={link.label}
+                  className="group relative"
+                  data-open={open ? '' : undefined}
+                  onKeyDown={
+                    link.dropdown
+                      ? (e) => {
+                          // Esc folds the dropdown and gives the focus back to the control that opened it
+                          if (e.key === 'Escape' && open) {
+                            setOpenMenu(null)
+                            toggleRefs.current[link.label]?.focus()
+                          }
+                        }
+                      : undefined
+                  }
+                  onBlur={link.dropdown ? (e) => open && !e.currentTarget.contains(e.relatedTarget) && setOpenMenu(null) : undefined}
+                >
+                  {/* Research / Projects are a button, not a link: it opens the list of the four themes - by a click, a tap, Enter or Space as
+                      well as by hovering. */}
                   {link.dropdown ? (
-                    <span className="flex cursor-default flex-col items-center gap-1 type-action text-navy">
-                      {label}
-                    </span>
-                  ) : (
-                    <NavLink
-                      to={link.to}
-                      end
-                      className="flex flex-col items-center gap-1 type-action text-navy"
+                    <button
+                      type="button"
+                      ref={(el) => {
+                        toggleRefs.current[link.label] = el
+                      }}
+                      aria-expanded={open}
+                      aria-controls={`menu-${link.label}`}
+                      onClick={() => setOpenMenu(open ? null : link.label)}
+                      className="flex items-start gap-1 rounded type-action text-navy"
                     >
+                      <span className="flex flex-col items-center gap-1">{label}</span>
+                      <span className="grid size-6 place-items-center">
+                        <svg
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          className={`size-4 transition-transform duration-300 group-hover:rotate-180 ${open ? 'rotate-180' : ''}`}
+                          aria-hidden="true"
+                        >
+                          <path d="m6 9 6 6 6-6" />
+                        </svg>
+                      </span>
+                    </button>
+                  ) : (
+                    <NavLink to={link.to} end className="flex flex-col items-center gap-1 type-action text-navy">
                       {label}
                     </NavLink>
                   )}
 
                   {link.dropdown && (
                     // `w-max min-w-56`: as wide as the longest item needs (Industry 4.0 and Smart Manufacturing), so every item is one line - the
-                    // rows grow open only to `max-h-12`, a second line would be cut off
-                    <div className="invisible absolute left-0 top-full z-20 w-max min-w-56 pt-3 group-hover:visible">
+                    // rows grow open only to `max-h-12`, a second line would be cut off. Shown by hovering the item or by `data-open` (set by the button).
+                    <div id={`menu-${link.label}`} className="invisible absolute left-0 top-full z-20 w-max min-w-56 pt-3 group-hover:visible group-data-[open]:visible">
                       <ul className="bg-mint shadow-lg">
                         {link.dropdown.map((item, i) => (
                           // Each row is collapsed to 0 height and grows open on its own delay, so the
@@ -191,12 +238,12 @@ export default function Header() {
                           <li
                             key={item.label}
                             style={{ transitionDelay: `${i * 80}ms` }}
-                            className="max-h-0 overflow-hidden transition-[max-height] duration-300 ease-out group-hover:max-h-12"
+                            className="max-h-0 overflow-hidden transition-[max-height] duration-300 ease-out group-hover:max-h-12 group-data-[open]:max-h-12"
                           >
                             <NavLink
                               to={item.to}
                               style={{ transitionDelay: `${i * 80}ms, 0ms, 0ms` }}
-                              className="block px-5 py-2.5 type-action text-navy opacity-0 transition-[opacity,background-color,color] duration-300 ease-out hover:bg-navy hover:text-mint group-hover:opacity-100"
+                              className="block px-5 py-2.5 type-action text-navy opacity-0 transition-[opacity,background-color,color] duration-300 ease-out hover:bg-navy hover:text-mint group-hover:opacity-100 group-data-[open]:opacity-100"
                             >
                               {item.label}
                             </NavLink>
@@ -253,7 +300,7 @@ export default function Header() {
               {NAV_LINKS.map((link) => {
                 const groupOpen = openGroup === link.label
                 return (
-                  <li key={link.to} className="border-t border-navy/10">
+                  <li key={link.label} className="border-t border-navy/10">
                     {link.dropdown ? (
                       <>
                         <button

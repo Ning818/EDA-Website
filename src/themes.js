@@ -1,5 +1,5 @@
 // The four research themes (the Home page's clouds) and the two pages each has: its Research page and its Funded Projects
-// page. VLSI-CAD's pages sit at the original paths; the other three have placeholder copies of them (same content, own title).
+// page. VLSI-CAD's pages sit at /research and /research/funded-projects; the other themes' are under their own slug.
 // `short` (optional) is a shorter name for places where the full one is too long, e.g. the Home page's two links per theme.
 // `header` is the artwork in the page headers: 'circuit' (VLSI-CAD's particle circuit), 'skyline-particles' (Smart City's
 // city of flat particles; 'skyline' is the same city in thin lines), 'helix-particles' (Bioinformatics' DNA of flat particles; 'helix' is the same in thin lines), 'factory-particles' (Industry 4.0's smart factory of flat particles; 'factory' is the same in thin lines), or null - nothing, that area is left empty (no theme is in that state now). `color` is the theme's colour.

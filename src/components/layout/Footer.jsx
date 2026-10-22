@@ -26,8 +26,8 @@ export default function Footer() {
       <div className="border-t border-navy/70">
         {/* Bottom padding is tighter on the phone layout, so the LinkedIn / YouTube icons (the last thing in the column)
             sit closer to the Copyright line. */}
-        <div className="mx-auto flex max-w-[1440px] flex-wrap items-start justify-between gap-y-10 px-8 pb-6 pt-12 md:pb-12 lg:px-[120px]">
-          {/* The two logos sit side by side while they fit (240 + 24 + 198px); when the screen is too narrow for that, the second one wraps below the first, with a roomier gap between them. */}
+        <div className="mx-auto flex max-w-[1440px] flex-wrap items-start justify-between gap-x-16 gap-y-10 px-8 pb-6 pt-12 md:pb-12 lg:px-[120px]">
+          {/* The two logos sit side by side while they fit (240 + 24 + 198px); when the screen is too narrow for that, the second one wraps below the first, with a roomier gap between them. Beside the logos is ONE block (the address and the links); the block drops under the logos, as a whole, when the row is too narrow for both. */}
           <div className="flex max-w-full flex-wrap items-center gap-x-6 gap-y-8 self-center">
             <img src={politoLogo} alt="Politecnico di Torino" className="h-[106px] w-[240px] shrink-0" />
             {/* eda-logo-text.png is 500x250 with transparent margins; its visible part is x 10-401, y 19-228 (392 x 210).
@@ -42,38 +42,55 @@ export default function Footer() {
             </div>
           </div>
 
-          <div className="flex flex-col gap-3 type-compact text-navy">
-            <p className="font-semibold">Politecnico di Torino</p>
-            <p className="font-medium">Department of Control and Computer Engineering (DAUIN)</p>
-            <p>
-              Corso Duca Degli Abruzzi, 24
-              <br />
-              10129, Torino, Italy
-              <br />
-              Tel. +39 011 090 7042
-              <br />
-              Fax. +39 011 090 7099
-            </p>
-          </div>
-
-          <div className="flex flex-col gap-3 type-compact text-navy">
-            <p className="font-semibold">Visit</p>
-            {/* the university's and the department's sites (new tab, like the social icons below) */}
-            <div className="flex flex-col">
-              <a href="https://www.polito.it/" target="_blank" rel="noreferrer" className="w-fit underline-offset-4 hover:underline">
-                Polito website
-              </a>
-              <a href="https://www.dauin.polito.it/en/" target="_blank" rel="noreferrer" className="w-fit underline-offset-4 hover:underline">
-                Department website
-              </a>
+          {/* the address and the links are ONE flex item (side by side from md): when the logos and both do not fit in a row, the whole block goes under the logos - the address never stays beside the logos with the links alone below */}
+          <div className="flex flex-col gap-10 md:flex-row md:gap-x-16">
+            <div className="flex flex-col gap-3 type-compact text-navy">
+              <p className="font-semibold">Politecnico di Torino</p>
+              <p className="font-medium">Department of Control and Computer Engineering (DAUIN)</p>
+              <p>
+                Corso Duca Degli Abruzzi, 24
+                <br />
+                10129, Torino, Italy
+                <br />
+                Tel. +39 011 090 7042
+                <br />
+                Fax. +39 011 090 7099
+              </p>
             </div>
-            <div className="flex items-center gap-6 pt-2">
-              <a href={LINKEDIN_COPY.url} target="_blank" rel="noreferrer">
-                <img src={linkedinIcon} alt="LinkedIn" className="size-6" />
-              </a>
-              <a href={YOUTUBE_COPY.url} target="_blank" rel="noreferrer">
-                <img src={youtubeIcon} alt="YouTube" className="h-5 w-[25px]" />
-              </a>
+
+            <div className="flex flex-col gap-3 type-compact text-navy">
+              <p className="font-semibold">Visit</p>
+              {/* the university's and the department's sites (new tab, like the social icons below) */}
+              <div className="flex flex-col">
+                <a href="https://www.polito.it/" target="_blank" rel="noreferrer" className="w-fit underline-offset-4 hover:underline">
+                  Polito website
+                </a>
+                <a href="https://www.dauin.polito.it/en/" target="_blank" rel="noreferrer" className="w-fit underline-offset-4 hover:underline">
+                  Department website
+                </a>
+              </div>
+              {/* The icons stay small, but each one sits in a 44 x 44px target (the padding is part of the link), with a visible focus ring; the negative margins
+                  keep the row where it was: its left edge lines up with the text above and it takes no more height. */}
+                <div className="-mb-2.5 -ml-2.5 flex items-center gap-2">
+                  <a
+                    href={LINKEDIN_COPY.url}
+                    target="_blank"
+                    rel="noreferrer"
+                    aria-label="LinkedIn"
+                    className="grid size-11 place-items-center rounded-full focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-navy"
+                  >
+                    <img src={linkedinIcon} alt="" className="size-6" />
+                  </a>
+                  <a
+                    href={YOUTUBE_COPY.url}
+                    target="_blank"
+                    rel="noreferrer"
+                    aria-label="YouTube"
+                    className="grid size-11 place-items-center rounded-full focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-navy"
+                  >
+                    <img src={youtubeIcon} alt="" className="h-5 w-[25px]" />
+                  </a>
+                </div>
             </div>
           </div>
         </div>

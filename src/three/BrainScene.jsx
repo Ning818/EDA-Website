@@ -13,7 +13,7 @@ export default function BrainScene({ className }) {
     <div
       data-cloud="brain"
       // Drag-to-spin is a desktop interaction; on the phone layout the brain is look-only (the page just scrolls).
-      className={`${className ?? ''} md:cursor-grab md:active:cursor-grabbing md:[touch-action:pan-y]`}
+      className={`${className ?? ''} xl:cursor-grab xl:active:cursor-grabbing xl:[touch-action:pan-y]`}
       onPointerDown={(e) => {
         if (isMobileView()) return
         brainState.dragging = true

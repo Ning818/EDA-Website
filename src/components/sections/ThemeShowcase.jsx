@@ -26,20 +26,20 @@ export default function ThemeShowcase({ theme, imageSide = 'left', visual, still
       className={
         still
           ? 'flex min-w-0 flex-col items-start justify-center xl:flex-1'
-          : `flex min-w-0 flex-1 flex-col items-start justify-center max-md:flex-none ${imageSide === 'left' ? 'max-md:translate-y-[calc(-1.5rem-var(--copy-lift,0px))]' : ''}`
+          : `flex min-w-0 flex-1 flex-col items-start justify-center max-xl:w-full max-xl:max-w-[40rem] max-xl:flex-none ${imageSide === 'left' ? 'max-xl:translate-y-[calc(-1.5rem-var(--copy-lift,0px))]' : ''}`
       }
     >
       <div
         className={
           still
-            ? `flex w-full max-w-[560px] flex-col items-start gap-5 md:gap-8 xl:max-w-none xl:gap-11 ${imageSide === 'left' ? 'xl:ml-auto xl:w-[min(500px,100%)]' : ''}`
-            : `flex flex-col items-start gap-5 md:gap-8 lg:gap-11 ${imageSide === 'left' ? 'ml-auto w-[min(500px,100%)]' : ''}`
+            ? `flex w-full max-w-[560px] flex-col items-start max-xl:mx-auto gap-5 md:gap-8 xl:max-w-none xl:gap-11 ${imageSide === 'left' ? 'xl:ml-auto xl:w-[min(500px,100%)]' : ''}`
+            : `flex flex-col items-start gap-5 md:gap-8 lg:gap-11 ${imageSide === 'left' ? 'xl:ml-auto xl:w-[min(500px,100%)]' : ''}`
         }
       >
         {/* the theme's name heads its section */}
         <div className="flex flex-col items-start gap-2 md:gap-3">
-          <h2 className={`type-h2 text-navy ${imageSide === 'left' ? '' : 'max-w-[554px]'}`}>{theme}</h2>
-          {copy && <p className={`type-body text-navy ${imageSide === 'left' ? '' : 'max-w-[554px]'}`}>{copy}</p>}
+          <h2 className={`type-h2 text-navy ${imageSide === 'left' ? '' : 'xl:max-w-[554px]'}`}>{theme}</h2>
+          {copy && <p className={`type-body text-navy ${imageSide === 'left' ? '' : 'xl:max-w-[554px]'}`}>{copy}</p>}
         </div>
         {/* the two links read as one block: no blank line between them */}
         <div className="flex flex-col items-start">
@@ -56,11 +56,11 @@ export default function ThemeShowcase({ theme, imageSide = 'left', visual, still
     // extra scroll distance while the particle cloud holds its finished shape, giving time to read.
     // `dwell` is the extra vh held still; `gapAfter` (vh) adds further empty scroll below it: that is where the cloud transitions to
     // the next theme's shape, so the transition (spin, slide, explode, regather) gets a longer scroll.
-    <section className={`mx-auto max-w-[1440px] snap-start ${still && snapUp ? 'max-md:-scroll-mt-10' : ''}`} style={still ? undefined : { minHeight: `${100 + dwell}vh`, marginBottom: gapAfter ? `${gapAfter}vh` : undefined }}>
+    <section data-chapter={themeByName(theme)?.slug} className={`mx-auto max-w-[1440px] snap-start ${still && snapUp ? 'max-md:-scroll-mt-10' : ''}`} style={still ? undefined : { minHeight: `${100 + dwell}vh`, marginBottom: gapAfter ? `${gapAfter}vh` : undefined }}>
       <div data-pin data-side={imageSide} className={
         still
-          ? 'flex h-screen min-h-[min-content] flex-col items-center justify-start gap-5 px-8 pb-8 pt-[4.5rem] xl:flex-row xl:justify-center xl:gap-10 xl:px-[120px] xl:py-[60px]'
-          : `sticky top-0 flex h-screen flex-col items-center justify-center gap-10 px-8 py-16 max-md:justify-start max-md:gap-5 max-md:pb-8 md:flex-row md:py-[60px] lg:px-[120px] ${imageSide === 'right' ? 'max-md:pt-[4.5rem]' : ''}`
+          ? 'flex h-screen min-h-[min-content] flex-col items-center justify-start gap-5 px-8 md:px-16 pb-8 pt-[4.5rem] xl:flex-row xl:justify-center xl:gap-10 lg:px-[120px] xl:py-[60px]'
+          : `sticky top-0 flex h-screen flex-col items-center justify-center gap-10 px-8 md:px-16 py-16 max-xl:justify-start max-xl:gap-5 max-xl:pb-8 xl:flex-row xl:py-[60px] lg:px-[120px] ${imageSide === 'right' ? 'max-xl:pt-[4.5rem]' : ''}`
       }
       >
       {imageSide === 'left' ? (

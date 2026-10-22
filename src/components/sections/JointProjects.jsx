@@ -19,7 +19,7 @@ function Card({ code, name, funding, years, coordinator, partners, url }) {
     >
       <div className="flex flex-wrap items-start justify-between gap-x-3 gap-y-2">
         <div className="flex items-center gap-1.5">
-          <p className="whitespace-nowrap type-h3 text-navy">{code}</p>
+          <h3 className="whitespace-nowrap type-h3 text-navy">{code}</h3>
           {ARROW}
         </div>
         <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-navy/15 px-3 py-1 type-meta font-medium text-navy">

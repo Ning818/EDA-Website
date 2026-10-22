@@ -1,4 +1,5 @@
-import { Navigate, useParams } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
+import NotFound from './NotFound'
 import PageIntroBand from '../components/sections/PageIntroBand'
 import { themeBySlug, decorVariantFor } from '../themes'
 import StatsRow from '../components/sections/StatsRow'
@@ -50,7 +51,7 @@ const HIGHLIGHT_PROJECT = {
 export default function FundedProjects() {
   const { theme: slug = 'vlsi-cad' } = useParams()
   const theme = themeBySlug(slug)
-  if (!theme) return <Navigate to="/research/funded-projects" replace />
+  if (!theme) return <NotFound what="theme" />
   const { ongoing: ongoingAsListed, ended: endedAsListed, referTo } = fundedProjectsFor(slug)
   const ongoing = [...ongoingAsListed].sort(byCode)
   const ended = [...endedAsListed].sort(byCode)

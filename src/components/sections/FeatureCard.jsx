@@ -84,10 +84,10 @@ export default function FeatureCard({
 
   const textBlock = (
     <div className="relative z-10 flex flex-col items-start gap-4 md:gap-5">
-      <p className={`type-meta font-medium uppercase tracking-[0.08em] ${light ? 'text-[#1a7d90]' : 'text-[#279aae]'}`}>{eyebrow}</p>
+      <p className={`type-meta font-medium uppercase tracking-[0.08em] ${light ? 'text-teal-text' : 'text-[#279aae]'}`}>{eyebrow}</p>
       <h2 className={`type-h2 ${light ? 'text-navy' : 'text-white'}`}>{title}</h2>
       {meta && (
-        <div className={`-mt-1 type-meta ${light ? 'text-navy/60' : 'text-white/60'}`}>
+        <div className={`-mt-1 type-meta ${light ? 'text-navy/70' : 'text-white/70'}`}>
           {[].concat(meta).map((line, i) => (
             <p key={i}>{line}</p>
           ))}

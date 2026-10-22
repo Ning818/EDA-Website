@@ -11,6 +11,8 @@
   --color-navy: #002843;
   --color-navy-soft: #5a7385;
   --color-mint: #eef8f3;
+  /* the teal for small text (eyebrows, headings of a panel) on the mint ground and on white: 5.3:1 and 5.7:1 (the lighter #1a7d90 was 4.4:1 on mint) */
+  --color-teal-text: #157082;
   --color-mint-deep: #dcefe6;
 }
 
@@ -138,7 +140,7 @@
    height as a fraction of the anchor's size, --fx / --fy where the cloud's centre lies relative to the anchor's own
    centre (also fractions of its size); measured from the rendered clouds. 24px of bleed past the box's width: the
    outermost points are sparse. */
-@media (max-width: 767px) {
+@media (max-width: 1279px) {
   .phone-cloud {
     --s: min(calc((100cqw + 24px) / var(--fw)), calc(100cqh / var(--fh)));
     width: var(--s);
@@ -301,4 +303,10 @@ body {
   * {
     transition-duration: 0.001ms !important;
   }
+}
+
+/* The page's title and its main content take the keyboard focus after a change of page or a "skip to main content", so the focus is where the visitor
+   is reading - but they are not controls, so no ring is drawn on them. */
+[data-page-title]:focus {
+  outline: none;
 }

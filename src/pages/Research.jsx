@@ -2,7 +2,8 @@ import PageIntroBand from '../components/sections/PageIntroBand'
 import ResearchTopicsAndPeople from '../components/sections/ResearchTopicsAndPeople'
 import FeatureCard from '../components/sections/FeatureCard'
 import ProjectWall from '../components/sections/ProjectWall'
-import { Navigate, useLocation, useParams } from 'react-router-dom'
+import { useLocation, useParams } from 'react-router-dom'
+import NotFound from './NotFound'
 import { themeBySlug, decorVariantFor } from '../themes'
 import { projectStatsFor } from '../components/sections/projectStats'
 import { highlightImage } from '../components/sections/highlightImages'
@@ -72,7 +73,7 @@ export default function Research() {
   // Preview switch while the two looks are compared: /research?hl=light makes the paper card light too.
   const thesisTone = new URLSearchParams(useLocation().search).get('hl') === 'light' ? 'light' : 'dark'
   const theme = themeBySlug(slug)
-  if (!theme) return <Navigate to="/research" replace />
+  if (!theme) return <NotFound what="theme" />
   return (
     <main style={{ '--theme': theme.color }}>
       <PageIntroBand category="Research" title={theme.name} decorated light decorVariant={decorVariantFor(theme, 'research')} decorColor={theme.color} decorPage="research" titleFit introVeil={slug === 'vlsi-cad'}>

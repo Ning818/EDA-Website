@@ -13,7 +13,7 @@ import { buildSocialMediaCloud, SOCIAL_ORIENTATION, SOCIAL_PARTICLE_SIZE, YOUTUB
 import { FileLoader } from 'three'
 import { matchClouds } from './morphMatch'
 import { makeCircleTexture } from './makeCircleTexture'
-import { brainState, isMobileView } from './cloudState'
+import { brainState, isMobileView, ARM_EXIT_SCREENS, SOCIAL_HOLD_SCREENS } from './cloudState'
 
 /*
  * One fixed, viewport-sized WebGL "stage" that the particle clouds live on. Page text scrolls over
@@ -68,7 +68,7 @@ const VLSI_SLIDE_EASE = (t) => {
   const warped = (t < SLIDE_RAMP ? (t * t) / (2 * SLIDE_RAMP) : t - SLIDE_RAMP / 2) / (1 - SLIDE_RAMP / 2)
   return 1 - (1 - warped) ** 4
 }
-export const ARM_EXIT_SCREENS = 2.16 // scroll length (in screens) of the arm -> social1 transition (brain-style timeline: 0.72 x 300vh)
+// ARM_EXIT_SCREENS (the arm -> social1 transition's scroll length) and SOCIAL_HOLD_SCREENS: cloudState.js
 // Industry 4.0 arm -> social-media chip cluster: once the arm's closing turn ends and scroll passes
 // this point, the social-media cloud (SocialMediaParticles.js) just replaces it outright - no
 // scatter/regather morph into it (per request, to skip the extra matchClouds/transition work).
@@ -80,7 +80,6 @@ export const ARM_EXIT_SCREENS = 2.16 // scroll length (in screens) of the arm ->
 // Click targets for the pressable logo layer of each social stage (opened in a new tab).
 const YOUTUBE_URL = 'https://www.youtube.com/@edagrouppolito329/videos'
 const LINKEDIN_URL = 'https://www.linkedin.com/company/edagroup-polito/posts/?feedView=all'
-export const SOCIAL_HOLD_SCREENS = 0.6 // scroll length (in screens) `social` holds before it morphs into `social2` (and `social2` holds after it)
 // social1 -> social2 is not scrubbed by the scrollbar: scrolling past the end of social1's hold starts it, and it then runs
 // to the end by itself over this many seconds (scrolling back past that point plays it in reverse). It takes no scroll
 // length of its own. Eased like the clouds' slide (VLSI_SLIDE_EASE): quick off the mark, landing softly with no rebound.

@@ -16,7 +16,7 @@ function CopyText({ copy }) {
   return (
     <div className="flex flex-col gap-5 md:gap-8">
       <div className="flex flex-col gap-2 md:gap-3">
-        <p className="type-meta font-medium uppercase tracking-[0.08em] text-navy">{copy.label}</p>
+        <h2 className="type-meta font-medium uppercase tracking-[0.08em] text-navy">{copy.label}</h2>
         <p className="type-body text-navy">{copy.text}</p>
       </div>
       <ArrowLink to={copy.url} variant="circle" external animatedUnderline>
@@ -30,7 +30,7 @@ function Block({ id, copy }) {
   return (
     <div
       data-social-copy={id}
-      className="absolute top-1/2 right-8 w-[min(500px,calc(100vw-4rem))] max-md:relative max-md:top-auto max-md:right-auto max-md:w-auto max-md:self-start max-md:[grid-area:1/1] lg:right-[calc(max(0px,(100%-1440px)/2)+120px)]"
+      className="absolute top-1/2 right-8 w-[min(500px,calc(100vw-4rem))] max-xl:relative max-xl:top-auto max-xl:right-auto max-xl:w-auto max-xl:mx-auto max-xl:max-w-[40rem] max-xl:self-start max-xl:[grid-area:1/1] xl:right-[calc(max(0px,(100%-1440px)/2)+120px)]"
       style={{ opacity: 0, visibility: 'hidden', pointerEvents: 'none', transform: 'translateY(-50%)' }}
     >
       <CopyText copy={copy} />
@@ -43,7 +43,7 @@ export default function SocialCopy() {
     <div aria-live="polite" className="pointer-events-none fixed inset-0 z-10">
       {/* Phone: both blocks share one grid cell along the bottom, so their top edges line up (the taller one sets the
           height); desktop: `contents`, each block positions itself. */}
-      <div data-social-copy-wrap className="max-md:absolute max-md:inset-x-8 max-md:bottom-14 max-md:grid md:contents">
+      <div data-social-copy-wrap className="max-xl:absolute max-xl:inset-x-8 md:max-xl:inset-x-16 lg:max-xl:inset-x-[120px] max-xl:bottom-14 max-xl:grid xl:contents">
         <Block id="youtube" copy={YOUTUBE_COPY} />
         <Block id="linkedin" copy={LINKEDIN_COPY} />
       </div>
@@ -64,12 +64,12 @@ export function SocialStill() {
       {[
         [STILL_CLOUDS.youtube, YOUTUBE_COPY],
         [STILL_CLOUDS.linkedin, LINKEDIN_COPY],
-      ].map(([cloud, copy]) => (
-        <section key={copy.label} className="mx-auto max-w-[1440px] snap-start">
-          <div className="flex h-svh min-h-[min-content] flex-col items-center justify-center gap-5 px-8 pb-8 pt-[4.5rem] md:h-screen md:justify-start xl:flex-row xl:justify-center xl:gap-10 xl:px-[120px] xl:py-[60px]">
+      ].map(([cloud, copy], i) => (
+        <section key={copy.label} data-chapter={i === 0 ? 'social' : undefined} className="mx-auto max-w-[1440px] snap-start">
+          <div className="flex h-svh min-h-[min-content] flex-col items-center justify-center gap-5 px-8 md:px-16 pb-8 pt-[4.5rem] md:h-screen md:justify-start xl:flex-row xl:justify-center xl:gap-10 lg:px-[120px] xl:py-[60px]">
             <StillCloud cloud={cloud} className={STILL_CENTERED_BOX} near="bottom" />
             <div className="flex min-w-0 flex-col items-start justify-center xl:flex-1">
-              <div className="w-full max-w-[560px] xl:ml-auto xl:w-[min(500px,100%)]">
+              <div className="w-full max-w-[560px] max-xl:mx-auto xl:ml-auto xl:w-[min(500px,100%)]">
                 <CopyText copy={copy} />
               </div>
             </div>

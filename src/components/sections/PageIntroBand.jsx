@@ -1,4 +1,5 @@
 import { useLayoutEffect, useRef } from 'react'
+import CanvasBoundary from '../ui/CanvasBoundary'
 import HeaderDecor from './HeaderDecor'
 import FactoryDecor from './FactoryDecor'
 import FactoryParticles from './FactoryParticles'
@@ -39,9 +40,9 @@ function FitTitle({ fit, boxRef, className, children }) {
     }
   }, [fit, boxRef, children])
   return (
-    <p ref={ref} className={`${fit ? 'lg:whitespace-nowrap ' : ''}${className}`}>
+    <h1 ref={ref} className={`${fit ? 'lg:whitespace-nowrap ' : ''}${className}`}>
       {children}
-    </p>
+    </h1>
   )
 }
 
@@ -71,7 +72,7 @@ export default function PageIntroBand({ category, title, children, decorated = f
   const onLight = decorated && light
   const hero = decorated && children
   const showDecor = decorated && decorVariant !== 'none'
-  const decor =
+  const artwork =
     decorVariant === 'skyline' ? (
       <SkylineDecor color={decorColor} light={light} />
     ) : decorVariant === 'helix-particles' ? (
@@ -87,9 +88,11 @@ export default function PageIntroBand({ category, title, children, decorated = f
     ) : (
       <HeaderDecor variant={decorVariant} />
     )
+  // the artwork is decoration: if its canvas cannot be drawn on, it is left out and the band's text stays (an error in it would otherwise take the whole page down)
+  const decor = <CanvasBoundary>{artwork}</CanvasBoundary>
   const eyebrow = (
     <>
-      <p className={`type-meta font-medium uppercase tracking-[0.08em] ${onLight ? 'text-[#1a7d90]' : 'text-[#279aae]'}`}>{category}</p>
+      <p className={`type-meta font-medium uppercase tracking-[0.08em] ${onLight ? 'text-teal-text' : 'text-[#279aae]'}`}>{category}</p>
       {title && (
         <FitTitle fit={titleFit} boxRef={boxRef} className={`text-balance type-h1 tracking-tight ${onLight ? 'text-navy' : 'text-white'}`}>
           {title}
@@ -106,7 +109,7 @@ export default function PageIntroBand({ category, title, children, decorated = f
     return (
       <section className={`relative ${bandBg ? 'overflow-hidden' : ''} ${bandBg} ${light && bandRule ? 'border-b border-navy/10' : ''}`}>
         <div className="relative">
-          {backdrop}
+          <CanvasBoundary>{backdrop}</CanvasBoundary>
           <div className={`relative z-10 mx-auto max-w-[1440px] px-8 pt-16 lg:px-[120px] ${backdropPad}`}>
             <div className={`flex flex-col gap-6 ${textWidth}`}>
               {title ? (
@@ -119,11 +122,11 @@ export default function PageIntroBand({ category, title, children, decorated = f
                       className={`pointer-events-none absolute -inset-x-10 -inset-y-7 -z-10 [mask-image:radial-gradient(closest-side,black_55%,transparent)] ${light ? 'bg-mint/85' : 'bg-navy/70'}`}
                     />
                   )}
-                  <p className={`type-meta font-medium uppercase tracking-[0.08em] ${light ? 'text-[#1a7d90]' : 'text-[#279aae]'}`}>{category}</p>
-                  <p className={`type-h1 tracking-tight ${light ? 'text-navy' : 'text-white'}`}>{title}</p>
+                  <p className={`type-meta font-medium uppercase tracking-[0.08em] ${light ? 'text-teal-text' : 'text-[#279aae]'}`}>{category}</p>
+                  <h1 className={`type-h1 tracking-tight ${light ? 'text-navy' : 'text-white'}`}>{title}</h1>
                 </div>
               ) : (
-                <p className="type-h1 tracking-tight text-[#279aae]">{category}</p>
+                <h1 className="type-h1 tracking-tight text-[#279aae]">{category}</h1>
               )}
               {children && <p className={`type-lead ${light ? 'text-navy/85' : 'text-[#f5f4f6]'}`}>{children}</p>}
               {after}
@@ -174,8 +177,8 @@ export default function PageIntroBand({ category, title, children, decorated = f
               eyebrow
             ) : (
               <>
-                <p className="type-h1 tracking-tight text-[#279aae]">{category}</p>
-                {title && <p className="type-h1 tracking-tight text-white">{title}</p>}
+                {title ? <p className="type-h1 tracking-tight text-[#279aae]">{category}</p> : <h1 className="type-h1 tracking-tight text-[#279aae]">{category}</h1>}
+                {title && <h1 className="type-h1 tracking-tight text-white">{title}</h1>}
               </>
             )}
           </div>

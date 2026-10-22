@@ -18,7 +18,7 @@ function ProjectCard({ code, description, status, url }) {
       <div className="flex items-center justify-between gap-3">
         {code ? (
           <div className="flex min-w-0 items-center gap-1.5">
-            <p className="min-w-0 type-h3 text-navy [overflow-wrap:anywhere]">{code}</p>
+            <h3 className="min-w-0 type-h3 text-navy [overflow-wrap:anywhere]">{code}</h3>
             {url && (
               <svg viewBox="0 0 24 24" fill="none" stroke="#279aae" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="size-4 shrink-0 transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" aria-hidden="true">
                 <path d="M7 17 17 7M8 7h9v9" />

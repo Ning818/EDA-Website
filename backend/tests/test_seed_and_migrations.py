@@ -13,7 +13,7 @@ from tests.conftest import alembic_config, seed_everything
 from tests.seed_data import COLLABORATIONS, PAGES, PEOPLE, PEOPLE_BY_SLUG, SEED_DIR, THEMES
 
 TABLES = ["people", "themes", "highlights", "topic_groups", "topics", "topic_group_people", "projects", "theme_contacts", "collaborators", "joint_projects", "pages"]
-CHINESE = re.compile("[一-鿿　-〿＀-￯]")
+CHINESE = re.compile(r"[\u4e00-\u9fff\u3000-\u303f\uff00-\uffef]")  # Chinese characters and CJK punctuation
 
 
 def counts() -> dict[str, int]:

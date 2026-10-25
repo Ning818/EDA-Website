@@ -1,0 +1,27 @@
+# PostgreSQL for local development. `docker compose up -d` starts it, `docker compose down` stops it (the data stays in the
+# named volume; `docker compose down -v` deletes the data too). The credentials come from backend/.env.
+# a fixed project name, so the volume is not named after the folder
+name: eda-website
+
+services:
+  db:
+    image: postgres:17
+    container_name: eda-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      # bound to this computer only, so the database is not reachable from the Wi-Fi
+      - "127.0.0.1:${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - eda-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  eda-pgdata:

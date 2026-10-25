@@ -1,11 +1,15 @@
+from pathlib import Path
+
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from sqlalchemy import URL
 
+BACKEND_DIR = Path(__file__).resolve().parents[2]
+
 
 class Settings(BaseSettings):
-    """Settings read from the environment, or from backend/.env when run from the backend folder."""
+    """Settings read from the environment, or from backend/.env wherever the API is started from."""
 
-    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
+    model_config = SettingsConfigDict(env_file=BACKEND_DIR / ".env", extra="ignore")
 
     project_name: str = "EDA Group API"
 
@@ -16,6 +20,10 @@ class Settings(BaseSettings):
     postgres_port: int = 5432
 
     cors_origins: list[str] = ["http://localhost:5173"]
+
+    # files the API keeps and serves (people's photos): in this folder, under this address
+    media_dir: Path = BACKEND_DIR / "media"
+    media_url: str = "/media"
 
     @property
     def database_url(self) -> URL:

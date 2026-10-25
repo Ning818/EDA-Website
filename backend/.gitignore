@@ -2,6 +2,9 @@
 .env
 .venv/
 
+# Files the API serves (people's photos): created by `python -m app.seed` or by uploads
+media/
+
 # Python
 __pycache__/
 *.pyc

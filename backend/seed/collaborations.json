@@ -1,0 +1,201 @@
+{
+  "joint_projects": [
+    {
+      "code": "DIMMER",
+      "name": "District Information Modeling and Management for Energy Reduction",
+      "funding": "EU FP7",
+      "years": "2013–2016",
+      "coordinator": "Politecnico di Torino",
+      "partners": [
+        "Arup",
+        "CNet Svenska",
+        "IREN",
+        "Fraunhofer",
+        "The University of Manchester",
+        "Università degli Studi di Torino"
+      ],
+      "url": "https://cordis.europa.eu/project/id/609084"
+    },
+    {
+      "code": "CONTREX",
+      "name": "Design of embedded mixed-criticality CONTRol systems under consideration of EXtra-functional properties",
+      "funding": "EU FP7",
+      "years": "2013–2016",
+      "coordinator": "OFFIS",
+      "partners": [
+        "Intel",
+        "STMicroelectronics",
+        "Politecnico di Milano"
+      ],
+      "url": "https://cordis.europa.eu/project/id/611146"
+    },
+    {
+      "code": "R3-PowerUP",
+      "name": "300mm Pilot Line for Smart Power and Power Discretes",
+      "funding": "EU H2020 (ECSEL)",
+      "years": "2017–2023",
+      "coordinator": "STMicroelectronics",
+      "partners": [
+        "Politecnico di Milano",
+        "Università di Bologna"
+      ],
+      "url": "https://cordis.europa.eu/project/id/737417"
+    }
+  ],
+  "universities": [
+    {
+      "name": "Brown University",
+      "url": "https://www.brown.edu/",
+      "logo": "universities/brown.png"
+    },
+    {
+      "name": "Columbia University in the City of New York",
+      "url": "https://www.columbia.edu/",
+      "logo": "universities/columbia.png"
+    },
+    {
+      "name": "Cornell University",
+      "url": "https://www.cornell.edu/",
+      "logo": "universities/cornell.png"
+    },
+    {
+      "name": "National University of Singapore",
+      "url": "https://www.nus.edu.sg/",
+      "logo": "universities/nus.png"
+    },
+    {
+      "name": "University of Southampton",
+      "url": "https://www.southampton.ac.uk/",
+      "logo": "universities/southampton.png"
+    },
+    {
+      "name": "Stanford University",
+      "url": "https://www.stanford.edu/",
+      "logo": "universities/stanford.png"
+    },
+    {
+      "name": "Università di Bologna",
+      "url": "https://www.unibo.it/en",
+      "logo": "universities/bologna.png"
+    },
+    {
+      "name": "Università degli Studi di Torino",
+      "url": "https://en.unito.it/",
+      "logo": "universities/turin.png"
+    },
+    {
+      "name": "University of Southern California",
+      "url": "https://www.usc.edu/",
+      "logo": "universities/usc.png"
+    },
+    {
+      "name": "University of Colorado Boulder",
+      "url": "https://www.colorado.edu/",
+      "logo": "universities/colorado.png"
+    },
+    {
+      "name": "École Polytechnique Fédérale de Lausanne",
+      "url": "https://www.epfl.ch/en/",
+      "logo": "universities/epfl.png"
+    },
+    {
+      "name": "University of Helsinki",
+      "url": "https://www.helsinki.fi/en",
+      "logo": "universities/helsinki.png"
+    },
+    {
+      "name": "The University of Manchester",
+      "url": "https://www.manchester.ac.uk/",
+      "logo": "universities/manchester.png"
+    },
+    {
+      "name": "Università degli Studi di Verona",
+      "url": "https://www.univr.it/en/home",
+      "logo": "universities/verona.png"
+    },
+    {
+      "name": "Politecnico di Milano",
+      "url": "https://www.polimi.it/en",
+      "logo": "universities/polimi.png"
+    }
+  ],
+  "institutes": [
+    {
+      "name": "Fraunhofer FIT",
+      "url": "https://www.fit.fraunhofer.de/en.html",
+      "logo": "institutes/fraunhofer.png"
+    },
+    {
+      "name": "Istituto di Candiolo - IRCCS",
+      "url": "https://inoc.it/en/",
+      "logo": "institutes/candiolo-irccs.png"
+    },
+    {
+      "name": "CEA-Leti",
+      "url": "https://www.leti-cea.com/cea-tech/leti/english",
+      "logo": "institutes/cea-leti.png"
+    },
+    {
+      "name": "IZS PLV",
+      "url": "https://www.izsplv.it/",
+      "logo": "institutes/izs-plv.png"
+    }
+  ],
+  "companies": [
+    {
+      "name": "Arup",
+      "url": "https://www.arup.com/",
+      "logo": "companies/arup.png"
+    },
+    {
+      "name": "CNet Svenska AB",
+      "url": "https://www.cnet.se/",
+      "logo": "companies/cnet.png"
+    },
+    {
+      "name": "HP Inc.",
+      "url": "https://www.hp.com/it-it/home.html",
+      "logo": "companies/hp.png"
+    },
+    {
+      "name": "Intel Corporation",
+      "url": "https://www.intel.com/content/www/us/en/homepage.html",
+      "logo": "companies/intel.png"
+    },
+    {
+      "name": "NXP Semiconductors",
+      "url": "https://www.nxp.com/",
+      "logo": "companies/nxp.png"
+    },
+    {
+      "name": "Philips",
+      "url": "https://www.philips.it/",
+      "logo": "companies/philips.png"
+    },
+    {
+      "name": "TIM S.p.A.",
+      "url": "https://www.gruppotim.it/en.html",
+      "logo": "companies/tim.png"
+    },
+    {
+      "name": "Infineon Technologies",
+      "url": "https://www.infineon.com/",
+      "logo": "companies/infineon.png"
+    },
+    {
+      "name": "IREN S.p.A.",
+      "url": "https://www.gruppoiren.it/",
+      "logo": "companies/iren.png"
+    },
+    {
+      "name": "OFFIS e.V.",
+      "url": "https://www.offis.de/en/",
+      "logo": "companies/offis.png"
+    },
+    {
+      "name": "STMicroelectronics",
+      "url": "https://www.st.com/content/st_com/en.html",
+      "logo": "companies/stm.png"
+    }
+  ]
+}

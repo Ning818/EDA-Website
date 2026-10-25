@@ -1,0 +1,718 @@
+[
+  {
+    "slug": "vlsi-cad",
+    "name": "VLSI-CAD",
+    "short_name": null,
+    "position": 0,
+    "intro": "Our Design Automation work spans three areas. For standard CMOS, we develop CAD algorithms, methodologies and prototype tools for low-power, variation-tolerant ICs, focusing on logic and physical synthesis. In Beyond-CMOS, we model Graphene P-N junctions and transistors, and study integration strategies for flexible, ultra-low-power circuits. For Electrical Energy Systems with hybrid sources such as batteries and solar cells, we build system-level simulation frameworks and run-time charge and thermal management.",
+    "funded_blurb": "Ongoing projects include R2POWER300 and R3POWERUP, which work on 300mm technology for smart power and power discretes, and Lab4MEMS II, on micro-optical MEMS, micro-mirrors and pico-projectors.",
+    "highlights": {
+      "paper": {
+        "title": "Design Techniques and Architectures for Low-Leakage SRAMs",
+        "subtitle": null,
+        "authors_full": "Andrea Calimera, Alberto Macii, Enrico Macii, Massimo Poncino",
+        "authors_short": "A. Calimera, A. Macii, E. Macii, M. Poncino",
+        "venue": "IEEE Transactions on Circuits and Systems I · 2012",
+        "tags": [
+          "Low-power design",
+          "Leakage power",
+          "SRAM"
+        ],
+        "text": "In high-performance systems-on-chip, leakage power now rivals dynamic power, and memories suffer the most. This survey reviews the academic and industrial techniques that minimize subthreshold leakage in SRAMs, from the cell level to architectures for system-level design.",
+        "url": "https://iris.polito.it/handle/11583/2498516",
+        "image": "paper-vlsi-cad.jpg"
+      },
+      "project": {
+        "title": "R3-PowerUP:",
+        "subtitle": "a 300mm pilot line for smart power",
+        "authors_full": null,
+        "authors_short": null,
+        "venue": null,
+        "tags": [
+          "Smart power",
+          "Pilot line",
+          "ECSEL / Horizon 2020"
+        ],
+        "text": "R3-PowerUP builds a new 300mm pilot line in Europe for smart power and power discrete technologies, strengthening the competitiveness of European industry while supporting energy efficiency and CO2 reduction. Politecnico di Torino is one of the project partners.",
+        "url": "https://cordis.europa.eu/project/id/737417",
+        "image": "project-vlsi-cad.jpg"
+      }
+    },
+    "groups": [
+      {
+        "title": "Low-power, variation-tolerant and aging-aware design",
+        "topics": [
+          "Low-power Design Techniques and Implementation Strategies",
+          "Power Modeling, Estimation and Optimization",
+          "Thermal-Aware and PV-tolerant Design Solutions",
+          "Design Techniques for Mitigating Aging Effects",
+          "Modeling and Estimation of Indirect Metrics: Temperature, Aging"
+        ],
+        "people": [
+          "andrea-calimera",
+          "massimo-poncino",
+          "alberto-macii",
+          "enrico-macii",
+          "daniele-jahier-pagliari",
+          "valentino-peluso",
+          "roberto-giorgio-rizzo",
+          "alberto-bocca"
+        ]
+      },
+      {
+        "title": "Synthesis and physical design",
+        "topics": [
+          "System-Level, Behavioral-Level and RTL Synthesis",
+          "Layout-Driven Synthesis and Physical Design",
+          "Logic Synthesis and Optimization"
+        ],
+        "people": [
+          "andrea-calimera",
+          "massimo-poncino",
+          "sara-vinco",
+          "daniele-jahier-pagliari",
+          "chen-xie",
+          "roberto-giorgio-rizzo"
+        ]
+      },
+      {
+        "title": "Electrical energy systems",
+        "topics": [
+          "Battery Modeling, Design and Management for Mobile Systems",
+          "Cyber-Physical Energy Systems"
+        ],
+        "people": [
+          "alberto-macii",
+          "massimo-poncino",
+          "sara-vinco",
+          "alberto-bocca",
+          "yukai-chen"
+        ]
+      },
+      {
+        "title": "Beyond-CMOS: graphene-based flexible circuits",
+        "topics": [
+          "Electrical Modeling and Simulation of Graphene-based Devices",
+          "Implementation Strategies of Graphene-based Flexible Circuits",
+          "Ultra-low Power Solution for Graphene-based Flexible Circuits",
+          "Logic Synthesis Algorithms for Graphene-based Flexible Circuits"
+        ],
+        "people": [
+          "andrea-calimera",
+          "massimo-poncino",
+          "enrico-macii"
+        ]
+      }
+    ],
+    "projects": {
+      "ongoing": [
+        {
+          "code": "R2POWER300",
+          "description": "PREPARING R2 EXTENSIONS TO 300mm FOR BCD SMART POWER",
+          "url": null
+        },
+        {
+          "code": "ARROWHEAD",
+          "description": "COOPERATIVE AUTOMATION BASED ON THE INTERNET OF THINGS AND SERVICE-ORIENTED ARCHITECTURES",
+          "url": "https://arrowhead.eu/"
+        },
+        {
+          "code": "Lab4MEMS II",
+          "description": "MICRO-OPTICAL MEMS, MICRO-MIRRORS AND PICO-PROJECTORS",
+          "url": null
+        },
+        {
+          "code": "R3POWERUP",
+          "description": "300mm Pilot Line for Smart Power and Power Discretes",
+          "url": "https://artemis-ia.eu/project/135-R3-PowerUP.html"
+        }
+      ],
+      "ended": [
+        {
+          "code": "CONTREX",
+          "description": "DESIGN OF EMBEDDED MIXED-CRITICALITY CONTROL SYSTEMS UNDER CONSIDERATION OF EXTRA-FUNCTIONAL PROPERTIES",
+          "url": null
+        },
+        {
+          "code": "Lab4MEMS II",
+          "description": "MICRO-OPTICAL MEMS, MICRO-MIRRORS AND PICO-PROJECTORS",
+          "url": null
+        },
+        {
+          "code": "THOR",
+          "description": "TORINO-PIEMONTE. TECNOLOGIE E SISTEMI AMBIENTALI PER LA MOBILITA' ELETTRICA",
+          "url": null
+        },
+        {
+          "code": "SMAC",
+          "description": "SMART SYSTEMS CO-DESIGN",
+          "url": null
+        },
+        {
+          "code": "MOTORBRAIN",
+          "description": "ELECTRIC VEHICLE INTEGRATED POWER TRAIN",
+          "url": null
+        },
+        {
+          "code": "DEMANES",
+          "description": "DESIGN, MONITORING AND OPERATION OF ADAPTIVE NETWORKED",
+          "url": null
+        },
+        {
+          "code": "VeteSS",
+          "description": "VERIFICATION AND TESTING TO SUPPORT FUNCTIONAL SAFETY STANDARDS",
+          "url": null
+        },
+        {
+          "code": "IDEAS",
+          "description": "INTERACTIVE POWER DEVICES FOR EFFICIENCY IN AUTOMOTIVE WITH INCREASED RELIABILITY AND SAFETY",
+          "url": null
+        },
+        {
+          "code": "Lab4MEMS",
+          "description": "LAB FAB FOR SMART SENSORS AND ACTUATORS MEMS",
+          "url": null
+        },
+        {
+          "code": "ERG",
+          "description": "ENERGY FOR GREEN SOCIETY: FROM SUSTAINABLE HARVESTING TO SMART DISTRIBUTION",
+          "url": null
+        },
+        {
+          "code": "THERMINATOR",
+          "description": "MODELLING, CONTROL AND MANAGEMENT OF THERMAL EFFECTS IN ELECTRICS",
+          "url": null
+        },
+        {
+          "code": "POLLUX",
+          "description": "PROCESS ORIENTED ELECTRICAL CONTROL UNITS FOR ELECTRICAL VEHICLES DEVELOPED ON A MULTI-SYSTEM REAL-TIME EMBEDDED PLATFORM",
+          "url": null
+        },
+        {
+          "code": "MODERN",
+          "description": "MODEL AND DESIGN OF RELIABLE PROCESS VARIATION-AWARE NANOELECTRONIC DEVICES, CIRCUITS AND SYSTEMS",
+          "url": null
+        },
+        {
+          "code": "SCALOPES",
+          "description": "SCALABLE LOW POWER EMBEDDED PLATFORMS",
+          "url": null
+        },
+        {
+          "code": "END",
+          "description": "MODELS, SOLUTIONS, METHODS AND TOOLS FOR ENERGY-AWARE DESIGN",
+          "url": null
+        },
+        {
+          "code": "SCORE",
+          "description": "SUPERVISIONE, CONTROLLO E OTTIMIZZAZIONE DELLA PRODUZIONE DI ENERGIA RINNOVABILE",
+          "url": null
+        },
+        {
+          "code": "SMECY",
+          "description": "SMART MULTICORE EMBEDDED SYSTEMS",
+          "url": null
+        },
+        {
+          "code": "TOUCHMORE",
+          "description": "AUTOMATIC CUSTOMIZABLE TOOL CHAIN FOR HETEROGENEOUS MULTICORE SOFTWARE DEVELOPMENT",
+          "url": null
+        },
+        {
+          "code": "SIMEBUS",
+          "description": "SISTEMI MECCATRONICI PER L'EFFICIENZA ENERGETICA NEI BUS",
+          "url": null
+        },
+        {
+          "code": "COMPLEX",
+          "description": "CODESIGN AND POWER MANAGEMENT IN PLATFORM-BASED DESIGN SPACE EXPLORATION",
+          "url": null
+        },
+        {
+          "code": "NANO-SLEEP",
+          "description": "DESIGN METHODS AND TOOLS FOR LEAKAGE POWER REDUCTION IN NANOCMOS CIRCUITS",
+          "url": null
+        },
+        {
+          "code": "DAMASCO",
+          "description": "DATA ACQUISITION AND MANAGEMENT IN A SENSING AND COMMUNICATING ENVIRONMENT",
+          "url": null
+        },
+        {
+          "code": "MAP2",
+          "description": "MICRO-ARCHITECTURAL POWER MANAGEMENT: METHODS, ALGORITHMS AND PROTOTYPE TOOLS",
+          "url": null
+        },
+        {
+          "code": null,
+          "description": "METODI E STRUMENTI CAD PER LA PROGETTAZIONE DELLA GERARCHIA DI MEMORIA IN SISTEMI MULTIPROCESSORE REALIZZATI SU SINGOLO CHIP",
+          "url": null
+        },
+        {
+          "code": "CLEAN",
+          "description": "CONTROLLING LEAKAGE POWER IN NANOCMOS SOCS",
+          "url": null
+        },
+        {
+          "code": null,
+          "description": "TECNICHE DI PROGETTO DI SINTESI INTEGRATI SU SINGOLO CHIP PER APPLICAZIONI MULTIMEDIALI SU RETI WIRELESS",
+          "url": null
+        },
+        {
+          "code": null,
+          "description": "ALGORITMI E ARCHITETTURE HARDWARE PER LA RIDUZIONE DEL CONSUMO ENERGETICO NEI SISTEMI EMBEDDED BASATI SULLA COMPRESSIONE DELLE INFORMAZIONI",
+          "url": null
+        },
+        {
+          "code": "INTRALED",
+          "description": "INDUSTRY-DRIVEN TRAINING FOR LOW-POWER EUROPEAN DESIGNERS",
+          "url": null
+        },
+        {
+          "code": "MARLOW",
+          "description": "A CENTRAL MARKET PLACE FOR DISSEMINATION OF LOW-POWER MICRO-ELECTRONICS DESIGN KNOWLEDGE",
+          "url": null
+        },
+        {
+          "code": "POET",
+          "description": "POWER OPTIMISATION FOR EMBEDDED SYSTEMS",
+          "url": null
+        },
+        {
+          "code": "EASY",
+          "description": "ENERGY AWARE SYSTEM-ON-CHIP DESIGN OF THE 'HIPERLAN/2' STANDARD",
+          "url": null
+        }
+      ]
+    },
+    "refer_to": [
+      "alberto-macii",
+      "andrea-calimera",
+      "massimo-poncino",
+      "sara-vinco"
+    ],
+    "home_summary": "The EDA group works on Design Automation for standard digital CMOS circuits, Beyond-CMOS technologies and Electrical Energy Systems. We develop CAD algorithms and prototype tools for low-power, variation-tolerant integrated circuits, model Graphene-based devices for flexible, ultra-low-power circuits, and build simulation and run-time charge and thermal management for hybrid-source energy systems."
+  },
+  {
+    "slug": "bioinformatics",
+    "name": "Bioinformatics",
+    "short_name": null,
+    "position": 1,
+    "intro": "Our research automates the management, analysis and interpretation of complex biological and medical data through software and hardware-software solutions. Activities include gene expression data mining to find molecular targets for personalized therapies, regulatory network reconstruction, sequencing analysis to spot genetic abnormalities, image processing and pattern recognition, GPU and FPGA acceleration, and neuromorphic computing. We work closely with biologists, doctors and statisticians, and with hospitals.",
+    "funded_blurb": "Our funded work reaches from the Human Brain Project and devices for neurocontrol and neurorehabilitation (DeNeCor) to personalized diagnosis and novel therapeutic targets for acute lymphoblastic leukemia.",
+    "highlights": {
+      "paper": {
+        "title": "Automated segmentation of tissue images for computerized IHC analysis",
+        "subtitle": null,
+        "authors_full": "Santa Di Cataldo, Elisa Ficarra, Andrea Acquaviva, Enrico Macii",
+        "authors_short": "S. Di Cataldo, E. Ficarra, A. Acquaviva, E. Macii",
+        "venue": "Computer Methods and Programs in Biomedicine · 2010",
+        "tags": [
+          "Image processing",
+          "Immunohistochemistry",
+          "Cancer tissue"
+        ],
+        "text": "Two automated methods segment immunohistochemical tissue images: one recognizes the cancerous areas by unsupervised color clustering, the other the nuclear membranes of the cancer cells. Both prove more effective than approaches based on supervised learning or active contours.",
+        "url": "https://iris.polito.it/handle/11583/2307078",
+        "image": "paper-bioinformatics.jpg"
+      },
+      "project": {
+        "title": "HBP:",
+        "subtitle": "the Human Brain Project",
+        "authors_full": null,
+        "authors_short": null,
+        "venue": null,
+        "tags": [
+          "Human brain",
+          "Brain-inspired computing",
+          "European project"
+        ],
+        "text": "The Human Brain Project uses information and communication technologies to advance the understanding of the human brain and its diseases, to develop new treatments and to build new computing technologies. Politecnico di Torino took part in the project.",
+        "url": "https://www.humanbrainproject.eu/",
+        "image": "project-bioinformatics.jpg"
+      }
+    },
+    "groups": [
+      {
+        "title": "Gene expression, regulatory networks and modeling",
+        "topics": [
+          "High-throughput data mining for biomedical applications, classification and clustering",
+          "Algorithms for clinical functional genomics and gene expression analysis",
+          "Biological systems modeling",
+          "Reconstruction and analysis of regulatory gene and biochemical networks",
+          "Temporal modeling of gene pathways activity",
+          "Biological text mining",
+          "Algorithms for molecular dynamics applications"
+        ],
+        "people": [
+          "marta-lovino"
+        ]
+      },
+      {
+        "title": "Sequencing data analysis",
+        "topics": [
+          "Gene Fusions Detection and Prioritization",
+          "BCR and TCR clonality assessment",
+          "miRNAs and isoforms detection and quantification",
+          "Design and optimization of Sequence Alignment Algorithms"
+        ],
+        "people": [
+          "marta-lovino",
+          "gianvito-urgese"
+        ]
+      },
+      {
+        "title": "Image analysis and pattern recognition",
+        "topics": [
+          "Biological and molecular image analysis",
+          "Image processing applied to quantitative immunohistochemistry and fluorescence microscopy imaging",
+          "Design of image processing techniques for medical images (US, PET and MRI)",
+          "Artificial intelligence and pattern recognition techniques"
+        ],
+        "people": [
+          "santa-di-cataldo",
+          "francesco-ponzio",
+          "marta-lovino"
+        ]
+      },
+      {
+        "title": "Hardware acceleration and neuromorphic computing",
+        "topics": [
+          "Design of HW accelerators for bioinformatics algorithms",
+          "Neuromorphic computing"
+        ],
+        "people": [
+          "gianvito-urgese",
+          "evelina-forno"
+        ]
+      }
+    ],
+    "projects": {
+      "ongoing": [
+        {
+          "code": "HBP",
+          "description": "HUMAN BRAIN PROJECT",
+          "url": "https://www.humanbrainproject.eu/"
+        },
+        {
+          "code": null,
+          "description": "PERSONALIZED DIAGNOSIS AND NOVEL THERAPEUTIC TARGETS FOR PEDIATRIC AND ADULT ACUTE LYMPHOBLASTIC LEUKEMIA",
+          "url": null
+        },
+        {
+          "code": "DeNeCor",
+          "description": "DEVICES FOR NEUROCONTROL AND NEUROREHABILITATION",
+          "url": null
+        },
+        {
+          "code": null,
+          "description": "RICERCA CORRENTE 2012 (Ministero della Salute)",
+          "url": null
+        }
+      ],
+      "ended": [
+        {
+          "code": "CSI",
+          "description": "CENTRAL NERVOUS SYSTEM IMAGING",
+          "url": null
+        },
+        {
+          "code": null,
+          "description": "CLINICAL-MOLECULAR CORRELATION IN LUNG CANCER WITH ALTERATION OF THE EPIDERMAL GROWTH FACTOR",
+          "url": null
+        }
+      ]
+    },
+    "refer_to": [
+      "santa-di-cataldo"
+    ],
+    "home_summary": "With long-term experience in bioinformatics, the EDA group designs software and hardware-software solutions to manage, analyze and interpret complex biological and medical data. Our work spans gene expression and regulatory networks, sequencing data, medical image analysis, GPU and FPGA acceleration and neuromorphic computing, with hospitals and research centers."
+  },
+  {
+    "slug": "smart-city",
+    "name": "Smart City",
+    "short_name": null,
+    "position": 2,
+    "intro": "Pervasive devices deliver real-time data on environmental conditions and energy consumption, and middleware can make heterogeneous hardware and software sources interoperable, with an abstract view of their functionalities. Building on this, we develop a distributed software infrastructure that unifies energy, environmental and user-feedback data, presents it through visual web interfaces so users see the energy impact of their behavior in real time, and links building information models with live data.",
+    "funded_blurb": "Ongoing projects include EEB, on zero-energy buildings in smart urban districts, and ITS, an intelligent transportation system, while past ones covered smart metering, district energy modelling and middleware for public spaces.",
+    "highlights": {
+      "paper": {
+        "title": "IoT software infrastructure for Energy Management and Simulation in Smart Cities",
+        "subtitle": null,
+        "authors_full": "F. G. Brundu, E. Patti, A. Osello, M. Del Giudice, N. Rapetti, A. Krylovskiy, M. Jahn, V. Verda, E. Guelpa, L. Rietto, A. Acquaviva",
+        "authors_short": "F. G. Brundu, E. Patti, A. Osello, M. Del Giudice, N. Rapetti, A. Krylovskiy, M. Jahn, V. Verda, E. Guelpa, L. Rietto, A. Acquaviva",
+        "venue": "IEEE Transactions on Industrial Informatics · 2017",
+        "tags": [
+          "Internet of Things",
+          "Smart city",
+          "Middleware",
+          "Energy saving"
+        ],
+        "text": "An IoT platform correlates near-real-time building energy profiles with sensor data and with building and grid models, to simulate new energy policies at district level. Deployed in a real district, it was used to develop and test a new control policy for the heating network.",
+        "url": "https://iris.polito.it/handle/11583/2655428",
+        "image": "paper-smart-city.jpg"
+      },
+      "project": {
+        "title": "DIMMER:",
+        "subtitle": "district-level energy modeling and management",
+        "authors_full": null,
+        "authors_short": null,
+        "venue": null,
+        "tags": [
+          "District energy",
+          "Building information models",
+          "Real-time feedback"
+        ],
+        "text": "Coordinated by Politecnico di Torino, DIMMER links building and district-level 3D models with real-time sensor data and user feedback, to give occupants live feedback on their energy use. It was validated in public and private buildings in Turin and Manchester.",
+        "url": "https://cordis.europa.eu/project/id/609084",
+        "image": "project-smart-city.jpg"
+      }
+    },
+    "groups": [
+      {
+        "title": "Internet of Things and pervasive computing",
+        "topics": [
+          "Internet of Things",
+          "Ubiquitous Computing",
+          "Pervasive Computing",
+          "Ambient Intelligence",
+          "Wireless Sensor and Actuator Network for environment monitoring and control"
+        ],
+        "people": [
+          "edoardo-patti",
+          "luca-barbierato",
+          "enrico-macii",
+          "davide-cannizzaro",
+          "matteo-orlando"
+        ]
+      },
+      {
+        "title": "Middleware and distributed software",
+        "topics": [
+          "Middleware for enabling the interoperability across heterogeneous data-sources (HW and SW)",
+          "Distributed software architectures for Ambient Intelligence"
+        ],
+        "people": [
+          "edoardo-patti",
+          "luca-barbierato"
+        ]
+      },
+      {
+        "title": "Energy demand response and visualization",
+        "topics": [
+          "Software solutions for simulating and optimizing energy demand response",
+          "Interactive visualization of energy information"
+        ],
+        "people": [
+          "alberto-macii",
+          "enrico-macii",
+          "edoardo-patti",
+          "lorenzo-bottaccioli",
+          "luca-barbierato",
+          "alessandro-aliberti",
+          "marco-massano",
+          "matteo-orlando"
+        ]
+      }
+    ],
+    "projects": {
+      "ongoing": [
+        {
+          "code": "EEB",
+          "description": "EDIFICI A ZERO CONSUMO ENERGETICO IN DISTRETTI URBANI INTELLIGENTI",
+          "url": null
+        },
+        {
+          "code": "ITS",
+          "description": "INTELLIGENT TRANSPORTATION SYSTEM",
+          "url": null
+        },
+        {
+          "code": "S[m2]ART",
+          "description": "SMART METRO QUADRO: GUARDANDO LA CITTA' METRO PER METRO",
+          "url": null
+        }
+      ],
+      "ended": [
+        {
+          "code": "FLEXMETER",
+          "description": "FLEXIBLE SMART METERING FOR MULTIPLE ENERGY VECTORS WITH ACTIVE PROSUMERS",
+          "url": null
+        },
+        {
+          "code": "DIMMER",
+          "description": "DISTRICT INFORMATION MODELING AND MANAGEMENT FOR ENERGY REDUCTION",
+          "url": null
+        },
+        {
+          "code": "TRIBUTE",
+          "description": "TAKE THE ENERGY BILL BACK TO THE PROMISED BUILDING PERFORMANCE",
+          "url": null
+        },
+        {
+          "code": "READY4SMARTCITIES",
+          "description": "ICT ROADMAP AND DATA INTEROPERABILITY FOR ENERGY SYSTEM IN SMART CITIES",
+          "url": null
+        },
+        {
+          "code": "EDEN",
+          "description": "ENERGY DATA ENGAGEMENT",
+          "url": null
+        },
+        {
+          "code": "E2SG",
+          "description": "ENERGY TO SMART GRID",
+          "url": null
+        },
+        {
+          "code": "SEEMPUBS",
+          "description": "SMART ENERGY EFFICIENT MIDDLEWARE FOR PUBLIC SPACES",
+          "url": null
+        },
+        {
+          "code": "IOE",
+          "description": "INTERNET OF ENERGY FOR ELECTRIC MOBILITY",
+          "url": "https://www.artemis-ioe.eu/"
+        }
+      ]
+    },
+    "refer_to": [
+      "alberto-macii",
+      "edoardo-patti",
+      "lorenzo-bottaccioli"
+    ],
+    "home_summary": "ICT is key to optimizing energy use in the Smart City, and that is where our software solutions come in. We research distributed software and middleware that make energy, environmental and user-feedback data interoperable, visual web interfaces giving real-time feedback on energy impact, and building information models linked to real-time data."
+  },
+  {
+    "slug": "industry-4-0",
+    "name": "Industry 4.0 and Smart Manufacturing",
+    "short_name": "Industry 4.0",
+    "position": 3,
+    "intro": "Smart optimization of every step of a manufacturing process, from concept generation to production and product transaction, matters more and more, in traditional processes and new ones such as 3D printing and additive manufacturing. Our expertise in IoT technologies, cyber-physical systems, wireless sensor networks and machine learning supports innovative solutions for more efficient manufacturing of new products, dynamic response to product demand and real-time optimization of production and supply-chain networks.",
+    "funded_blurb": "Our funded projects cover additive manufacturing (STAMP, MANUELA), shopfloor operation management (DISLOMAN), predictive maintenance with remote diagnostics and factory monitoring (SERENA) and metrology (MADEin4).",
+    "highlights": {
+      "paper": {
+        "title": "Optimizing Quality Inspection and Control in Powder Bed Metal Additive Manufacturing: Challenges and Research Directions",
+        "subtitle": null,
+        "authors_full": "Santa Di Cataldo, Sara Vinco, Gianvito Urgese, Flaviana Calignano, Elisa Ficarra, Alberto Macii, Enrico Macii",
+        "authors_short": "S. Di Cataldo, S. Vinco, G. Urgese, F. Calignano, E. Ficarra, A. Macii, E. Macii",
+        "venue": "Proceedings of the IEEE · 2021",
+        "tags": [
+          "Additive manufacturing",
+          "In situ monitoring",
+          "Machine learning"
+        ],
+        "text": "Additive manufacturing struggles to repeat its quality in mass production. This review covers the in situ sensing and machine-learning approaches that monitor and control metal powder bed fusion in real time, and sets out the open challenges and research directions.",
+        "url": "https://iris.polito.it/handle/11583/2870072",
+        "image": "paper-industry-4-0.jpg"
+      },
+      "project": {
+        "title": "SERENA:",
+        "subtitle": "plug-and-play predictive maintenance",
+        "authors_full": null,
+        "authors_short": null,
+        "venue": null,
+        "tags": [
+          "Predictive maintenance",
+          "Industrial IoT",
+          "Augmented reality"
+        ],
+        "text": "SERENA combines a cloud-based plug-and-play data platform, IoT sensing, AI-based analytics and augmented reality support for remote predictive maintenance, with demonstrators in white goods, metrology and elevator production. Politecnico di Torino is one of the project partners.",
+        "url": "https://www.serena-project.eu/",
+        "image": "project-industry-4-0.jpg"
+      }
+    },
+    "groups": [
+      {
+        "title": "IoT, sensor networks and cyber-physical systems",
+        "topics": [
+          "Internet of Things",
+          "Ubiquitous Computing",
+          "Pervasive Computing",
+          "Wireless Sensor and Actuator Networks for Industry 4.0",
+          "Cyber-Physical Energy Systems"
+        ],
+        "people": [
+          "edoardo-patti",
+          "enrico-macii",
+          "davide-cannizzaro",
+          "lorenzo-bottaccioli",
+          "marco-massano"
+        ]
+      },
+      {
+        "title": "Middleware and distributed software",
+        "topics": [
+          "Middleware for enabling the interoperability across heterogeneous data-sources (HW and SW)",
+          "Distributed software architectures for Industry 4.0"
+        ],
+        "people": [
+          "edoardo-patti",
+          "davide-cannizzaro"
+        ]
+      },
+      {
+        "title": "Additive manufacturing and process analytics",
+        "topics": [
+          "Software Solutions for Additive Manufacturing",
+          "Data Analytics for processes optimization",
+          "Interactive visualization of production processes"
+        ],
+        "people": [
+          "santa-di-cataldo",
+          "edoardo-patti",
+          "davide-cannizzaro",
+          "massimo-poncino",
+          "enrico-macii"
+        ]
+      }
+    ],
+    "projects": {
+      "ongoing": [
+        {
+          "code": "STAMP",
+          "description": "Sviluppo Tecnologico dell'Additive Manufacturing in Piemonte",
+          "url": null
+        },
+        {
+          "code": "DISLOMAN",
+          "description": "Dynamic Integrated ShopfLoor operation Management for Industry 4.0",
+          "url": null
+        },
+        {
+          "code": "MANUELA",
+          "description": "Additive Manufacturing using Metal Pilot Line",
+          "url": null
+        },
+        {
+          "code": "SERENA",
+          "description": "VerSatilE pREdictive mainteNAnce platform enabling remote diagnostics and factory monitoring",
+          "url": "https://www.serena-project.eu/"
+        },
+        {
+          "code": "AMABLE",
+          "description": "AdditiveManufacturABLE",
+          "url": "https://www.amable.eu/"
+        },
+        {
+          "code": "FCA-POLITO",
+          "description": "A virtual and learning plant model for energy efficiency assessment and interactive augmented visualization and prototyping",
+          "url": null
+        },
+        {
+          "code": "MADEin4",
+          "description": "Metrology Advances for Digitized ECS Industry 4.0",
+          "url": null
+        }
+      ],
+      "ended": []
+    },
+    "refer_to": [
+      "edoardo-patti",
+      "lorenzo-bottaccioli",
+      "massimo-poncino",
+      "santa-di-cataldo"
+    ],
+    "home_summary": "In the fourth industrial revolution, connected products and massive IoT and Big Data usage demand a new technology infrastructure. The EDA group applies its expertise in IoT, cyber-physical systems, wireless sensor networks and machine learning to make manufacturing more efficient, responsive to demand and optimized across supply chains."
+  }
+]

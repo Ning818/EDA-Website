@@ -1,0 +1,731 @@
+[
+  {
+    "slug": "enrico-macii",
+    "name": "Enrico Macii",
+    "title": "Full Professor",
+    "group": "professors",
+    "position": 0,
+    "photo": "enrico-macii.png",
+    "links": {
+      "polito": "https://www.polito.it/personale?p=002042",
+      "orcid": "https://orcid.org/0000-0001-9046-5618",
+      "dept": "http://www.dist.polito.it/en/personale/scheda/(nominativo)/enrico.macii",
+      "iris": "https://iris.polito.it/cris/rp/rp14924"
+    }
+  },
+  {
+    "slug": "massimo-poncino",
+    "name": "Massimo Poncino",
+    "title": "Full Professor",
+    "group": "professors",
+    "position": 1,
+    "photo": "massimo-poncino.jpg",
+    "links": {
+      "linkedin": "https://www.linkedin.com/in/massimo-poncino-95470935/",
+      "polito": "https://www.polito.it/personale?p=002156",
+      "dept": "http://www.dauin.polito.it/personale/scheda/(nominativo)/massimo.poncino",
+      "iris": "https://iris.polito.it/cris/rp/rp06119"
+    }
+  },
+  {
+    "slug": "alberto-macii",
+    "name": "Alberto Macii",
+    "title": "Full Professor",
+    "group": "professors",
+    "position": 2,
+    "photo": "alberto-macii.jpg",
+    "links": {
+      "polito": "https://www.polito.it/personale?p=003783",
+      "dept": "http://www.dauin.polito.it/personale/scheda/(nominativo)/alberto.macii",
+      "iris": "https://iris.polito.it/cris/rp/rp05986"
+    }
+  },
+  {
+    "slug": "andrea-calimera",
+    "name": "Andrea Calimera",
+    "title": "Full Professor",
+    "group": "professors",
+    "position": 3,
+    "photo": "andrea-calimera.jpg",
+    "links": {
+      "linkedin": "https://www.linkedin.com/in/andrea-calimera/",
+      "polito": "https://www.polito.it/personale?p=018408",
+      "dept": "http://www.dauin.polito.it/personale/scheda/(nominativo)/andrea.calimera",
+      "iris": "https://iris.polito.it/cris/rp/rp00690"
+    }
+  },
+  {
+    "slug": "santa-di-cataldo",
+    "name": "Santa Di Cataldo",
+    "title": "Associate Professor",
+    "group": "professors",
+    "position": 4,
+    "photo": "santa-di-cataldo.jpg",
+    "links": {
+      "polito": "https://www.polito.it/personale?p=019491",
+      "orcid": "https://orcid.org/0000-0002-6239-8945",
+      "linkedin": "https://www.linkedin.com/in/santadicataldo/",
+      "dept": "http://www.dauin.polito.it/personale/scheda/(nominativo)/santa.dicataldo",
+      "iris": "https://iris.polito.it/cris/rp/rp00547"
+    }
+  },
+  {
+    "slug": "sara-vinco",
+    "name": "Sara Vinco",
+    "title": "Associate Professor",
+    "group": "professors",
+    "position": 5,
+    "photo": "sara-vinco.jpg",
+    "links": {
+      "polito": "https://www.polito.it/personale?p=032283",
+      "orcid": "https://orcid.org/0000-0001-9666-5194",
+      "linkedin": "https://www.linkedin.com/in/sara-vinco/",
+      "dept": "http://www.dauin.polito.it/personale/scheda/(nominativo)/sara.vinco",
+      "iris": "https://iris.polito.it/cris/rp/rp19917"
+    }
+  },
+  {
+    "slug": "edoardo-patti",
+    "name": "Edoardo Patti",
+    "title": "Associate Professor",
+    "group": "professors",
+    "position": 6,
+    "photo": "edoardo-patti.jpg",
+    "links": {
+      "polito": "https://www.polito.it/personale?p=024365",
+      "orcid": "https://orcid.org/0000-0002-6043-6477",
+      "linkedin": "https://www.linkedin.com/in/edoardopatti/",
+      "dept": "http://www.dauin.polito.it/personale/scheda/(nominativo)/edoardo.patti",
+      "iris": "https://iris.polito.it/cris/rp/rp11009"
+    }
+  },
+  {
+    "slug": "lorenzo-bottaccioli",
+    "name": "Lorenzo Bottaccioli",
+    "title": "Associate Professor",
+    "group": "professors",
+    "position": 7,
+    "photo": "lorenzo-bottaccioli.jpg",
+    "links": {
+      "polito": "https://www.polito.it/personale?p=036638",
+      "orcid": "https://orcid.org/0000-0001-7445-3975",
+      "linkedin": "https://www.linkedin.com/in/lorenzo-bottaccioli-4342806a/",
+      "dept": "http://www.dauin.polito.it/personale/scheda/(nominativo)/lorenzo.bottaccioli",
+      "iris": "https://iris.polito.it/cris/rp/rp22820"
+    }
+  },
+  {
+    "slug": "daniele-jahier-pagliari",
+    "name": "Daniele Jahier Pagliari",
+    "title": "Associate Professor",
+    "group": "professors",
+    "position": 8,
+    "photo": "daniele-jahier-pagliari.jpg",
+    "links": {
+      "polito": "https://www.polito.it/personale?p=035148",
+      "orcid": "https://orcid.org/0000-0002-2872-7071",
+      "linkedin": "https://www.linkedin.com/in/danielejahierpagliari/",
+      "dept": "http://www.dauin.polito.it/personale/scheda/(nominativo)/daniele.jahier",
+      "iris": "https://iris.polito.it/cris/rp/rp21401"
+    }
+  },
+  {
+    "slug": "gianvito-urgese",
+    "name": "Gianvito Urgese",
+    "title": "Associate Professor",
+    "group": "professors",
+    "position": 9,
+    "photo": "gianvito-urgese.jpg",
+    "links": {
+      "polito": "https://www.polito.it/personale?p=018489",
+      "orcid": "https://orcid.org/0000-0003-2672-7593",
+      "linkedin": "https://www.linkedin.com/in/gianvito-urgese-5bb2668a/",
+      "dept": "http://www.dist.polito.it/en/personale/scheda/(nominativo)/gianvito.urgese",
+      "iris": "https://iris.polito.it/cris/rp/rp21802"
+    }
+  },
+  {
+    "slug": "vittorio-fra",
+    "name": "Vittorio Fra",
+    "title": "Assistant Professor",
+    "group": "professors",
+    "position": 10,
+    "photo": "vittorio-fra.jpg",
+    "links": {
+      "linkedin": "https://www.linkedin.com/in/vittorio-fra-1766171ba/",
+      "dept": "https://www.dist.polito.it/personale/scheda/(nominativo)/vittorio.fra",
+      "iris": "https://iris.polito.it/browse?type=author&authority=rp48748&authority_lang=en"
+    }
+  },
+  {
+    "slug": "alessandro-aliberti",
+    "name": "Alessandro Aliberti",
+    "title": "Assistant Professor",
+    "group": "professors",
+    "position": 11,
+    "photo": "alessandro-aliberti.jpg",
+    "links": {
+      "polito": "https://www.polito.it/personale?p=040463",
+      "orcid": "https://orcid.org/0000-0001-8828-608X",
+      "linkedin": "https://www.linkedin.com/in/alessandro-aliberti/",
+      "dept": "http://www.dauin.polito.it/personale/scheda/(nominativo)/alessandro.aliberti",
+      "iris": "https://iris.polito.it/cris/rp/rp29226"
+    }
+  },
+  {
+    "slug": "valentino-peluso",
+    "name": "Valentino Peluso",
+    "title": "Assistant Professor",
+    "group": "professors",
+    "position": 12,
+    "photo": "valentino-peluso.jpg",
+    "links": {
+      "linkedin": "https://www.linkedin.com/in/valentino-peluso-693372a3/",
+      "polito": "https://www.polito.it/personale?p=032364",
+      "dept": "http://www.dauin.polito.it/personale/scheda/(nominativo)/valentino.peluso",
+      "iris": "https://iris.polito.it/cris/rp/rp18796"
+    }
+  },
+  {
+    "slug": "francesco-ponzio",
+    "name": "Francesco Ponzio",
+    "title": "Assistant Professor",
+    "group": "professors",
+    "position": 13,
+    "photo": "francesco-ponzio.jpg",
+    "links": {
+      "polito": "https://www.polito.it/personale?p=038677",
+      "orcid": "https://orcid.org/0000-0002-8472-8247",
+      "linkedin": "https://www.linkedin.com/in/francesco-ponzio-biomedical-engineer/",
+      "dept": "http://www.dauin.polito.it/personale/scheda/(nominativo)/francesco.ponzio",
+      "iris": "https://iris.polito.it/cris/rp/rp22392"
+    }
+  },
+  {
+    "slug": "luca-barbierato",
+    "name": "Luca Barbierato",
+    "title": "Assistant Professor",
+    "group": "professors",
+    "position": 14,
+    "photo": "luca-barbierato.jpg",
+    "links": {
+      "polito": "https://www.polito.it/personale?p=038687",
+      "orcid": "https://orcid.org/0000-0001-6470-3299",
+      "linkedin": "https://www.linkedin.com/in/luca-barbierato-ph-d-3937a75b/",
+      "dept": "http://www.dauin.polito.it/personale/scheda/(nominativo)/luca.barbierato",
+      "iris": "https://iris.polito.it/cris/rp/rp22421"
+    }
+  },
+  {
+    "slug": "alessio-mascolini",
+    "name": "Alessio Mascolini",
+    "title": "Research Fellow",
+    "group": "phd-students",
+    "position": 0,
+    "photo": "alessio-mascolini.jpg",
+    "links": {
+      "linkedin": "https://www.linkedin.com/in/alessio-mascolini-5a3095193/",
+      "polito": "https://www.polito.it/personale?p=036731",
+      "dept": "https://www.dauin.polito.it/personale/scheda/(nominativo)/alessio.mascolini",
+      "iris": "https://iris.polito.it/browse?type=author&authority=rp25050&authority_lang=en"
+    }
+  },
+  {
+    "slug": "pietro-rando-mazzarino",
+    "name": "Pietro Rando Mazzarino",
+    "title": "Research Fellow",
+    "group": "phd-students",
+    "position": 1,
+    "photo": "pietro-rando-mazzarino.jpg",
+    "links": {
+      "linkedin": "https://www.linkedin.com/in/pietro-rando-mazzarino/",
+      "polito": "https://www.polito.it/personale?p=071284",
+      "iris": "https://iris.polito.it/cris/rp/rp127472"
+    }
+  },
+  {
+    "slug": "matteo-grimaldi",
+    "name": "Matteo Grimaldi",
+    "title": "PhD Student",
+    "group": "phd-students",
+    "position": 2,
+    "photo": "matteo-grimaldi.jpg",
+    "links": {
+      "linkedin": "https://www.linkedin.com/in/matteogrimaldi11/",
+      "dept": "http://www.dauin.polito.it/personale/scheda/(nominativo)/matteo.grimaldi",
+      "iris": "https://iris.polito.it/cris/rp/rp37182?sort_byall=2&orderall=DESC&open=all"
+    }
+  },
+  {
+    "slug": "alberto-bocca",
+    "name": "Alberto Bocca",
+    "title": "PhD Student",
+    "group": "phd-students",
+    "position": 3,
+    "photo": "alberto-bocca.jpg",
+    "links": {
+      "linkedin": "https://www.linkedin.com/in/alberto-bocca-0938bb111/",
+      "dept": "http://www.dauin.polito.it/personale/scheda/(nominativo)/alberto.bocca",
+      "iris": "https://iris.polito.it/cris/rp/rp06831"
+    }
+  },
+  {
+    "slug": "marco-massano",
+    "name": "Marco Massano",
+    "title": "PhD Student",
+    "group": "phd-students",
+    "position": 4,
+    "photo": "marco-massano.jpg",
+    "links": {
+      "iris": "https://iris.polito.it/cris/rp/rp58434",
+      "linkedin": "https://www.linkedin.com/in/marcomassano90/",
+      "dept": "http://www.dist.polito.it/en/personale/scheda/(nominativo)/marco.massano"
+    }
+  },
+  {
+    "slug": "matteo-orlando",
+    "name": "Matteo Orlando",
+    "title": "PhD Student",
+    "group": "phd-students",
+    "position": 5,
+    "photo": "matteo-orlando.jpg",
+    "links": {
+      "linkedin": "https://www.linkedin.com/in/matteo-orlando/",
+      "dept": "http://www.dauin.polito.it/personale/scheda/(nominativo)/matteo.orlando",
+      "iris": "https://iris.polito.it/cris/rp/rp35720?sort_byall=2&orderall=DESC&open=all"
+    }
+  },
+  {
+    "slug": "davide-cannizzaro",
+    "name": "Davide Cannizzaro",
+    "title": "PhD Student",
+    "group": "phd-students",
+    "position": 6,
+    "photo": "davide-cannizzaro.jpg",
+    "links": {
+      "linkedin": "https://www.linkedin.com/in/davidecannizzaro/",
+      "dept": "http://www.dauin.polito.it/personale/scheda/(nominativo)/davide.cannizzaro",
+      "iris": "https://iris.polito.it/cris/rp/rp30609"
+    }
+  },
+  {
+    "slug": "evelina-forno",
+    "name": "Evelina Forno",
+    "title": "PhD Student",
+    "group": "phd-students",
+    "position": 7,
+    "photo": "evelina-forno.jpg",
+    "links": {
+      "iris": "https://iris.polito.it/cris/rp/rp00267",
+      "dept": "http://www.dauin.polito.it/personale/scheda/(nominativo)/evelina.forno"
+    }
+  },
+  {
+    "slug": "matteo-risso",
+    "name": "Matteo Risso",
+    "title": "PhD Student",
+    "group": "phd-students",
+    "position": 8,
+    "photo": "matteo-risso.jpg",
+    "links": {
+      "linkedin": "https://www.linkedin.com/in/matteo-risso-a66b01104/",
+      "iris": "https://iris.polito.it/cris/rp/rp125528"
+    }
+  },
+  {
+    "slug": "chen-xie",
+    "name": "Chen Xie",
+    "title": "PhD Student",
+    "group": "phd-students",
+    "position": 9,
+    "photo": "chen-xie.jpg",
+    "links": {
+      "linkedin": "https://www.linkedin.com/in/chen-xie-293b93184/",
+      "dept": "http://www.dauin.polito.it/personale/scheda/(nominativo)/chen.xie",
+      "iris": "https://iris.polito.it/browse?type=author&authority=rp67670&authority_lang=en"
+    }
+  },
+  {
+    "slug": "francesco-daghero",
+    "name": "Francesco Daghero",
+    "title": "PhD Student",
+    "group": "phd-students",
+    "position": 10,
+    "photo": "francesco-daghero.jpg",
+    "links": {
+      "linkedin": "https://www.linkedin.com/in/francesco-daghero-7ba50a177/",
+      "dept": "http://www.dauin.polito.it/personale/scheda/(nominativo)/francesco.daghero",
+      "iris": "https://iris.polito.it/browse?type=author&authority=rp76296&authority_lang=en"
+    }
+  },
+  {
+    "slug": "claudia-de-vizia",
+    "name": "Claudia De Vizia",
+    "title": "PhD Student",
+    "group": "phd-students",
+    "position": 11,
+    "photo": "claudia-de-vizia.jpg",
+    "links": {
+      "linkedin": "https://www.linkedin.com/in/claudiadevizia/",
+      "dept": "https://www.dauin.polito.it/it/personale/scheda/(nominativo)/claudia.devizia",
+      "iris": "https://iris.polito.it/browse?type=author&authority=rp81158&authority_lang=en"
+    }
+  },
+  {
+    "slug": "andrea-acquaviva",
+    "name": "Andrea Acquaviva",
+    "title": "Former member",
+    "group": "alumni",
+    "position": 0,
+    "photo": "andrea-acquaviva.jpg",
+    "links": {
+      "linkedin": "https://www.linkedin.com/in/andrea-acquaviva-3868ab4/",
+      "iris": "https://iris.polito.it/cris/rp/rp22608"
+    }
+  },
+  {
+    "slug": "elisa-ficarra",
+    "name": "Elisa Ficarra",
+    "title": "Former member",
+    "group": "alumni",
+    "position": 1,
+    "photo": "elisa-ficarra.jpg",
+    "links": {
+      "linkedin": "https://www.linkedin.com/in/elisa-ficarra-4b3b0917/",
+      "dept": "http://www.dauin.polito.it/personale/scheda/(nominativo)/elisa.ficarra",
+      "iris": "https://iris.polito.it/cris/rp/rp08674"
+    }
+  },
+  {
+    "slug": "carmelo-foti",
+    "name": "Carmelo Foti",
+    "title": "Former member",
+    "group": "alumni",
+    "position": 2,
+    "photo": "carmelo-foti.jpg",
+    "links": {
+      "iris": "https://iris.polito.it/cris/rp/rp14702"
+    }
+  },
+  {
+    "slug": "francesco-abate",
+    "name": "Francesco Abate",
+    "title": "Former member",
+    "group": "alumni",
+    "position": 3,
+    "photo": "francesco-abate.jpg",
+    "links": {
+      "iris": "https://iris.polito.it/cris/rp/rp22866",
+      "linkedin": "https://www.linkedin.com/in/francescoabate17/"
+    }
+  },
+  {
+    "slug": "ardita-shkurti",
+    "name": "Ardita Shkurti",
+    "title": "Former member",
+    "group": "alumni",
+    "position": 4,
+    "photo": "ardita-shkurti.jpg",
+    "links": {
+      "iris": "https://iris.polito.it/cris/rp/rp04580",
+      "linkedin": "https://www.linkedin.com/in/ashkurti/"
+    }
+  },
+  {
+    "slug": "donghwa-shin",
+    "name": "Donghwa Shin",
+    "title": "Former member",
+    "group": "alumni",
+    "position": 5,
+    "photo": "donghwa-shin.jpg",
+    "links": {
+      "iris": "https://iris.polito.it/cris/rp/rp15276",
+      "linkedin": "https://www.linkedin.com/in/donghwa-shin-5ab65028/"
+    }
+  },
+  {
+    "slug": "massimo-petricca",
+    "name": "Massimo Petricca",
+    "title": "Former member",
+    "group": "alumni",
+    "position": 6,
+    "photo": "massimo-petricca.jpg",
+    "links": {
+      "iris": "https://iris.polito.it/cris/rp/rp16315"
+    }
+  },
+  {
+    "slug": "haroon-mahmood",
+    "name": "Haroon Mahmood",
+    "title": "Former member",
+    "group": "alumni",
+    "position": 7,
+    "photo": "haroon-mahmood.jpg",
+    "links": {
+      "iris": "https://iris.polito.it/cris/rp/rp11091"
+    }
+  },
+  {
+    "slug": "sandeep-miryala",
+    "name": "Sandeep Miryala",
+    "title": "Former member",
+    "group": "alumni",
+    "position": 8,
+    "photo": "sandeep-miryala.jpg",
+    "links": {
+      "iris": "https://iris.polito.it/cris/rp/rp11085",
+      "linkedin": "https://www.linkedin.com/in/sandeep-miryala-b03b0820/"
+    }
+  },
+  {
+    "slug": "gasser-ayad",
+    "name": "Gasser Ayad",
+    "title": "Former member",
+    "group": "alumni",
+    "position": 9,
+    "photo": "gasser-ayad.jpg",
+    "links": {
+      "iris": "https://iris.polito.it/cris/rp/rp15545"
+    }
+  },
+  {
+    "slug": "simone-tonti",
+    "name": "Simone Tonti",
+    "title": "Former member",
+    "group": "alumni",
+    "position": 10,
+    "photo": "simone-tonti.jpg",
+    "links": {
+      "linkedin": "https://www.linkedin.com/in/simone-tonti-1b438a50/",
+      "iris": "https://iris.polito.it/browse?type=author&authority=rp16645&authority_lang=en"
+    }
+  },
+  {
+    "slug": "alessandro-sassone",
+    "name": "Alessandro Sassone",
+    "title": "Former member",
+    "group": "alumni",
+    "position": 11,
+    "photo": "alessandro-sassone.jpg",
+    "links": {
+      "linkedin": "https://www.linkedin.com/in/alessandrosassone/",
+      "iris": "https://iris.polito.it/browse?type=author&authority=rp08269&authority_lang=en"
+    }
+  },
+  {
+    "slug": "novella-tala",
+    "name": "Novella Tala'",
+    "title": "Former member",
+    "group": "alumni",
+    "position": 12,
+    "photo": "novella-tala.jpg",
+    "links": {
+      "iris": "https://iris.polito.it/browse?type=author&authority=rp05231&authority_lang=it"
+    }
+  },
+  {
+    "slug": "laura-cantini",
+    "name": "Laura Cantini",
+    "title": "Former member",
+    "group": "alumni",
+    "position": 13,
+    "photo": "laura-cantini.jpg",
+    "links": {}
+  },
+  {
+    "slug": "ramakrishna-nittala-venkata",
+    "name": "RamaKrishna Nittala Venkata",
+    "title": "Former member",
+    "group": "alumni",
+    "position": 14,
+    "photo": "ramakrishna-nittala-venkata.jpg",
+    "links": {
+      "iris": "https://iris.polito.it/browse?type=author&authority=rp21093&authority_lang=en"
+    }
+  },
+  {
+    "slug": "francesco-g-brundu",
+    "name": "Francesco G. Brundu",
+    "title": "Former member",
+    "group": "alumni",
+    "position": 15,
+    "photo": "francesco-g-brundu.jpg",
+    "links": {
+      "linkedin": "https://www.linkedin.com/in/francescobrundu/",
+      "iris": "https://iris.polito.it/browse?type=author&authority=rp17759&authority_lang=en"
+    }
+  },
+  {
+    "slug": "giulia-paciello",
+    "name": "Giulia Paciello",
+    "title": "Former member",
+    "group": "alumni",
+    "position": 16,
+    "photo": "giulia-paciello.jpg",
+    "links": {
+      "linkedin": "https://www.linkedin.com/in/giuliapaciello/",
+      "iris": "https://iris.polito.it/browse?type=author&authority=rp19862&authority_lang=it"
+    }
+  },
+  {
+    "slug": "orazio-maria-scicolone",
+    "name": "Orazio Maria Scicolone",
+    "title": "Former member",
+    "group": "alumni",
+    "position": 17,
+    "photo": "orazio-maria-scicolone.jpg",
+    "links": {
+      "iris": "https://iris.polito.it/cris/rp/rp41871"
+    }
+  },
+  {
+    "slug": "valerio-tenace",
+    "name": "Valerio Tenace",
+    "title": "Former member",
+    "group": "alumni",
+    "position": 18,
+    "photo": "valerio-tenace.jpg",
+    "links": {
+      "linkedin": "https://www.linkedin.com/in/tenace/",
+      "iris": "https://iris.polito.it/cris/rp/rp17410"
+    }
+  },
+  {
+    "slug": "million-mengistu",
+    "name": "Million Mengistu",
+    "title": "Former member",
+    "group": "alumni",
+    "position": 19,
+    "photo": "million-mengistu.jpg",
+    "links": {
+      "linkedin": "https://www.linkedin.com/in/millzon/",
+      "iris": "https://iris.polito.it/cris/rp/rp33250"
+    }
+  },
+  {
+    "slug": "maria-serena-ciaburri",
+    "name": "Maria Serena Ciaburri",
+    "title": "Former member",
+    "group": "alumni",
+    "position": 20,
+    "photo": "maria-serena-ciaburri.jpg",
+    "links": {
+      "iris": "https://iris.polito.it/cris/rp/rp13788",
+      "linkedin": "https://www.linkedin.com/in/msciaburri/"
+    }
+  },
+  {
+    "slug": "wenlong-wang",
+    "name": "Wenlong Wang",
+    "title": "Former member",
+    "group": "alumni",
+    "position": 21,
+    "photo": "wenlong-wang.jpg",
+    "links": {
+      "iris": "https://iris.polito.it/cris/rp/rp56040",
+      "linkedin": "https://www.linkedin.com/in/wenlong-wang-8153b173/",
+      "dept": "http://www.dauin.polito.it/personale/scheda/(nominativo)/wenlong.wang"
+    }
+  },
+  {
+    "slug": "francesco-barchi",
+    "name": "Francesco Barchi",
+    "title": "Former member",
+    "group": "alumni",
+    "position": 22,
+    "photo": "francesco-barchi.jpg",
+    "links": {
+      "linkedin": "https://www.linkedin.com/in/francesco-barchi/",
+      "dept": "http://www.dauin.polito.it/personale/scheda/(nominativo)/francesco.barchi",
+      "iris": "https://iris.polito.it/cris/rp/rp26484"
+    }
+  },
+  {
+    "slug": "emanuele-parisi",
+    "name": "Emanuele Parisi",
+    "title": "Former member",
+    "group": "alumni",
+    "position": 23,
+    "photo": "emanuele-parisi.jpg",
+    "links": {
+      "iris": "https://iris.polito.it/cris/rp/rp30147"
+    }
+  },
+  {
+    "slug": "marta-lovino",
+    "name": "Marta Lovino",
+    "title": "Former member",
+    "group": "alumni",
+    "position": 24,
+    "photo": "marta-lovino.jpg",
+    "links": {
+      "iris": "https://iris.polito.it/cris/rp/rp38120",
+      "linkedin": "https://www.linkedin.com/in/marta-lovino/"
+    }
+  },
+  {
+    "slug": "yukai-chen",
+    "name": "Yukai Chen",
+    "title": "Former member",
+    "group": "alumni",
+    "position": 25,
+    "photo": "yukai-chen.jpg",
+    "links": {
+      "linkedin": "https://www.linkedin.com/in/yukai-chen-88948675/",
+      "dept": "http://www.dauin.polito.it/personale/scheda/(nominativo)/yukai.chen",
+      "iris": "https://iris.polito.it/cris/rp/rp23241"
+    }
+  },
+  {
+    "slug": "roberto-giorgio-rizzo",
+    "name": "Roberto Giorgio Rizzo",
+    "title": "Former member",
+    "group": "alumni",
+    "position": 26,
+    "photo": "roberto-giorgio-rizzo.jpg",
+    "links": {
+      "iris": "https://iris.polito.it/cris/rp/rp22865",
+      "linkedin": "https://www.linkedin.com/in/roberto-g-rizzo/"
+    },
+    "card_name": "Roberto G. Rizzo"
+  },
+  {
+    "slug": "luca-mocerino",
+    "name": "Luca Mocerino",
+    "title": "Former member",
+    "group": "alumni",
+    "position": 27,
+    "photo": "luca-mocerino.jpg",
+    "links": {
+      "iris": "https://iris.polito.it/cris/rp/rp51333",
+      "linkedin": "https://www.linkedin.com/in/lucamocerino/",
+      "dept": "http://www.dauin.polito.it/personale/scheda/(nominativo)/luca.mocerino"
+    }
+  },
+  {
+    "slug": "antonio-cipolletta",
+    "name": "Antonio Cipolletta",
+    "title": "Former member",
+    "group": "alumni",
+    "position": 28,
+    "photo": "antonio-cipolletta.jpg",
+    "links": {
+      "iris": "https://iris.polito.it/cris/rp/rp34371",
+      "linkedin": "https://www.linkedin.com/in/antonio-cipolletta/",
+      "dept": "http://www.dauin.polito.it/personale/scheda/(nominativo)/antonio.cipolletta"
+    }
+  },
+  {
+    "slug": "donkyu-baek",
+    "name": "Donkyu Baek",
+    "title": "Former member",
+    "group": "alumni",
+    "position": 29,
+    "photo": "donkyu-baek.jpg",
+    "links": {
+      "linkedin": "https://www.linkedin.com/in/donkyu-baek-69b079bb/",
+      "dept": "http://www.dauin.polito.it/personale/scheda/(nominativo)/donkyu.baek",
+      "iris": "https://iris.polito.it/cris/rp/rp51411"
+    }
+  }
+]

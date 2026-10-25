@@ -34,7 +34,7 @@ const HIGHLIGHT_COLOR = '#e0a94a'
 /** The DNA particle data, shared by the scene and the page-wide shared canvas. */
 export function buildDNACloud(text) {
     const geo = sampleDXF(text, { targetExtent: TARGET_EXTENT, spacing: EDGE_SPACING, curveSegments: CURVE_SEGMENTS })
-    const colors = colorByGroup(geo.groups, { '亮色DNA': HIGHLIGHT_COLOR, DNA: DNA_COLOR }, DNA_COLOR) // layers: bright-color DNA / plain DNA
+    const colors = colorByGroup(geo.groups, { 'Bright-DNA': HIGHLIGHT_COLOR, DNA: DNA_COLOR }, DNA_COLOR) // layers: bright-color DNA / plain DNA
     return { ...geo, colors }
 }
 

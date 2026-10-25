@@ -42,7 +42,7 @@ export const ARM_ORIENTATION = [0.6752496924215704, -0.17605708611673884, 0.0118
 /** The robotic-arm particle data, shared by the scene and the page-wide shared canvas. */
 export function buildArmCloud(gltf) {
     const geo = sampleGLBLines(gltf.scene, { targetExtent: TARGET_EXTENT, spacing: EDGE_SPACING })
-    const colors = colorByGroup(geo.groups, { '亮色的机械臂': HIGHLIGHT_COLOR, '需要的边界': ARM_COLOR }, ARM_COLOR) // layers: bright-color robotic arm / needed boundary
+    const colors = colorByGroup(geo.groups, { 'Bright-robotic-arm': HIGHLIGHT_COLOR, 'Needed-boundary': ARM_COLOR }, ARM_COLOR) // layers: bright-color robotic arm / needed boundary
     return { ...geo, colors }
 }
 

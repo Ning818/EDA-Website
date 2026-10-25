@@ -85,7 +85,7 @@ export function buildCityCloud(text) {
     // source too, for all but one remaining duplicate - dedupeChains still catches that last one, so
     // this stays on.
     const geo = sampleDXF(text, { targetExtent: TARGET_EXTENT, spacing: EDGE_SPACING, curveSegments: CURVE_SEGMENTS, rejectOutliers: true, dedupeChains: true })
-    const colors = colorByGroup(geo.groups, { '亮色road': ROAD_COLOR, '主题色建筑': BUILDING_COLOR }, BUILDING_COLOR) // layers: bright-color road / theme-color buildings
+    const colors = colorByGroup(geo.groups, { 'Bright-road': ROAD_COLOR, 'Theme-color-buildings': BUILDING_COLOR }, BUILDING_COLOR) // layers: bright-color road / theme-color buildings
     return { ...geo, colors }
 }
 

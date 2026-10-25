@@ -605,7 +605,7 @@ function Clouds() {
     const armStage = rotated(arm.positions, qArm).map((v) => v * 260)
     // The arm has more points than the city: match the arm to the city and grow the extras out of it.
     const ex4 = expandedSource(city, arm, matchClouds(armStage, cityStage))
-    const social = buildSocialMediaCloud(socialText, false, YOUTUBE_BRAND_COLOR, { '次级芯片-颜色2': YOUTUBE_SAT2_COLOR, '次级芯片-颜色2上的图案': YOUTUBE_SAT2_COLOR }, { skipOutermost: true }) // layers: satellite chip color 2 and the pattern on it
+    const social = buildSocialMediaCloud(socialText, false, YOUTUBE_BRAND_COLOR, { 'Satellite-chip-color2': YOUTUBE_SAT2_COLOR, 'Satellite-chip-color2-pattern': YOUTUBE_SAT2_COLOR }, { skipOutermost: true }) // layers: satellite chip color 2 and the pattern on it
     // Circuit-trace drawing is switched off per request; pass `true` as a 2nd arg to bring it back.
     const social2 = buildSocialMediaCloud(social2Text, false, LINKEDIN_BRAND_COLOR, null, true)
     const qSocial = new THREE.Quaternion(...SOCIAL_ORIENTATION)

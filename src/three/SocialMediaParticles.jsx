@@ -49,19 +49,19 @@ const YOUTUBE_COLOR = '#c0574f'
 const LINKEDIN_COLOR = '#1f73c4' // more saturated than this palette's other blues (SAT2 indigo, CENTER
 // teal) on purpose - confirmed by direct render check that a closer-to-muted blue blended into the
 // existing navy/teal-heavy cluster too much to read as its own distinct node
-const YOUTUBE_GROUP = 'YouTube芯片' // "YouTube chip"
-const LINKEDIN_GROUP = 'LinkedIn芯片' // "LinkedIn chip"
+const YOUTUBE_GROUP = 'YouTube-chip' // "YouTube chip"
+const LINKEDIN_GROUP = 'LinkedIn-chip' // "LinkedIn chip"
 const GROUP_COLORS = {
-  '中心芯片-颜色1': CENTER_COLOR, // center chip, color 1
-  '中心芯片的侧纹路': CENTER_COLOR, // center chip's side texture
-  '中心芯片上面的图案': CENTER_COLOR, // pattern on top of the center chip
-  '次级芯片-颜色2': SAT2_COLOR, // satellite chip, color 2
-  '次级芯片-颜色2上的图案': SAT2_COLOR, // pattern on satellite chip color 2
-  '次级芯片-颜色3': SAT3_COLOR, // satellite chip, color 3
-  '次级芯片-颜色3上的图案': SAT3_COLOR, // pattern on satellite chip color 3
-  '次级芯片-颜色4': SAT4_COLOR, // satellite chip, color 4
-  '次级芯片-颜色4上的图案': SAT4_COLOR, // pattern on satellite chip color 4
-  '用于连接电路板线路的起始线': TRACE_COLOR, // the start lines that feed the circuit-board traces (pin-hatch ticks)
+  'Center-chip-color1': CENTER_COLOR, // center chip, color 1
+  'Center-chip-side-texture': CENTER_COLOR, // center chip's side texture
+  'Center-chip-pattern': CENTER_COLOR, // pattern on top of the center chip
+  'Satellite-chip-color2': SAT2_COLOR, // satellite chip, color 2
+  'Satellite-chip-color2-pattern': SAT2_COLOR, // pattern on satellite chip color 2
+  'Satellite-chip-color3': SAT3_COLOR, // satellite chip, color 3
+  'Satellite-chip-color3-pattern': SAT3_COLOR, // pattern on satellite chip color 3
+  'Satellite-chip-color4': SAT4_COLOR, // satellite chip, color 4
+  'Satellite-chip-color4-pattern': SAT4_COLOR, // pattern on satellite chip color 4
+  'Trace-start-lines': TRACE_COLOR, // the start lines that feed the circuit-board traces (pin-hatch ticks)
   [YOUTUBE_GROUP]: YOUTUBE_COLOR,
   [LINKEDIN_GROUP]: LINKEDIN_COLOR,
 }
@@ -75,7 +75,7 @@ const GROUP_COLORS = {
 // math. BACK_LIGHTEN matches the visual strength of this scene's own established backA (0.6, the
 // same fade amount VLSI-CAD's hand mesh and the brain's own back-facing points use).
 const BACK_LIGHTEN = 0.6
-const BACK_SUFFIX = '背面' // "back side": the suffix of every back-face twin layer
+const BACK_SUFFIX = '-back' // "back side": the suffix of every back-face twin layer
 function lighten(hex, amount) {
   const c = new THREE.Color(hex)
   c.lerp(new THREE.Color('#ffffff'), amount)
@@ -92,7 +92,7 @@ const FULL_GROUP_COLORS = withBackVariants(GROUP_COLORS)
 // picture-pattern layer (the logo itself) - every other layer keeps the multi-accent palette.
 export const YOUTUBE_BRAND_COLOR = '#f01c1c'
 export const LINKEDIN_BRAND_COLOR = '#0a66c2'
-const LOGO_GROUP = '中心芯片上面的图案' // pattern on top of the center chip
+const LOGO_GROUP = 'Center-chip-pattern' // pattern on top of the center chip
 const PIN_TICK_SIZE_SCALE = 0.9 // pin-hatch ticks' radius relative to the other outline points'
 const FILL_SIZE_SCALE = 0.6 // hover-fill points' radius relative to the outline points'
 const BRAND_CHIP_LIGHTEN = 0.15 // the chip body/side texture read as a paler tint of the logo layer's color
@@ -101,7 +101,7 @@ export const YOUTUBE_SAT2_COLOR = '#d93a5c' // rose-leaning shift of YouTube red
 function brandGroupColors(color, overrides = null) {
   const body = lighten(color, BRAND_CHIP_LIGHTEN)
   // layer keys: pattern on top of the center chip -> the brand color; center chip color 1 and its side texture -> the paler body tint
-  return withBackVariants({ ...GROUP_COLORS, '中心芯片上面的图案': color, '中心芯片-颜色1': body, '中心芯片的侧纹路': body, ...overrides })
+  return withBackVariants({ ...GROUP_COLORS, 'Center-chip-pattern': color, 'Center-chip-color1': body, 'Center-chip-side-texture': body, ...overrides })
 }
 
 // True isometric (elevation = asin(1/sqrt(3)) ~= 35.264deg, the standard "equal angle" camera).
@@ -158,7 +158,7 @@ function groupBBox(chains, groups, groupName) {
 function splitSat4(chains, groups) {
   const entries = []
   for (let i = 0; i < chains.length; i++) {
-    if (groups[i] !== '次级芯片-颜色4') continue // satellite chip, color 4
+    if (groups[i] !== 'Satellite-chip-color4') continue // satellite chip, color 4
     const ch = chains[i]
     let cx = 0
     const n = ch.length / 3
@@ -180,7 +180,7 @@ function splitSat4(chains, groups) {
   return [bboxOf(entries.filter((e) => e.cx < splitX)), bboxOf(entries.filter((e) => e.cx >= splitX))]
 }
 
-const STUB_GROUP = '用于连接电路板线路的起始线' // the start lines that feed the circuit-board traces (pin-hatch ticks)
+const STUB_GROUP = 'Trace-start-lines' // the start lines that feed the circuit-board traces (pin-hatch ticks)
 
 /** Converts a desired on-screen pixel offset from the viewport's own center into a raw DXF-space
  * (x,y) at a given raw z - replicates this cloud's full render pipeline (resampleChains' own
@@ -236,9 +236,9 @@ function screenTargetToRaw(chains, screenX, screenY, rawZ) {
  */
 function buildCircuitForSocial(chains, groups) {
   const [sat4a, sat4b] = splitSat4(chains, groups)
-  const satellites = [groupBBox(chains, groups, '次级芯片-颜色2'), groupBBox(chains, groups, '次级芯片-颜色3'), sat4a, sat4b] // satellite chips: color 2, color 3, then the two color-4 chips
+  const satellites = [groupBBox(chains, groups, 'Satellite-chip-color2'), groupBBox(chains, groups, 'Satellite-chip-color3'), sat4a, sat4b] // satellite chips: color 2, color 3, then the two color-4 chips
   const [sat2, sat3] = satellites
-  const allBoxes = [groupBBox(chains, groups, '中心芯片-颜色1'), ...satellites] // center chip (color 1) + the satellites
+  const allBoxes = [groupBBox(chains, groups, 'Center-chip-color1'), ...satellites] // center chip (color 1) + the satellites
 
   const overall = { min: [Infinity, Infinity], max: [-Infinity, -Infinity] }
   for (const ch of chains) for (let k = 0; k < ch.length; k += 3) for (let a = 0; a < 2; a++) {
@@ -621,7 +621,7 @@ export function buildSocialMediaCloud(text, withTraces = false, brandColor = nul
   const colors = colorByGroup(geo.groups, brandColor ? brandGroupColors(brandColor, groupOverrides) : FULL_GROUP_COLORS, TRACE_COLOR)
 
   // The pin-hatch ticks (the layer feeding the circuit traces, and its back-side twin) read better with finer dots.
-  for (let i = 0; i < n; i++) if (geo.groups[i]?.startsWith('用于连接电路板线路的起始线')) geo.sizes[i] *= PIN_TICK_SIZE_SCALE // the start lines that feed the circuit-board traces
+  for (let i = 0; i < n; i++) if (geo.groups[i]?.startsWith('Trace-start-lines')) geo.sizes[i] *= PIN_TICK_SIZE_SCALE // the start lines that feed the circuit-board traces
 
   // A genuine reflection (mirroring X), not just a yaw rotation - a rotation alone can never fix a
   // front/back chirality flip (mirrored avatar faces, a mirrored overall chip arrangement). Confirmed

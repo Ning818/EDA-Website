@@ -30,8 +30,8 @@ export const VLSI_ORIENTATION = [0.2536126990082286, -0.8043567179878038, 0.5124
 
 /** The VLSI-CAD particle data, shared by the scene below and the scroll-driven morph overlay. */
 export function buildVLSICloud(gltf) {
-  const geo = sampleGLBLinesAndMesh(gltf.scene, { targetExtent: TARGET_EXTENT, spacing: EDGE_SPACING, meshSpacing: MESH_SPACING, meshTipSpacing: MESH_TIP_SPACING, tipGroup: '亮色的芯片' }) // tip group: the bright-color chip layer
-  const colors = colorByGroup(geo.groups, { '亮色的芯片': HIGHLIGHT_COLOR, '亮色的手': HIGHLIGHT_COLOR, '线框': CHIP_COLOR }, CHIP_COLOR) // layers: bright-color chip / bright-color hand / wireframe
+  const geo = sampleGLBLinesAndMesh(gltf.scene, { targetExtent: TARGET_EXTENT, spacing: EDGE_SPACING, meshSpacing: MESH_SPACING, meshTipSpacing: MESH_TIP_SPACING, tipGroup: 'Bright-chip' }) // tip group: the bright-color chip layer
+  const colors = colorByGroup(geo.groups, { 'Bright-chip': HIGHLIGHT_COLOR, 'Bright-hand': HIGHLIGHT_COLOR, 'Wireframe': CHIP_COLOR }, CHIP_COLOR) // layers: bright-color chip / bright-color hand / wireframe
   return { ...geo, colors }
 }
 

@@ -1533,7 +1533,7 @@ AcDbSymbolTableRecord
 100
 AcDbLayerTableRecord
   2
-次级芯片-颜色4上的图案
+Satellite-chip-color4-pattern
  70
      0
  62
@@ -1561,7 +1561,7 @@ AcDbSymbolTableRecord
 100
 AcDbLayerTableRecord
   2
-次级芯片-颜色2上的图案
+Satellite-chip-color2-pattern
  70
      0
  62
@@ -1589,7 +1589,7 @@ AcDbSymbolTableRecord
 100
 AcDbLayerTableRecord
   2
-次级芯片-颜色3上的图案
+Satellite-chip-color3-pattern
  70
      0
  62
@@ -1617,7 +1617,7 @@ AcDbSymbolTableRecord
 100
 AcDbLayerTableRecord
   2
-中心芯片上面的图案
+Center-chip-pattern
  70
      0
  62
@@ -1645,7 +1645,7 @@ AcDbSymbolTableRecord
 100
 AcDbLayerTableRecord
   2
-次级芯片-颜色3背面
+Satellite-chip-color3-back
  70
      0
  62
@@ -1673,7 +1673,7 @@ AcDbSymbolTableRecord
 100
 AcDbLayerTableRecord
   2
-次级芯片-颜色3
+Satellite-chip-color3
  70
      0
  62
@@ -1701,7 +1701,7 @@ AcDbSymbolTableRecord
 100
 AcDbLayerTableRecord
   2
-次级芯片-颜色4
+Satellite-chip-color4
  70
      0
  62
@@ -1729,7 +1729,7 @@ AcDbSymbolTableRecord
 100
 AcDbLayerTableRecord
   2
-次级芯片-颜色4背面
+Satellite-chip-color4-back
  70
      0
  62
@@ -1757,7 +1757,7 @@ AcDbSymbolTableRecord
 100
 AcDbLayerTableRecord
   2
-中心芯片-颜色1
+Center-chip-color1
  70
      0
  62
@@ -1785,7 +1785,7 @@ AcDbSymbolTableRecord
 100
 AcDbLayerTableRecord
   2
-中心芯片-颜色1背面
+Center-chip-color1-back
  70
      0
  62
@@ -1813,7 +1813,7 @@ AcDbSymbolTableRecord
 100
 AcDbLayerTableRecord
   2
-中心芯片的侧纹路
+Center-chip-side-texture
  70
      0
  62
@@ -1841,7 +1841,7 @@ AcDbSymbolTableRecord
 100
 AcDbLayerTableRecord
   2
-中心芯片的侧纹路背面
+Center-chip-side-texture-back
  70
      0
  62
@@ -1869,7 +1869,7 @@ AcDbSymbolTableRecord
 100
 AcDbLayerTableRecord
   2
-次级芯片-颜色2
+Satellite-chip-color2
  70
      0
  62
@@ -1897,7 +1897,7 @@ AcDbSymbolTableRecord
 100
 AcDbLayerTableRecord
   2
-次级芯片-颜色2背面
+Satellite-chip-color2-back
  70
      0
  62
@@ -1925,7 +1925,7 @@ AcDbSymbolTableRecord
 100
 AcDbLayerTableRecord
   2
-用于连接电路板线路的起始线
+Trace-start-lines
  70
      0
  62
@@ -1953,7 +1953,7 @@ AcDbSymbolTableRecord
 100
 AcDbLayerTableRecord
   2
-用于连接电路板线路的起始线背面
+Trace-start-lines-back
  70
      0
  62
@@ -2331,7 +2331,7 @@ LINE
 100
 AcDbEntity
   8
-次级芯片-颜色4上的图案
+Satellite-chip-color4-pattern
 100
 AcDbLine
  10
@@ -2355,7 +2355,7 @@ LINE
 100
 AcDbEntity
   8
-次级芯片-颜色4上的图案
+Satellite-chip-color4-pattern
 100
 AcDbLine
  10
@@ -2379,7 +2379,7 @@ LINE
 100
 AcDbEntity
   8
-次级芯片-颜色4上的图案
+Satellite-chip-color4-pattern
 100
 AcDbLine
  10
@@ -2403,7 +2403,7 @@ LINE
 100
 AcDbEntity
   8
-次级芯片-颜色2上的图案
+Satellite-chip-color2-pattern
 100
 AcDbLine
  10
@@ -2427,7 +2427,7 @@ LINE
 100
 AcDbEntity
   8
-次级芯片-颜色2上的图案
+Satellite-chip-color2-pattern
 100
 AcDbLine
  10
@@ -2451,7 +2451,7 @@ LINE
 100
 AcDbEntity
   8
-次级芯片-颜色2上的图案
+Satellite-chip-color2-pattern
 100
 AcDbLine
  10
@@ -2475,7 +2475,7 @@ ARC
 100
 AcDbEntity
   8
-次级芯片-颜色2上的图案
+Satellite-chip-color2-pattern
 100
 AcDbCircle
  10
@@ -2507,7 +2507,7 @@ LINE
 100
 AcDbEntity
   8
-次级芯片-颜色2上的图案
+Satellite-chip-color2-pattern
 100
 AcDbLine
  10
@@ -2531,7 +2531,7 @@ ARC
 100
 AcDbEntity
   8
-次级芯片-颜色2上的图案
+Satellite-chip-color2-pattern
 100
 AcDbCircle
  10
@@ -2563,7 +2563,7 @@ LINE
 100
 AcDbEntity
   8
-次级芯片-颜色2上的图案
+Satellite-chip-color2-pattern
 100
 AcDbLine
  10
@@ -2587,7 +2587,7 @@ LINE
 100
 AcDbEntity
   8
-次级芯片-颜色2上的图案
+Satellite-chip-color2-pattern
 100
 AcDbLine
  10
@@ -2611,7 +2611,7 @@ ARC
 100
 AcDbEntity
   8
-次级芯片-颜色2上的图案
+Satellite-chip-color2-pattern
 100
 AcDbCircle
  10
@@ -2643,7 +2643,7 @@ LINE
 100
 AcDbEntity
   8
-次级芯片-颜色2上的图案
+Satellite-chip-color2-pattern
 100
 AcDbLine
  10
@@ -2667,7 +2667,7 @@ POLYLINE
 100
 AcDbEntity
   8
-次级芯片-颜色3上的图案
+Satellite-chip-color3-pattern
 100
 AcDb2dPolyline
  66
@@ -2687,7 +2687,7 @@ VERTEX
 100
 AcDbEntity
   8
-次级芯片-颜色3上的图案
+Satellite-chip-color3-pattern
 100
 AcDbVertex
 100
@@ -2707,7 +2707,7 @@ VERTEX
 100
 AcDbEntity
   8
-次级芯片-颜色3上的图案
+Satellite-chip-color3-pattern
 100
 AcDbVertex
 100
@@ -2727,7 +2727,7 @@ VERTEX
 100
 AcDbEntity
   8
-次级芯片-颜色3上的图案
+Satellite-chip-color3-pattern
 100
 AcDbVertex
 100
@@ -2747,7 +2747,7 @@ SEQEND
 100
 AcDbEntity
   8
-次级芯片-颜色3上的图案
+Satellite-chip-color3-pattern
   0
 POLYLINE
   5
@@ -2757,7 +2757,7 @@ POLYLINE
 100
 AcDbEntity
   8
-次级芯片-颜色3上的图案
+Satellite-chip-color3-pattern
 100
 AcDb2dPolyline
  66
@@ -2777,7 +2777,7 @@ VERTEX
 100
 AcDbEntity
   8
-次级芯片-颜色3上的图案
+Satellite-chip-color3-pattern
 100
 AcDbVertex
 100
@@ -2797,7 +2797,7 @@ VERTEX
 100
 AcDbEntity
   8
-次级芯片-颜色3上的图案
+Satellite-chip-color3-pattern
 100
 AcDbVertex
 100
@@ -2817,7 +2817,7 @@ VERTEX
 100
 AcDbEntity
   8
-次级芯片-颜色3上的图案
+Satellite-chip-color3-pattern
 100
 AcDbVertex
 100
@@ -2837,7 +2837,7 @@ VERTEX
 100
 AcDbEntity
   8
-次级芯片-颜色3上的图案
+Satellite-chip-color3-pattern
 100
 AcDbVertex
 100
@@ -2857,7 +2857,7 @@ SEQEND
 100
 AcDbEntity
   8
-次级芯片-颜色3上的图案
+Satellite-chip-color3-pattern
   0
 POLYLINE
   5
@@ -2867,7 +2867,7 @@ POLYLINE
 100
 AcDbEntity
   8
-次级芯片-颜色3上的图案
+Satellite-chip-color3-pattern
 100
 AcDb2dPolyline
  66
@@ -2887,7 +2887,7 @@ VERTEX
 100
 AcDbEntity
   8
-次级芯片-颜色3上的图案
+Satellite-chip-color3-pattern
 100
 AcDbVertex
 100
@@ -2907,7 +2907,7 @@ VERTEX
 100
 AcDbEntity
   8
-次级芯片-颜色3上的图案
+Satellite-chip-color3-pattern
 100
 AcDbVertex
 100
@@ -2927,7 +2927,7 @@ VERTEX
 100
 AcDbEntity
   8
-次级芯片-颜色3上的图案
+Satellite-chip-color3-pattern
 100
 AcDbVertex
 100
@@ -2947,7 +2947,7 @@ VERTEX
 100
 AcDbEntity
   8
-次级芯片-颜色3上的图案
+Satellite-chip-color3-pattern
 100
 AcDbVertex
 100
@@ -2967,7 +2967,7 @@ SEQEND
 100
 AcDbEntity
   8
-次级芯片-颜色3上的图案
+Satellite-chip-color3-pattern
   0
 POLYLINE
   5
@@ -2977,7 +2977,7 @@ POLYLINE
 100
 AcDbEntity
   8
-次级芯片-颜色3上的图案
+Satellite-chip-color3-pattern
 100
 AcDb2dPolyline
  66
@@ -2997,7 +2997,7 @@ VERTEX
 100
 AcDbEntity
   8
-次级芯片-颜色3上的图案
+Satellite-chip-color3-pattern
 100
 AcDbVertex
 100
@@ -3017,7 +3017,7 @@ VERTEX
 100
 AcDbEntity
   8
-次级芯片-颜色3上的图案
+Satellite-chip-color3-pattern
 100
 AcDbVertex
 100
@@ -3037,7 +3037,7 @@ VERTEX
 100
 AcDbEntity
   8
-次级芯片-颜色3上的图案
+Satellite-chip-color3-pattern
 100
 AcDbVertex
 100
@@ -3057,7 +3057,7 @@ VERTEX
 100
 AcDbEntity
   8
-次级芯片-颜色3上的图案
+Satellite-chip-color3-pattern
 100
 AcDbVertex
 100
@@ -3077,7 +3077,7 @@ SEQEND
 100
 AcDbEntity
   8
-次级芯片-颜色3上的图案
+Satellite-chip-color3-pattern
   0
 POLYLINE
   5
@@ -3087,7 +3087,7 @@ POLYLINE
 100
 AcDbEntity
   8
-次级芯片-颜色3上的图案
+Satellite-chip-color3-pattern
 100
 AcDb2dPolyline
  66
@@ -3107,7 +3107,7 @@ VERTEX
 100
 AcDbEntity
   8
-次级芯片-颜色3上的图案
+Satellite-chip-color3-pattern
 100
 AcDbVertex
 100
@@ -3127,7 +3127,7 @@ VERTEX
 100
 AcDbEntity
   8
-次级芯片-颜色3上的图案
+Satellite-chip-color3-pattern
 100
 AcDbVertex
 100
@@ -3147,7 +3147,7 @@ VERTEX
 100
 AcDbEntity
   8
-次级芯片-颜色3上的图案
+Satellite-chip-color3-pattern
 100
 AcDbVertex
 100
@@ -3167,7 +3167,7 @@ VERTEX
 100
 AcDbEntity
   8
-次级芯片-颜色3上的图案
+Satellite-chip-color3-pattern
 100
 AcDbVertex
 100
@@ -3187,7 +3187,7 @@ SEQEND
 100
 AcDbEntity
   8
-次级芯片-颜色3上的图案
+Satellite-chip-color3-pattern
   0
 POLYLINE
   5
@@ -3197,7 +3197,7 @@ POLYLINE
 100
 AcDbEntity
   8
-次级芯片-颜色3上的图案
+Satellite-chip-color3-pattern
 100
 AcDb2dPolyline
  66
@@ -3217,7 +3217,7 @@ VERTEX
 100
 AcDbEntity
   8
-次级芯片-颜色3上的图案
+Satellite-chip-color3-pattern
 100
 AcDbVertex
 100
@@ -3237,7 +3237,7 @@ VERTEX
 100
 AcDbEntity
   8
-次级芯片-颜色3上的图案
+Satellite-chip-color3-pattern
 100
 AcDbVertex
 100
@@ -3257,7 +3257,7 @@ VERTEX
 100
 AcDbEntity
   8
-次级芯片-颜色3上的图案
+Satellite-chip-color3-pattern
 100
 AcDbVertex
 100
@@ -3277,7 +3277,7 @@ VERTEX
 100
 AcDbEntity
   8
-次级芯片-颜色3上的图案
+Satellite-chip-color3-pattern
 100
 AcDbVertex
 100
@@ -3297,7 +3297,7 @@ SEQEND
 100
 AcDbEntity
   8
-次级芯片-颜色3上的图案
+Satellite-chip-color3-pattern
   0
 ARC
   5
@@ -3307,7 +3307,7 @@ ARC
 100
 AcDbEntity
   8
-次级芯片-颜色2上的图案
+Satellite-chip-color2-pattern
 100
 AcDbCircle
  10
@@ -3333,7 +3333,7 @@ POLYLINE
 100
 AcDbEntity
   8
-次级芯片-颜色4上的图案
+Satellite-chip-color4-pattern
 100
 AcDb2dPolyline
  66
@@ -3355,7 +3355,7 @@ VERTEX
 100
 AcDbEntity
   8
-次级芯片-颜色4上的图案
+Satellite-chip-color4-pattern
 100
 AcDbVertex
 100
@@ -3375,7 +3375,7 @@ VERTEX
 100
 AcDbEntity
   8
-次级芯片-颜色4上的图案
+Satellite-chip-color4-pattern
 100
 AcDbVertex
 100
@@ -3395,7 +3395,7 @@ VERTEX
 100
 AcDbEntity
   8
-次级芯片-颜色4上的图案
+Satellite-chip-color4-pattern
 100
 AcDbVertex
 100
@@ -3415,7 +3415,7 @@ VERTEX
 100
 AcDbEntity
   8
-次级芯片-颜色4上的图案
+Satellite-chip-color4-pattern
 100
 AcDbVertex
 100
@@ -3435,7 +3435,7 @@ SEQEND
 100
 AcDbEntity
   8
-次级芯片-颜色4上的图案
+Satellite-chip-color4-pattern
   0
 LINE
   5
@@ -3445,7 +3445,7 @@ LINE
 100
 AcDbEntity
   8
-次级芯片-颜色4上的图案
+Satellite-chip-color4-pattern
 100
 AcDbLine
  10
@@ -3469,7 +3469,7 @@ LINE
 100
 AcDbEntity
   8
-次级芯片-颜色4上的图案
+Satellite-chip-color4-pattern
 100
 AcDbLine
  10
@@ -3493,7 +3493,7 @@ LINE
 100
 AcDbEntity
   8
-次级芯片-颜色4上的图案
+Satellite-chip-color4-pattern
 100
 AcDbLine
  10
@@ -3517,7 +3517,7 @@ CIRCLE
 100
 AcDbEntity
   8
-次级芯片-颜色4上的图案
+Satellite-chip-color4-pattern
 100
 AcDbCircle
  10
@@ -3537,7 +3537,7 @@ POLYLINE
 100
 AcDbEntity
   8
-次级芯片-颜色4上的图案
+Satellite-chip-color4-pattern
 100
 AcDb2dPolyline
  66
@@ -3559,7 +3559,7 @@ VERTEX
 100
 AcDbEntity
   8
-次级芯片-颜色4上的图案
+Satellite-chip-color4-pattern
 100
 AcDbVertex
 100
@@ -3579,7 +3579,7 @@ VERTEX
 100
 AcDbEntity
   8
-次级芯片-颜色4上的图案
+Satellite-chip-color4-pattern
 100
 AcDbVertex
 100
@@ -3599,7 +3599,7 @@ A0
 100
 AcDbEntity
   8
-次级芯片-颜色4上的图案
+Satellite-chip-color4-pattern
 100
 AcDbVertex
 100
@@ -3619,7 +3619,7 @@ A1
 100
 AcDbEntity
   8
-次级芯片-颜色4上的图案
+Satellite-chip-color4-pattern
 100
 AcDbVertex
 100
@@ -3639,7 +3639,7 @@ A2
 100
 AcDbEntity
   8
-次级芯片-颜色4上的图案
+Satellite-chip-color4-pattern
 100
 AcDbVertex
 100
@@ -3659,7 +3659,7 @@ A3
 100
 AcDbEntity
   8
-次级芯片-颜色4上的图案
+Satellite-chip-color4-pattern
 100
 AcDbVertex
 100
@@ -3679,7 +3679,7 @@ A4
 100
 AcDbEntity
   8
-次级芯片-颜色4上的图案
+Satellite-chip-color4-pattern
 100
 AcDbVertex
 100
@@ -3699,7 +3699,7 @@ A5
 100
 AcDbEntity
   8
-次级芯片-颜色4上的图案
+Satellite-chip-color4-pattern
 100
 AcDbVertex
 100
@@ -3719,7 +3719,7 @@ A6
 100
 AcDbEntity
   8
-次级芯片-颜色4上的图案
+Satellite-chip-color4-pattern
 100
 AcDbVertex
 100
@@ -3739,7 +3739,7 @@ A7
 100
 AcDbEntity
   8
-次级芯片-颜色4上的图案
+Satellite-chip-color4-pattern
 100
 AcDbVertex
 100
@@ -3759,7 +3759,7 @@ A8
 100
 AcDbEntity
   8
-次级芯片-颜色4上的图案
+Satellite-chip-color4-pattern
 100
 AcDbVertex
 100
@@ -3779,7 +3779,7 @@ A9
 100
 AcDbEntity
   8
-次级芯片-颜色4上的图案
+Satellite-chip-color4-pattern
 100
 AcDbVertex
 100
@@ -3799,7 +3799,7 @@ AA
 100
 AcDbEntity
   8
-次级芯片-颜色4上的图案
+Satellite-chip-color4-pattern
 100
 AcDbVertex
 100
@@ -3819,7 +3819,7 @@ AB
 100
 AcDbEntity
   8
-次级芯片-颜色4上的图案
+Satellite-chip-color4-pattern
 100
 AcDbVertex
 100
@@ -3839,7 +3839,7 @@ AC
 100
 AcDbEntity
   8
-次级芯片-颜色4上的图案
+Satellite-chip-color4-pattern
 100
 AcDbVertex
 100
@@ -3859,7 +3859,7 @@ AD
 100
 AcDbEntity
   8
-次级芯片-颜色4上的图案
+Satellite-chip-color4-pattern
 100
 AcDbVertex
 100
@@ -3879,7 +3879,7 @@ AE
 100
 AcDbEntity
   8
-次级芯片-颜色4上的图案
+Satellite-chip-color4-pattern
 100
 AcDbVertex
 100
@@ -3899,7 +3899,7 @@ AF
 100
 AcDbEntity
   8
-次级芯片-颜色4上的图案
+Satellite-chip-color4-pattern
 100
 AcDbVertex
 100
@@ -3919,7 +3919,7 @@ B0
 100
 AcDbEntity
   8
-次级芯片-颜色4上的图案
+Satellite-chip-color4-pattern
 100
 AcDbVertex
 100
@@ -3939,7 +3939,7 @@ B1
 100
 AcDbEntity
   8
-次级芯片-颜色4上的图案
+Satellite-chip-color4-pattern
 100
 AcDbVertex
 100
@@ -3959,7 +3959,7 @@ B2
 100
 AcDbEntity
   8
-次级芯片-颜色4上的图案
+Satellite-chip-color4-pattern
 100
 AcDbVertex
 100
@@ -3979,7 +3979,7 @@ B3
 100
 AcDbEntity
   8
-次级芯片-颜色4上的图案
+Satellite-chip-color4-pattern
 100
 AcDbVertex
 100
@@ -3999,7 +3999,7 @@ B4
 100
 AcDbEntity
   8
-次级芯片-颜色4上的图案
+Satellite-chip-color4-pattern
 100
 AcDbVertex
 100
@@ -4019,7 +4019,7 @@ B5
 100
 AcDbEntity
   8
-次级芯片-颜色4上的图案
+Satellite-chip-color4-pattern
 100
 AcDbVertex
 100
@@ -4039,7 +4039,7 @@ B6
 100
 AcDbEntity
   8
-次级芯片-颜色4上的图案
+Satellite-chip-color4-pattern
 100
 AcDbVertex
 100
@@ -4059,7 +4059,7 @@ B7
 100
 AcDbEntity
   8
-次级芯片-颜色4上的图案
+Satellite-chip-color4-pattern
 100
 AcDbVertex
 100
@@ -4079,7 +4079,7 @@ B8
 100
 AcDbEntity
   8
-次级芯片-颜色4上的图案
+Satellite-chip-color4-pattern
 100
 AcDbVertex
 100
@@ -4099,7 +4099,7 @@ B9
 100
 AcDbEntity
   8
-次级芯片-颜色4上的图案
+Satellite-chip-color4-pattern
 100
 AcDbVertex
 100
@@ -4119,7 +4119,7 @@ BA
 100
 AcDbEntity
   8
-次级芯片-颜色4上的图案
+Satellite-chip-color4-pattern
 100
 AcDbVertex
 100
@@ -4139,7 +4139,7 @@ BB
 100
 AcDbEntity
   8
-次级芯片-颜色4上的图案
+Satellite-chip-color4-pattern
 100
 AcDbVertex
 100
@@ -4159,7 +4159,7 @@ BC
 100
 AcDbEntity
   8
-次级芯片-颜色4上的图案
+Satellite-chip-color4-pattern
 100
 AcDbVertex
 100
@@ -4179,7 +4179,7 @@ BD
 100
 AcDbEntity
   8
-次级芯片-颜色4上的图案
+Satellite-chip-color4-pattern
 100
 AcDbVertex
 100
@@ -4199,7 +4199,7 @@ BE
 100
 AcDbEntity
   8
-次级芯片-颜色4上的图案
+Satellite-chip-color4-pattern
   0
 ARC
   5
@@ -4209,7 +4209,7 @@ C0
 100
 AcDbEntity
   8
-中心芯片上面的图案
+Center-chip-pattern
 100
 AcDbCircle
  10
@@ -4235,7 +4235,7 @@ C1
 100
 AcDbEntity
   8
-中心芯片上面的图案
+Center-chip-pattern
 100
 AcDbLine
  10
@@ -4259,7 +4259,7 @@ C2
 100
 AcDbEntity
   8
-中心芯片上面的图案
+Center-chip-pattern
 100
 AcDbLine
  10
@@ -4283,7 +4283,7 @@ C3
 100
 AcDbEntity
   8
-中心芯片上面的图案
+Center-chip-pattern
 100
 AcDbCircle
  10
@@ -4309,7 +4309,7 @@ C4
 100
 AcDbEntity
   8
-中心芯片上面的图案
+Center-chip-pattern
 100
 AcDbLine
  10
@@ -4333,7 +4333,7 @@ C5
 100
 AcDbEntity
   8
-中心芯片上面的图案
+Center-chip-pattern
 100
 AcDbCircle
  10
@@ -4359,7 +4359,7 @@ C6
 100
 AcDbEntity
   8
-中心芯片上面的图案
+Center-chip-pattern
 100
 AcDbLine
  10
@@ -4383,7 +4383,7 @@ C7
 100
 AcDbEntity
   8
-中心芯片上面的图案
+Center-chip-pattern
 100
 AcDbCircle
  10
@@ -4409,7 +4409,7 @@ C8
 100
 AcDbEntity
   8
-中心芯片上面的图案
+Center-chip-pattern
 100
 AcDbSpline
 210
@@ -4665,7 +4665,7 @@ C9
 100
 AcDbEntity
   8
-中心芯片上面的图案
+Center-chip-pattern
 100
 AcDbLine
  10
@@ -4689,7 +4689,7 @@ CA
 100
 AcDbEntity
   8
-中心芯片上面的图案
+Center-chip-pattern
 100
 AcDbLine
  10
@@ -4713,7 +4713,7 @@ CB
 100
 AcDbEntity
   8
-中心芯片上面的图案
+Center-chip-pattern
 100
 AcDbLine
  10
@@ -4737,7 +4737,7 @@ CC
 100
 AcDbEntity
   8
-中心芯片上面的图案
+Center-chip-pattern
 100
 AcDbLine
  10
@@ -4761,7 +4761,7 @@ CE
 100
 AcDbEntity
   8
-次级芯片-颜色3背面
+Satellite-chip-color3-back
 100
 AcDbLine
  10
@@ -4785,7 +4785,7 @@ D0
 100
 AcDbEntity
   8
-次级芯片-颜色3
+Satellite-chip-color3
 100
 AcDbLine
  10
@@ -4809,7 +4809,7 @@ D1
 100
 AcDbEntity
   8
-次级芯片-颜色3
+Satellite-chip-color3
 100
 AcDbLine
  10
@@ -4833,7 +4833,7 @@ D2
 100
 AcDbEntity
   8
-次级芯片-颜色3
+Satellite-chip-color3
 100
 AcDbLine
  10
@@ -4857,7 +4857,7 @@ D3
 100
 AcDbEntity
   8
-次级芯片-颜色3背面
+Satellite-chip-color3-back
 100
 AcDbLine
  10
@@ -4881,7 +4881,7 @@ D4
 100
 AcDbEntity
   8
-次级芯片-颜色3
+Satellite-chip-color3
 100
 AcDbLine
  10
@@ -4905,7 +4905,7 @@ D5
 100
 AcDbEntity
   8
-次级芯片-颜色3
+Satellite-chip-color3
 100
 AcDbLine
  10
@@ -4929,7 +4929,7 @@ D6
 100
 AcDbEntity
   8
-次级芯片-颜色3背面
+Satellite-chip-color3-back
 100
 AcDbLine
  10
@@ -4953,7 +4953,7 @@ D7
 100
 AcDbEntity
   8
-次级芯片-颜色3
+Satellite-chip-color3
 100
 AcDbLine
  10
@@ -4977,7 +4977,7 @@ D8
 100
 AcDbEntity
   8
-次级芯片-颜色3
+Satellite-chip-color3
 100
 AcDbLine
  10
@@ -5001,7 +5001,7 @@ D9
 100
 AcDbEntity
   8
-次级芯片-颜色3
+Satellite-chip-color3
 100
 AcDbLine
  10
@@ -5025,7 +5025,7 @@ DA
 100
 AcDbEntity
   8
-次级芯片-颜色3
+Satellite-chip-color3
 100
 AcDbLine
  10
@@ -5049,7 +5049,7 @@ DC
 100
 AcDbEntity
   8
-次级芯片-颜色4
+Satellite-chip-color4
 100
 AcDbLine
  10
@@ -5073,7 +5073,7 @@ DD
 100
 AcDbEntity
   8
-次级芯片-颜色4
+Satellite-chip-color4
 100
 AcDbLine
  10
@@ -5097,7 +5097,7 @@ DE
 100
 AcDbEntity
   8
-次级芯片-颜色4
+Satellite-chip-color4
 100
 AcDbLine
  10
@@ -5121,7 +5121,7 @@ E0
 100
 AcDbEntity
   8
-次级芯片-颜色4背面
+Satellite-chip-color4-back
 100
 AcDbLine
  10
@@ -5145,7 +5145,7 @@ E1
 100
 AcDbEntity
   8
-次级芯片-颜色4
+Satellite-chip-color4
 100
 AcDbLine
  10
@@ -5169,7 +5169,7 @@ E2
 100
 AcDbEntity
   8
-次级芯片-颜色4
+Satellite-chip-color4
 100
 AcDbLine
  10
@@ -5193,7 +5193,7 @@ E3
 100
 AcDbEntity
   8
-次级芯片-颜色4
+Satellite-chip-color4
 100
 AcDbLine
  10
@@ -5217,7 +5217,7 @@ E4
 100
 AcDbEntity
   8
-次级芯片-颜色4
+Satellite-chip-color4
 100
 AcDbLine
  10
@@ -5241,7 +5241,7 @@ E5
 100
 AcDbEntity
   8
-次级芯片-颜色4背面
+Satellite-chip-color4-back
 100
 AcDbLine
  10
@@ -5265,7 +5265,7 @@ E6
 100
 AcDbEntity
   8
-次级芯片-颜色4
+Satellite-chip-color4
 100
 AcDbLine
  10
@@ -5289,7 +5289,7 @@ E7
 100
 AcDbEntity
   8
-次级芯片-颜色4
+Satellite-chip-color4
 100
 AcDbLine
  10
@@ -5313,7 +5313,7 @@ E8
 100
 AcDbEntity
   8
-次级芯片-颜色4背面
+Satellite-chip-color4-back
 100
 AcDbLine
  10
@@ -5337,7 +5337,7 @@ EA
 100
 AcDbEntity
   8
-中心芯片-颜色1
+Center-chip-color1
 100
 AcDbLine
  10
@@ -5361,7 +5361,7 @@ EB
 100
 AcDbEntity
   8
-中心芯片-颜色1
+Center-chip-color1
 100
 AcDbLine
  10
@@ -5385,7 +5385,7 @@ ED
 100
 AcDbEntity
   8
-中心芯片-颜色1背面
+Center-chip-color1-back
 100
 AcDbLine
  10
@@ -5409,7 +5409,7 @@ EF
 100
 AcDbEntity
   8
-中心芯片的侧纹路
+Center-chip-side-texture
 100
 AcDbLine
  10
@@ -5433,7 +5433,7 @@ F0
 100
 AcDbEntity
   8
-中心芯片的侧纹路
+Center-chip-side-texture
 100
 AcDbLine
  10
@@ -5457,7 +5457,7 @@ F1
 100
 AcDbEntity
   8
-中心芯片的侧纹路
+Center-chip-side-texture
 100
 AcDbLine
  10
@@ -5481,7 +5481,7 @@ F2
 100
 AcDbEntity
   8
-中心芯片的侧纹路
+Center-chip-side-texture
 100
 AcDbLine
  10
@@ -5505,7 +5505,7 @@ F3
 100
 AcDbEntity
   8
-中心芯片的侧纹路
+Center-chip-side-texture
 100
 AcDbLine
  10
@@ -5529,7 +5529,7 @@ F4
 100
 AcDbEntity
   8
-中心芯片的侧纹路
+Center-chip-side-texture
 100
 AcDbLine
  10
@@ -5553,7 +5553,7 @@ F5
 100
 AcDbEntity
   8
-中心芯片的侧纹路
+Center-chip-side-texture
 100
 AcDbLine
  10
@@ -5577,7 +5577,7 @@ F6
 100
 AcDbEntity
   8
-中心芯片的侧纹路
+Center-chip-side-texture
 100
 AcDbLine
  10
@@ -5601,7 +5601,7 @@ F7
 100
 AcDbEntity
   8
-中心芯片的侧纹路
+Center-chip-side-texture
 100
 AcDbLine
  10
@@ -5625,7 +5625,7 @@ F8
 100
 AcDbEntity
   8
-中心芯片的侧纹路
+Center-chip-side-texture
 100
 AcDbLine
  10
@@ -5649,7 +5649,7 @@ F9
 100
 AcDbEntity
   8
-中心芯片的侧纹路
+Center-chip-side-texture
 100
 AcDbLine
  10
@@ -5673,7 +5673,7 @@ FA
 100
 AcDbEntity
   8
-中心芯片的侧纹路
+Center-chip-side-texture
 100
 AcDbLine
  10
@@ -5697,7 +5697,7 @@ FB
 100
 AcDbEntity
   8
-中心芯片的侧纹路
+Center-chip-side-texture
 100
 AcDbLine
  10
@@ -5721,7 +5721,7 @@ FC
 100
 AcDbEntity
   8
-中心芯片的侧纹路
+Center-chip-side-texture
 100
 AcDbLine
  10
@@ -5745,7 +5745,7 @@ FD
 100
 AcDbEntity
   8
-中心芯片的侧纹路
+Center-chip-side-texture
 100
 AcDbLine
  10
@@ -5769,7 +5769,7 @@ FE
 100
 AcDbEntity
   8
-中心芯片的侧纹路
+Center-chip-side-texture
 100
 AcDbLine
  10
@@ -5793,7 +5793,7 @@ FF
 100
 AcDbEntity
   8
-中心芯片的侧纹路
+Center-chip-side-texture
 100
 AcDbLine
  10
@@ -5817,7 +5817,7 @@ LINE
 100
 AcDbEntity
   8
-中心芯片的侧纹路
+Center-chip-side-texture
 100
 AcDbLine
  10
@@ -5841,7 +5841,7 @@ LINE
 100
 AcDbEntity
   8
-中心芯片-颜色1
+Center-chip-color1
 100
 AcDbLine
  10
@@ -5865,7 +5865,7 @@ LINE
 100
 AcDbEntity
   8
-中心芯片的侧纹路背面
+Center-chip-side-texture-back
 100
 AcDbLine
  10
@@ -5889,7 +5889,7 @@ LINE
 100
 AcDbEntity
   8
-中心芯片的侧纹路背面
+Center-chip-side-texture-back
 100
 AcDbLine
  10
@@ -5913,7 +5913,7 @@ LINE
 100
 AcDbEntity
   8
-中心芯片的侧纹路背面
+Center-chip-side-texture-back
 100
 AcDbLine
  10
@@ -5937,7 +5937,7 @@ LINE
 100
 AcDbEntity
   8
-中心芯片的侧纹路背面
+Center-chip-side-texture-back
 100
 AcDbLine
  10
@@ -5961,7 +5961,7 @@ LINE
 100
 AcDbEntity
   8
-中心芯片的侧纹路背面
+Center-chip-side-texture-back
 100
 AcDbLine
  10
@@ -5985,7 +5985,7 @@ LINE
 100
 AcDbEntity
   8
-中心芯片的侧纹路背面
+Center-chip-side-texture-back
 100
 AcDbLine
  10
@@ -6009,7 +6009,7 @@ LINE
 100
 AcDbEntity
   8
-中心芯片的侧纹路背面
+Center-chip-side-texture-back
 100
 AcDbLine
  10
@@ -6033,7 +6033,7 @@ LINE
 100
 AcDbEntity
   8
-中心芯片的侧纹路背面
+Center-chip-side-texture-back
 100
 AcDbLine
  10
@@ -6057,7 +6057,7 @@ LINE
 100
 AcDbEntity
   8
-中心芯片的侧纹路背面
+Center-chip-side-texture-back
 100
 AcDbLine
  10
@@ -6081,7 +6081,7 @@ LINE
 100
 AcDbEntity
   8
-中心芯片的侧纹路背面
+Center-chip-side-texture-back
 100
 AcDbLine
  10
@@ -6105,7 +6105,7 @@ LINE
 100
 AcDbEntity
   8
-中心芯片的侧纹路背面
+Center-chip-side-texture-back
 100
 AcDbLine
  10
@@ -6129,7 +6129,7 @@ LINE
 100
 AcDbEntity
   8
-中心芯片的侧纹路背面
+Center-chip-side-texture-back
 100
 AcDbLine
  10
@@ -6153,7 +6153,7 @@ LINE
 100
 AcDbEntity
   8
-中心芯片的侧纹路背面
+Center-chip-side-texture-back
 100
 AcDbLine
  10
@@ -6177,7 +6177,7 @@ LINE
 100
 AcDbEntity
   8
-中心芯片的侧纹路背面
+Center-chip-side-texture-back
 100
 AcDbLine
  10
@@ -6201,7 +6201,7 @@ LINE
 100
 AcDbEntity
   8
-中心芯片的侧纹路背面
+Center-chip-side-texture-back
 100
 AcDbLine
  10
@@ -6225,7 +6225,7 @@ LINE
 100
 AcDbEntity
   8
-中心芯片的侧纹路背面
+Center-chip-side-texture-back
 100
 AcDbLine
  10
@@ -6249,7 +6249,7 @@ LINE
 100
 AcDbEntity
   8
-中心芯片的侧纹路背面
+Center-chip-side-texture-back
 100
 AcDbLine
  10
@@ -6273,7 +6273,7 @@ LINE
 100
 AcDbEntity
   8
-中心芯片的侧纹路背面
+Center-chip-side-texture-back
 100
 AcDbLine
  10
@@ -6297,7 +6297,7 @@ LINE
 100
 AcDbEntity
   8
-中心芯片-颜色1背面
+Center-chip-color1-back
 100
 AcDbLine
  10
@@ -6321,7 +6321,7 @@ LINE
 100
 AcDbEntity
   8
-中心芯片-颜色1背面
+Center-chip-color1-back
 100
 AcDbLine
  10
@@ -6345,7 +6345,7 @@ LINE
 100
 AcDbEntity
   8
-中心芯片-颜色1
+Center-chip-color1
 100
 AcDbLine
  10
@@ -6369,7 +6369,7 @@ LINE
 100
 AcDbEntity
   8
-中心芯片-颜色1
+Center-chip-color1
 100
 AcDbLine
  10
@@ -6393,7 +6393,7 @@ LINE
 100
 AcDbEntity
   8
-次级芯片-颜色4背面
+Satellite-chip-color4-back
 100
 AcDbLine
  10
@@ -6417,7 +6417,7 @@ LINE
 100
 AcDbEntity
   8
-次级芯片-颜色4
+Satellite-chip-color4
 100
 AcDbLine
  10
@@ -6441,7 +6441,7 @@ LINE
 100
 AcDbEntity
   8
-次级芯片-颜色4
+Satellite-chip-color4
 100
 AcDbLine
  10
@@ -6465,7 +6465,7 @@ LINE
 100
 AcDbEntity
   8
-次级芯片-颜色4背面
+Satellite-chip-color4-back
 100
 AcDbLine
  10
@@ -6489,7 +6489,7 @@ LINE
 100
 AcDbEntity
   8
-次级芯片-颜色4
+Satellite-chip-color4
 100
 AcDbLine
  10
@@ -6513,7 +6513,7 @@ LINE
 100
 AcDbEntity
   8
-次级芯片-颜色4
+Satellite-chip-color4
 100
 AcDbLine
  10
@@ -6537,7 +6537,7 @@ LINE
 100
 AcDbEntity
   8
-次级芯片-颜色4
+Satellite-chip-color4
 100
 AcDbLine
  10
@@ -6561,7 +6561,7 @@ LINE
 100
 AcDbEntity
   8
-次级芯片-颜色4
+Satellite-chip-color4
 100
 AcDbLine
  10
@@ -6585,7 +6585,7 @@ LINE
 100
 AcDbEntity
   8
-次级芯片-颜色2
+Satellite-chip-color2
 100
 AcDbLine
  10
@@ -6609,7 +6609,7 @@ LINE
 100
 AcDbEntity
   8
-次级芯片-颜色2
+Satellite-chip-color2
 100
 AcDbLine
  10
@@ -6633,7 +6633,7 @@ LINE
 100
 AcDbEntity
   8
-次级芯片-颜色2
+Satellite-chip-color2
 100
 AcDbLine
  10
@@ -6657,7 +6657,7 @@ LINE
 100
 AcDbEntity
   8
-次级芯片-颜色2
+Satellite-chip-color2
 100
 AcDbLine
  10
@@ -6681,7 +6681,7 @@ LINE
 100
 AcDbEntity
   8
-次级芯片-颜色2背面
+Satellite-chip-color2-back
 100
 AcDbLine
  10
@@ -6705,7 +6705,7 @@ LINE
 100
 AcDbEntity
   8
-次级芯片-颜色2
+Satellite-chip-color2
 100
 AcDbLine
  10
@@ -6729,7 +6729,7 @@ LINE
 100
 AcDbEntity
   8
-次级芯片-颜色2
+Satellite-chip-color2
 100
 AcDbLine
  10
@@ -6753,7 +6753,7 @@ LINE
 100
 AcDbEntity
   8
-次级芯片-颜色2背面
+Satellite-chip-color2-back
 100
 AcDbLine
  10
@@ -6777,7 +6777,7 @@ LINE
 100
 AcDbEntity
   8
-次级芯片-颜色4背面
+Satellite-chip-color4-back
 100
 AcDbLine
  10
@@ -6801,7 +6801,7 @@ LINE
 100
 AcDbEntity
   8
-次级芯片-颜色4
+Satellite-chip-color4
 100
 AcDbLine
  10
@@ -6825,7 +6825,7 @@ LINE
 100
 AcDbEntity
   8
-次级芯片-颜色4
+Satellite-chip-color4
 100
 AcDbLine
  10
@@ -6849,7 +6849,7 @@ LINE
 100
 AcDbEntity
   8
-次级芯片-颜色4
+Satellite-chip-color4
 100
 AcDbLine
  10
@@ -6873,7 +6873,7 @@ LINE
 100
 AcDbEntity
   8
-中心芯片-颜色1
+Center-chip-color1
 100
 AcDbLine
  10
@@ -6897,7 +6897,7 @@ LINE
 100
 AcDbEntity
   8
-中心芯片-颜色1
+Center-chip-color1
 100
 AcDbLine
  10
@@ -6921,7 +6921,7 @@ LINE
 100
 AcDbEntity
   8
-中心芯片-颜色1
+Center-chip-color1
 100
 AcDbLine
  10
@@ -6945,7 +6945,7 @@ LINE
 100
 AcDbEntity
   8
-中心芯片-颜色1
+Center-chip-color1
 100
 AcDbLine
  10
@@ -6969,7 +6969,7 @@ LINE
 100
 AcDbEntity
   8
-用于连接电路板线路的起始线
+Trace-start-lines
 100
 AcDbLine
  10
@@ -6993,7 +6993,7 @@ LINE
 100
 AcDbEntity
   8
-用于连接电路板线路的起始线
+Trace-start-lines
 100
 AcDbLine
  10
@@ -7017,7 +7017,7 @@ LINE
 100
 AcDbEntity
   8
-用于连接电路板线路的起始线
+Trace-start-lines
 100
 AcDbLine
  10
@@ -7041,7 +7041,7 @@ LINE
 100
 AcDbEntity
   8
-用于连接电路板线路的起始线
+Trace-start-lines
 100
 AcDbLine
  10
@@ -7065,7 +7065,7 @@ LINE
 100
 AcDbEntity
   8
-用于连接电路板线路的起始线
+Trace-start-lines
 100
 AcDbLine
  10
@@ -7089,7 +7089,7 @@ LINE
 100
 AcDbEntity
   8
-用于连接电路板线路的起始线
+Trace-start-lines
 100
 AcDbLine
  10
@@ -7113,7 +7113,7 @@ LINE
 100
 AcDbEntity
   8
-用于连接电路板线路的起始线
+Trace-start-lines
 100
 AcDbLine
  10
@@ -7137,7 +7137,7 @@ LINE
 100
 AcDbEntity
   8
-用于连接电路板线路的起始线
+Trace-start-lines
 100
 AcDbLine
  10
@@ -7161,7 +7161,7 @@ LINE
 100
 AcDbEntity
   8
-用于连接电路板线路的起始线
+Trace-start-lines
 100
 AcDbLine
  10
@@ -7185,7 +7185,7 @@ LINE
 100
 AcDbEntity
   8
-用于连接电路板线路的起始线
+Trace-start-lines
 100
 AcDbLine
  10
@@ -7209,7 +7209,7 @@ LINE
 100
 AcDbEntity
   8
-用于连接电路板线路的起始线
+Trace-start-lines
 100
 AcDbLine
  10
@@ -7233,7 +7233,7 @@ LINE
 100
 AcDbEntity
   8
-用于连接电路板线路的起始线
+Trace-start-lines
 100
 AcDbLine
  10
@@ -7257,7 +7257,7 @@ LINE
 100
 AcDbEntity
   8
-用于连接电路板线路的起始线
+Trace-start-lines
 100
 AcDbLine
  10
@@ -7281,7 +7281,7 @@ LINE
 100
 AcDbEntity
   8
-用于连接电路板线路的起始线
+Trace-start-lines
 100
 AcDbLine
  10
@@ -7305,7 +7305,7 @@ LINE
 100
 AcDbEntity
   8
-用于连接电路板线路的起始线
+Trace-start-lines
 100
 AcDbLine
  10
@@ -7329,7 +7329,7 @@ LINE
 100
 AcDbEntity
   8
-用于连接电路板线路的起始线
+Trace-start-lines
 100
 AcDbLine
  10
@@ -7353,7 +7353,7 @@ LINE
 100
 AcDbEntity
   8
-用于连接电路板线路的起始线
+Trace-start-lines
 100
 AcDbLine
  10
@@ -7377,7 +7377,7 @@ LINE
 100
 AcDbEntity
   8
-用于连接电路板线路的起始线
+Trace-start-lines
 100
 AcDbLine
  10
@@ -7401,7 +7401,7 @@ LINE
 100
 AcDbEntity
   8
-用于连接电路板线路的起始线
+Trace-start-lines
 100
 AcDbLine
  10
@@ -7425,7 +7425,7 @@ LINE
 100
 AcDbEntity
   8
-用于连接电路板线路的起始线
+Trace-start-lines
 100
 AcDbLine
  10
@@ -7449,7 +7449,7 @@ LINE
 100
 AcDbEntity
   8
-用于连接电路板线路的起始线背面
+Trace-start-lines-back
 100
 AcDbLine
  10
@@ -7473,7 +7473,7 @@ LINE
 100
 AcDbEntity
   8
-用于连接电路板线路的起始线背面
+Trace-start-lines-back
 100
 AcDbLine
  10
@@ -7497,7 +7497,7 @@ LINE
 100
 AcDbEntity
   8
-用于连接电路板线路的起始线背面
+Trace-start-lines-back
 100
 AcDbLine
  10
@@ -7521,7 +7521,7 @@ LINE
 100
 AcDbEntity
   8
-用于连接电路板线路的起始线背面
+Trace-start-lines-back
 100
 AcDbLine
  10
@@ -7545,7 +7545,7 @@ LINE
 100
 AcDbEntity
   8
-用于连接电路板线路的起始线背面
+Trace-start-lines-back
 100
 AcDbLine
  10
@@ -7569,7 +7569,7 @@ LINE
 100
 AcDbEntity
   8
-用于连接电路板线路的起始线背面
+Trace-start-lines-back
 100
 AcDbLine
  10
@@ -7593,7 +7593,7 @@ LINE
 100
 AcDbEntity
   8
-用于连接电路板线路的起始线背面
+Trace-start-lines-back
 100
 AcDbLine
  10
@@ -7617,7 +7617,7 @@ LINE
 100
 AcDbEntity
   8
-用于连接电路板线路的起始线背面
+Trace-start-lines-back
 100
 AcDbLine
  10
@@ -7641,7 +7641,7 @@ LINE
 100
 AcDbEntity
   8
-用于连接电路板线路的起始线背面
+Trace-start-lines-back
 100
 AcDbLine
  10
@@ -7665,7 +7665,7 @@ LINE
 100
 AcDbEntity
   8
-用于连接电路板线路的起始线背面
+Trace-start-lines-back
 100
 AcDbLine
  10
@@ -7689,7 +7689,7 @@ LINE
 100
 AcDbEntity
   8
-用于连接电路板线路的起始线背面
+Trace-start-lines-back
 100
 AcDbLine
  10
@@ -7713,7 +7713,7 @@ LINE
 100
 AcDbEntity
   8
-用于连接电路板线路的起始线背面
+Trace-start-lines-back
 100
 AcDbLine
  10
@@ -7737,7 +7737,7 @@ LINE
 100
 AcDbEntity
   8
-用于连接电路板线路的起始线背面
+Trace-start-lines-back
 100
 AcDbLine
  10
@@ -7761,7 +7761,7 @@ LINE
 100
 AcDbEntity
   8
-用于连接电路板线路的起始线背面
+Trace-start-lines-back
 100
 AcDbLine
  10
@@ -7785,7 +7785,7 @@ LINE
 100
 AcDbEntity
   8
-用于连接电路板线路的起始线背面
+Trace-start-lines-back
 100
 AcDbLine
  10
@@ -7809,7 +7809,7 @@ LINE
 100
 AcDbEntity
   8
-用于连接电路板线路的起始线背面
+Trace-start-lines-back
 100
 AcDbLine
  10
@@ -7833,7 +7833,7 @@ LINE
 100
 AcDbEntity
   8
-用于连接电路板线路的起始线背面
+Trace-start-lines-back
 100
 AcDbLine
  10
@@ -7857,7 +7857,7 @@ LINE
 100
 AcDbEntity
   8
-用于连接电路板线路的起始线背面
+Trace-start-lines-back
 100
 AcDbLine
  10
@@ -7881,7 +7881,7 @@ LINE
 100
 AcDbEntity
   8
-用于连接电路板线路的起始线背面
+Trace-start-lines-back
 100
 AcDbLine
  10
@@ -7905,7 +7905,7 @@ LINE
 100
 AcDbEntity
   8
-用于连接电路板线路的起始线
+Trace-start-lines
 100
 AcDbLine
  10
@@ -7929,7 +7929,7 @@ LINE
 100
 AcDbEntity
   8
-用于连接电路板线路的起始线
+Trace-start-lines
 100
 AcDbLine
  10
@@ -7953,7 +7953,7 @@ LINE
 100
 AcDbEntity
   8
-用于连接电路板线路的起始线
+Trace-start-lines
 100
 AcDbLine
  10
@@ -7977,7 +7977,7 @@ LINE
 100
 AcDbEntity
   8
-用于连接电路板线路的起始线
+Trace-start-lines
 100
 AcDbLine
  10
@@ -8001,7 +8001,7 @@ LINE
 100
 AcDbEntity
   8
-用于连接电路板线路的起始线背面
+Trace-start-lines-back
 100
 AcDbLine
  10
@@ -8025,7 +8025,7 @@ LINE
 100
 AcDbEntity
   8
-次级芯片-颜色2
+Satellite-chip-color2
 100
 AcDbLine
  10
@@ -8049,7 +8049,7 @@ LINE
 100
 AcDbEntity
   8
-次级芯片-颜色2
+Satellite-chip-color2
 100
 AcDbLine
  10
@@ -8073,7 +8073,7 @@ LINE
 100
 AcDbEntity
   8
-次级芯片-颜色2
+Satellite-chip-color2
 100
 AcDbLine
  10
@@ -8097,7 +8097,7 @@ LINE
 100
 AcDbEntity
   8
-次级芯片-颜色2背面
+Satellite-chip-color2-back
 100
 AcDbLine
  10

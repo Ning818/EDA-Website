@@ -47,6 +47,7 @@ const SWAY_YAW = 0.12, SWAY_PITCH = 0.09, SWAY_EASE = 14 // mouse sway of the fo
 // `t` are positions on the timeline (its total length is 1); the timeline is scrubbed by scroll.
 const SCRUB = 1.2 // seconds the animation takes to catch up with the scrollbar (smooths it)
 const SPIN_TURNS = 1 // extra full horizontal turns the brain makes while it moves
+const ARM_PHONE_SCALE = 0.95 // on a phone the Industry 4.0 arm is drawn at this fraction of its box, about the middle of its silhouette
 // Brain -> VLSI-CAD: the brain slides to the middle of the screen (turning a full turn from wherever it currently faces),
 // scatters and regathers there as the VLSI-CAD cloud. Once that cloud has formed, a time-based (not
 // scroll-scrubbed) tween slides it left to its default place - no rotation (see `slide` below).
@@ -860,6 +861,15 @@ function Clouds() {
     // the silhouette centre relative to the origin (px, y up); all zero on desktop, where the destination is just c.
     const off = (P) => (mobile ? { x: P.S * P.fx, y: -P.S * P.fy } : { x: 0, y: 0 })
     const oA = off(A), o1 = off(B1), o2 = off(B2), o3 = off(B3), o4 = off(B4)
+    // On a phone (below 768px) the Industry 4.0 arm is drawn at ARM_PHONE_SCALE of its box, shrunk about the middle of its own silhouette: scaling it about its origin would
+    // move that middle, so the origin moves to make up for it (the silhouette centre c4 + o4 stays where it was), and the offset itself shrinks with the cloud.
+    if (vw < 768) {
+      c4.x += (1 - ARM_PHONE_SCALE) * o4.x
+      c4.y += (1 - ARM_PHONE_SCALE) * o4.y
+      o4.x *= ARM_PHONE_SCALE
+      o4.y *= ARM_PHONE_SCALE
+      B4.scale *= ARM_PHONE_SCALE
+    }
     const dest = (cTo, oTo, oFrom) => ({ x: cTo.x + oTo.x - oFrom.x, y: cTo.y + oTo.y - oFrom.y })
     const d2 = dest(c2, o2, o1), d3 = dest(c3, o3, o2), d4 = dest(c4, o4, o3)
 

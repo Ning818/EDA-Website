@@ -152,7 +152,7 @@ const ALUMNI = [
 // survives a refresh, the back button and a shared link. An unknown ?group= shows Professors.
 const GROUPS = [
   { slug: 'professors', name: 'Professors', to: '/people', people: PROFESSORS },
-  { slug: 'phd-students', name: 'PhD Students & Research Fellows', to: '/people?group=phd-students', people: [...RESEARCH_FELLOWS, ...PHD_STUDENTS] },
+  { slug: 'phd-students', name: 'Research Fellows & PhD Students', to: '/people?group=phd-students', people: [...RESEARCH_FELLOWS, ...PHD_STUDENTS] },
   { slug: 'alumni', name: 'Alumni', to: '/people?group=alumni', people: ALUMNI },
 ]
 

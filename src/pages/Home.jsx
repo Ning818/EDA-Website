@@ -21,6 +21,11 @@ import VLSICADScene from '../three/VLSICADScene'
 const VISUAL_BOX =
   'h-[478px] w-full max-w-[531px] shrink-0 max-xl:h-auto max-xl:min-h-0 max-xl:max-w-none max-xl:flex-1 max-xl:shrink max-xl:[container-type:size]'
 
+// The three transitions between the four theme clouds take this share of the scroll they have on a phone (the gap is what is left after the transition's fixed 100vh): from
+// `md` up, i.e. on the medium and the large screens. The timelines are fractions of their scroll range (ParticleCanvas.jsx), so they follow.
+const WIDE_TRANSITION_SHARE = 0.8
+const wideGap = (gap) => (gap + 100) * WIDE_TRANSITION_SHARE - 100
+
 const THEMES = [
   {
     theme: 'VLSI-CAD',
@@ -28,6 +33,7 @@ const THEMES = [
     imageSide: 'left',
     dwell: 60, // vh of scroll the finished cloud holds still
     gap: 161, // vh of scroll for the transition into the next theme (VLSI's timeline is 0.87 long: the transition spans gap + 100vh = 0.87 x 300vh)
+    gapWide: wideGap(161),
     visual: <VLSICADScene className={VISUAL_BOX} />,
     still: <StillCloud cloud={STILL_CLOUDS.vlsi} className={STILL_BOX} near="bottom" />,
     snapUp: true, // the still page's phone layout snaps to this row a little further down
@@ -38,6 +44,7 @@ const THEMES = [
     imageSide: 'right',
     dwell: 60,
     gap: 161, // 0.87 x 300vh - see scatteredTimeline in ParticleCanvas.jsx
+    gapWide: wideGap(161),
     visual: <DNAScene className={VISUAL_BOX} />,
     still: <StillCloud cloud={STILL_CLOUDS.dna} className={STILL_BOX} near="top" />,
   },
@@ -47,6 +54,7 @@ const THEMES = [
     imageSide: 'left',
     dwell: 60,
     gap: 161, // 0.87 x 300vh - see scatteredTimeline in ParticleCanvas.jsx
+    gapWide: wideGap(161),
     phoneLift: 40, // px: on the phone the copy sits this much higher than the other left-hand themes' (the cloud above is small)
     visual: <SmartCityScene className={VISUAL_BOX} />,
     still: <StillCloud cloud={STILL_CLOUDS.city} className={STILL_BOX} near="bottom" />,
@@ -198,7 +206,7 @@ export default function Home() {
           timeline (0.28 of 300vh = 84vh) instead of stretching the other steps out. */}
       {!still && <div aria-hidden style={{ height: '116vh' }} />}
       {THEMES.map((t) => (
-        <ThemeShowcase key={t.theme} theme={t.theme} imageSide={t.imageSide} visual={still ? t.still : t.visual} still={still} snapUp={t.snapUp} copy={t.copy} dwell={t.dwell} gapAfter={t.gap ?? 100} phoneLift={t.phoneLift} />
+        <ThemeShowcase key={t.theme} theme={t.theme} imageSide={t.imageSide} visual={still ? t.still : t.visual} still={still} snapUp={t.snapUp} copy={t.copy} dwell={t.dwell} gapAfter={t.gap ?? 100} gapAfterWide={t.gapWide} phoneLift={t.phoneLift} />
       ))}
       </main>
       {/* The YouTube / LinkedIn copy sits beside the social1 / social2 clouds now (it used to be the two standalone

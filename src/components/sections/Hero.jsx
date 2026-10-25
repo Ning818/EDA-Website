@@ -8,12 +8,12 @@ import { THEMES } from '../../themes'
 // The four themes under the intro, each a jump to its own part of this page (its particle cloud and copy), headed by a small "Discover our research" label. An item is
 // the theme's name under a bar in the theme's colour; hovering (or focusing) it thickens the bar and a small arrow appears after the name, pointing down - the page
 // scrolls down to it. The bar's row is 6px high whatever the bar's own height, so the name does not move when the bar grows. The arrow stands in the gap
-// beside the item, so it takes no width of its own. The four names are one row where the column is wide enough for them (28rem, measured on the column itself, whose width
+// beside the item, so it takes no width of its own. Not on a phone, where the first screen is too short for it (the chapter dots beside the page do its job). The four names are one row where the column is wide enough for them (28rem, measured on the column itself, whose width
 // follows the brain beside it), else two rows of two - not three and a lone one.
 function ThemeJump({ still }) {
   const labelId = useId()
   return (
-    <div className="@container flex flex-col gap-3">
+    <div className="@container flex flex-col gap-3 max-md:hidden">
       <p id={labelId} className="type-meta font-medium uppercase tracking-[0.08em] text-teal-text">
         Discover our research
       </p>
@@ -64,6 +64,10 @@ const BRAIN_BOX = 'h-full max-h-[692px] w-full max-w-[615px] shrink-0 max-xl:poi
 // and is capped at 384px tall (the brain is up to ~0.9 of its box height wide, so that is the most that fits the
 // width). The section keeps its one-screen height: the brain's scroll-0 position (and with it the brain -> VLSI-CAD
 // transition) is measured from it.
+//
+// Medium layout (md up to xl, stacked): the copy is as wide as the theme sections' copy below it (ThemeShowcase.jsx: the width of the screen less its padding, at most 40rem,
+// in the middle), so the intro and the themes read in one column; the phone and the side-by-side layout from xl keep the 539px the copy had. The departments' abbreviations, (DAUIN) and (DIST), are
+// left out of the copy below xl (the phone and the medium layout), and "the Interuniversity" only on the phone.
 export default function Hero({ still = false }) {
   return (
     <section
@@ -74,12 +78,12 @@ export default function Hero({ still = false }) {
           : 'mx-auto flex h-[calc(100vh-var(--header-h,93px))] max-w-[1440px] flex-col items-center justify-start gap-5 px-8 md:px-16 pb-6 pt-8 max-md:pt-6 xl:flex-row xl:justify-between xl:gap-10 lg:px-[120px] xl:pb-0 xl:pt-0'
       }
     >
-      <div className="flex max-w-[539px] flex-col gap-6">
+      <div className="flex max-w-[539px] flex-col gap-6 md:max-xl:w-full md:max-xl:max-w-[40rem]">
         <h1 className="type-h1 text-navy">EDA Group</h1>
         <p className="type-lead text-navy">
           EDA (Electronic Design Automation) Group is an interdepartmental research group including researchers from
-          the Department of Control and Computer Engineering (DAUIN) and the Interuniversity Department of Regional
-          and Urban Studies and Planning (DIST) of Politecnico di Torino.
+          the Department of Control and Computer Engineering<span className="max-xl:hidden"> (DAUIN)</span> and <span className="max-md:hidden">the Interuniversity </span>Department of Regional
+          and Urban Studies and Planning<span className="max-xl:hidden"> (DIST)</span> of Politecnico di Torino.
         </p>
         <ThemeJump still={still} />
       </div>

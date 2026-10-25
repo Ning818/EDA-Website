@@ -9,7 +9,7 @@ import { themeByName } from '../../themes'
  * side by side from xl up; nothing is pinned and no scroll is set aside (`dwell`, `gapAfter` do not apply). `snapUp`: on the phone the row is snapped to
  * 40px further down, so its content stands that much higher on the screen.
  */
-export default function ThemeShowcase({ theme, imageSide = 'left', visual, still = false, snapUp = false, copy, gapAfter = 0, dwell = 60, phoneLift = 0 }) {
+export default function ThemeShowcase({ theme, imageSide = 'left', visual, still = false, snapUp = false, copy, gapAfter = 0, gapAfterWide, dwell = 60, phoneLift = 0 }) {
 
   // Phone layout: with the cloud on top (imageSide 'left') the copy sits 24px higher than the stack puts it (more room
   // under it) and may then overlap the cloud's lower edge, which is fine; with the cloud at the bottom ('right') the
@@ -56,7 +56,12 @@ export default function ThemeShowcase({ theme, imageSide = 'left', visual, still
     // extra scroll distance while the particle cloud holds its finished shape, giving time to read.
     // `dwell` is the extra vh held still; `gapAfter` (vh) adds further empty scroll below it: that is where the cloud transitions to
     // the next theme's shape, so the transition (spin, slide, explode, regather) gets a longer scroll.
-    <section data-chapter={themeByName(theme)?.slug} className={`mx-auto max-w-[1440px] snap-start ${still && snapUp ? 'max-md:-scroll-mt-10' : ''}`} style={still ? undefined : { minHeight: `${100 + dwell}vh`, marginBottom: gapAfter ? `${gapAfter}vh` : undefined }}>
+    // `gapAfterWide` (vh): the same gap from `md` up (the medium and the large screens), where the phone keeps `gapAfter`.
+    <section
+      data-chapter={themeByName(theme)?.slug}
+      className={`mx-auto max-w-[1440px] snap-start ${still && snapUp ? 'max-md:-scroll-mt-10' : ''} ${still ? '' : 'mb-[var(--gap)] md:mb-[var(--gap-md)]'}`}
+      style={still ? undefined : { minHeight: `${100 + dwell}vh`, '--gap': `${gapAfter}vh`, '--gap-md': `${gapAfterWide ?? gapAfter}vh` }}
+    >
       <div data-pin data-side={imageSide} className={
         still
           ? 'flex h-screen min-h-[min-content] flex-col items-center justify-start gap-5 px-8 md:px-16 pb-8 pt-[4.5rem] xl:flex-row xl:justify-center xl:gap-10 lg:px-[120px] xl:py-[60px]'

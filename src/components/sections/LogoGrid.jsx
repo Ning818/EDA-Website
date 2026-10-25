@@ -16,7 +16,15 @@
  * each one sits on a plate of that same mint - a flat plate so the opaque ones show no seam - lifted off the dark page: a hairline
  * border, a highlight along its top edge and a soft shadow under it; hovering lights the border in teal before the
  * name label comes up.
+ *
+ * A logo with a `url` is a link to the organisation's own website, opened in a new tab.
  */
+// The card's element and its props: a link where the logo has a website, else a plain box.
+const cardOf = (logo) =>
+  logo.url
+    ? ['a', { href: logo.url, target: '_blank', rel: 'noopener noreferrer', 'aria-label': `${logo.alt} - website (opens in a new tab)` }]
+    : ['div', {}]
+
 export default function LogoGrid({ title, logos, tone = 'flat' }) {
   if (tone === 'dark' || tone === 'light') {
     const dark = tone === 'dark'
@@ -24,11 +32,14 @@ export default function LogoGrid({ title, logos, tone = 'flat' }) {
       <section className="relative mx-auto max-w-[1440px] px-8 pt-12 lg:px-[120px]">
         <h2 className={`pb-7 type-h2 ${dark ? 'text-white' : 'text-navy'}`}>{title}</h2>
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
-          {logos.map((logo, i) =>
-            logo ? (
-              <div
+          {logos.map((logo, i) => {
+            if (!logo) return <div key={i} className="hidden h-[120px] lg:block" aria-hidden="true" />
+            const [Card, link] = cardOf(logo)
+            return (
+              <Card
                 key={i}
-                className={`group relative h-[120px] overflow-hidden rounded-xl border bg-[#eef8f3] transition-[border-color,box-shadow] duration-300 ease-out ${
+                {...link}
+                className={`group relative block h-[120px] overflow-hidden rounded-xl border bg-[#eef8f3] transition-[border-color,box-shadow] duration-300 ease-out focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-navy ${
                   dark
                     ? 'border-white/15 shadow-[inset_0_1px_0_rgba(255,255,255,0.9),0_12px_28px_-14px_rgba(0,0,0,0.7)] hover:border-[#3fb0b8]/80 hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.9),0_0_0_1px_rgba(63,176,184,0.35),0_16px_36px_-10px_rgba(63,176,184,0.45)]'
                     : 'border-navy/10 shadow-[inset_0_1px_0_rgba(255,255,255,0.9),0_6px_18px_-10px_rgba(0,40,67,0.28)]'
@@ -45,11 +56,9 @@ export default function LogoGrid({ title, logos, tone = 'flat' }) {
                 >
                   <span className="type-compact font-semibold text-[#f5f4f6]">{logo.alt}</span>
                 </div>
-              </div>
-            ) : (
-              <div key={i} className="hidden h-[120px] lg:block" aria-hidden="true" />
-            ),
-          )}
+              </Card>
+            )
+          })}
         </div>
       </section>
     )
@@ -59,9 +68,11 @@ export default function LogoGrid({ title, logos, tone = 'flat' }) {
     <section className="mx-auto max-w-[1440px] px-8 pt-10 lg:px-[120px]">
       <h2 className="pb-5 type-h2 text-navy">{title}</h2>
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5">
-        {logos.map((logo, i) =>
-          logo ? (
-            <div key={i} className="group relative h-[120px]">
+        {logos.map((logo, i) => {
+          if (!logo) return <div key={i} className="hidden h-[120px] lg:block" aria-hidden="true" />
+          const [Card, link] = cardOf(logo)
+          return (
+            <Card key={i} {...link} className="group relative block h-[120px] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-navy">
               <div className="flex h-full w-full items-center justify-center px-[30.75px] py-[18px]">
                 <img
                   src={logo.src}
@@ -75,11 +86,9 @@ export default function LogoGrid({ title, logos, tone = 'flat' }) {
               >
                 <span className="type-compact font-semibold text-[#f5f4f6]">{logo.alt}</span>
               </div>
-            </div>
-          ) : (
-            <div key={i} className="hidden h-[120px] lg:block" aria-hidden="true" />
-          ),
-        )}
+            </Card>
+          )
+        })}
       </div>
     </section>
   )

@@ -4,6 +4,15 @@ import { CHAPTERS, chapterIndexAt, chapterTargets, scrollToChapter, useFooterInV
 // How long a chapter's name stays beside its dot after the page arrives at it (it also shows on hover and focus).
 const PEEK_MS = 1800
 
+// On a phone, a visitor who has just arrived is shown what the dots are: after TOUR_START_MS the names come up from the first dot to the last, a new one every
+// TOUR_STEP_MS and each staying TOUR_SHOW_MS before it fades out (quickly). TOUR_SHOW_MS (plus the fade-out) is kept under three steps, so at most three names are
+// visible at once - the new one and the two before it. It plays each time the page is loaded, a refresh included, but not when the visitor comes back to the
+// home page from another page of the site (`toured` outlives that, not a reload), and stops at the visitor's first scroll or touch.
+let toured = false
+const TOUR_START_MS = 1200
+const TOUR_STEP_MS = 340
+const TOUR_SHOW_MS = 800
+
 /**
  * The home page's chapter index: a column of small dots down the right edge of the screen, one per chapter (the opening screen, the four themes, the YouTube /
  * LinkedIn stage), each in its theme's colour. The one the page is at is bigger and ringed; a thin teal line runs down the column and fills as the page scrolls on, so
@@ -14,9 +23,10 @@ const PEEK_MS = 1800
 export default function ChapterRail({ still }) {
   const [active, setActive] = useState(0)
   const [peek, setPeek] = useState(null)
+  const [tour, setTour] = useState([]) // the chapters whose names the arrival tour is showing now
   const hidden = useFooterInView()
   const fill = useRef(null)
-  const arrived = useRef(false) // the first position is not an "arrival"
+  const shownFor = useRef(active) // the chapter the page was last at: the first position is not an "arrival"
 
   useEffect(() => {
     let targets = []
@@ -57,12 +67,36 @@ export default function ChapterRail({ still }) {
     }
   }, [still])
 
+  // the arrival tour (phones only; not for a visitor who asked for reduced motion)
+  useEffect(() => {
+    if (!window.matchMedia('(max-width: 767px)').matches || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return undefined
+    if (toured) return undefined
+    const timers = CHAPTERS.flatMap((_, i) => [
+      setTimeout(() => {
+        if (i === 0) toured = true
+        setTour((on) => [...on, i])
+      }, TOUR_START_MS + i * TOUR_STEP_MS),
+      setTimeout(() => setTour((on) => on.filter((x) => x !== i)), TOUR_START_MS + i * TOUR_STEP_MS + TOUR_SHOW_MS),
+    ])
+    const stop = () => {
+      timers.forEach(clearTimeout)
+      setTour([])
+    }
+    window.addEventListener('scroll', stop, { once: true, passive: true })
+    window.addEventListener('pointerdown', stop, { once: true, passive: true })
+    return () => {
+      timers.forEach(clearTimeout)
+      window.removeEventListener('scroll', stop)
+      window.removeEventListener('pointerdown', stop)
+    }
+  }, [])
+
   // arriving at a chapter shows its name for a moment
   useEffect(() => {
-    if (!arrived.current) {
-      arrived.current = true
-      return undefined
-    }
+    // Compared with where the page was, not with a "first run" flag: React's development double-run of effects would otherwise take the first position for an
+    // arrival and keep "Introduction" up for 1.8 seconds on every load.
+    if (shownFor.current === active) return undefined
+    shownFor.current = active
     setPeek(active)
     const timer = setTimeout(() => setPeek(null), PEEK_MS)
     return () => clearTimeout(timer)
@@ -94,14 +128,14 @@ export default function ChapterRail({ still }) {
               >
                 <span
                   aria-hidden="true"
-                  className={`block rounded-full bg-[var(--c)] transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] group-hover:scale-125 ${
+                  className={`block rounded-full bg-[var(--c)] transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] group-hover:scale-125 ${tour.includes(i) ? 'scale-125' : ''} ${
                     isActive ? 'size-3.5 ring-2 ring-navy shadow-[0_0_0_5px_color-mix(in_srgb,var(--c)_30%,transparent)]' : 'size-2.5 ring-1 ring-navy/55'
                   }`}
                 />
                 <span
                   aria-hidden="true"
-                  data-show={peek === i ? '' : undefined}
-                  className="pointer-events-none absolute right-full mr-2 translate-x-1 whitespace-nowrap rounded-full border border-navy/15 bg-white/95 px-3 py-1 type-meta text-navy opacity-0 shadow-sm transition-[opacity,transform] duration-200 group-hover:translate-x-0 group-hover:opacity-100 group-focus-visible:translate-x-0 group-focus-visible:opacity-100 data-[show]:translate-x-0 data-[show]:opacity-100"
+                  data-show={peek === i || tour.includes(i) ? '' : undefined}
+                  className="pointer-events-none absolute right-full mr-2 translate-x-1 whitespace-nowrap rounded-full border border-navy/15 bg-white/95 px-3 py-1 type-meta text-navy opacity-0 shadow-sm transition-[opacity,transform] duration-[120ms] ease-out data-[show]:duration-200 group-hover:translate-x-0 group-hover:opacity-100 group-focus-visible:translate-x-0 group-focus-visible:opacity-100 data-[show]:translate-x-0 data-[show]:opacity-100"
                 >
                   {label}
                 </span>

@@ -9,7 +9,6 @@ const FUNDED_PROJECTS = {
   'vlsi-cad': {
     ongoing: [
       { code: 'R2POWER300', description: 'PREPARING R2 EXTENSIONS TO 300mm FOR BCD SMART POWER' },
-      { code: 'ITALY2020' },
       { code: 'ARROWHEAD', description: 'COOPERATIVE AUTOMATION BASED ON THE INTERNET OF THINGS AND SERVICE-ORIENTED ARCHITECTURES', url: 'https://arrowhead.eu/' },
       { code: 'Lab4MEMS II', description: 'MICRO-OPTICAL MEMS, MICRO-MIRRORS AND PICO-PROJECTORS' },
       { code: 'R3POWERUP', description: '300mm Pilot Line for Smart Power and Power Discretes', url: 'https://artemis-ia.eu/project/135-R3-PowerUP.html' },

@@ -5,6 +5,8 @@
 // `status` is "<funding> · <state>", e.g. "EU Funded · Active", or just the state ("Ongoing"), in which case the funding label
 // is left out. A project may have no `code` (then the header row holds only the status) or no `description`. With a `url` the whole
 // card is a link to the project's website (opens in a new tab) and a small arrow after the code says so.
+// Below `xl` the cards are a grid that fills the content width - as many columns as fit at 320px or more, the cards sharing the row equally, so the outer edges of a row
+// stand at the edges of the page's content like the title's; from `xl` they are 384px cards from the left (three of them make the full 1200px of the widest page).
 function ProjectCard({ code, description, status, url }) {
   const [funding, state] = status.split('·').map((part) => part.trim())
   const label = state ?? status
@@ -14,7 +16,7 @@ function ProjectCard({ code, description, status, url }) {
   const linkProps = url ? { href: url, target: '_blank', rel: 'noopener noreferrer' } : {}
 
   return (
-    <Tag {...linkProps} className="group flex w-[384px] max-w-full flex-col gap-4 rounded-2xl border border-navy/15 bg-white px-6 py-5 shadow-sm transition-[border-color,box-shadow,transform] duration-300 ease-out hover:-translate-y-0.5 hover:border-[color:var(--theme,#279aae)] hover:shadow-[0_10px_28px_color-mix(in_srgb,var(--theme,#279aae)_18%,transparent)]">
+    <Tag {...linkProps} className="group flex w-full flex-col gap-4 xl:w-[384px] rounded-2xl border border-navy/15 bg-white px-6 py-5 shadow-sm transition-[border-color,box-shadow,transform] duration-300 ease-out hover:-translate-y-0.5 hover:border-[color:var(--theme,#279aae)] hover:shadow-[0_10px_28px_color-mix(in_srgb,var(--theme,#279aae)_18%,transparent)]">
       <div className="flex items-center justify-between gap-3">
         {code ? (
           <div className="flex min-w-0 items-center gap-1.5">
@@ -59,7 +61,7 @@ export default function ProjectCardsGrid({ title, projects }) {
   return (
     <section className="mx-auto max-w-[1440px] px-8 lg:px-[120px]">
       <h2 className="pt-20 type-h2 text-navy">{title}</h2>
-      <div className="flex flex-wrap justify-center gap-6 pb-20 pt-10 lg:justify-start">
+      <div className="grid grid-cols-[repeat(auto-fill,minmax(min(320px,100%),1fr))] gap-6 pb-20 pt-10 xl:flex xl:flex-wrap">
         {projects.map((project, i) => (
           <ProjectCard key={i} {...project} />
         ))}

@@ -47,7 +47,8 @@ export default function ArrowLink({ to = '#', children, tone = 'navy', variant =
   const part = (text) => (animatedUnderline ? <span className={UNDERLINE_ANIM}>{text}</span> : text)
   return (
     <Anchor href={to} className={`${group}inline-block ${textClass ?? 'type-action'} ${toneClasses}`}>
-      {words.length > 0 && <>{part(words.join(' '))} </>}
+      {/* the space between the two parts is inside the first one's bar, so the underline runs on unbroken from the first word to the last */}
+      {words.length > 0 && part(`${words.join(' ')} `)}
       <span className="whitespace-nowrap">
         {part(last)}
         <img src={arrowIcon} alt="" className={`ml-2 inline-block size-7 rotate-90 align-middle ${tone === 'white' ? 'invert' : ''}`} />

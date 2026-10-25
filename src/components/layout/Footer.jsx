@@ -52,7 +52,11 @@ export default function Footer() {
                 <br />
                 10129, Torino, Italy
                 <br />
-                Tel. +39 011 090 7042
+                {/* the phone number dials on a phone (the fax number stays plain text) */}
+                Tel.{' '}
+                <a href="tel:+390110907042" className="underline-offset-4 hover:underline">
+                  +39 011 090 7042
+                </a>
                 <br />
                 Fax. +39 011 090 7099
               </p>

@@ -3,7 +3,7 @@ import BrainScene from '../../three/BrainScene'
 import StillCloud, { STILL_BRAIN_BOX } from './StillCloud'
 import { STILL_CLOUDS } from './stillClouds'
 import { scrollToChapter } from './homeChapters'
-import { THEMES } from '../../themes'
+import { useThemes } from '../../useThemes'
 
 // The four themes under the intro, each a jump to its own part of this page (its particle cloud and copy), headed by a small "Discover our research" label. An item is
 // the theme's name under a bar in the theme's colour; hovering (or focusing) it thickens the bar and a small arrow appears after the name, pointing down - the page
@@ -12,6 +12,7 @@ import { THEMES } from '../../themes'
 // follows the brain beside it), else two rows of two - not three and a lone one.
 function ThemeJump({ still }) {
   const labelId = useId()
+  const themes = useThemes()
   return (
     <div className="@container flex flex-col gap-3 max-md:hidden">
       <p id={labelId} className="type-meta font-medium uppercase tracking-[0.08em] text-teal-text">
@@ -19,7 +20,7 @@ function ThemeJump({ still }) {
       </p>
       <nav aria-labelledby={labelId}>
         <ul className="grid grid-cols-2 justify-items-start gap-x-6 gap-y-4 @[28rem]:flex @[28rem]:flex-wrap">
-          {THEMES.map((theme) => (
+          {themes.map((theme) => (
             <li key={theme.slug}>
               <button
                 type="button"

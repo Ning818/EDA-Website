@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { useThemes } from '../../useThemes'
 import { CHAPTERS, chapterIndexAt, chapterTargets, scrollToChapter, useFooterInView } from './homeChapters'
 
 // How long a chapter's name stays beside its dot after the page arrives at it (it also shows on hover and focus).
@@ -21,6 +22,12 @@ const TOUR_SHOW_MS = 800
  * stops are laid out differently, see chapterTargets).
  */
 export default function ChapterRail({ still }) {
+  // a theme's chapter is named as the API names the theme (ThemesProvider.jsx)
+  const themes = useThemes()
+  const chapters = CHAPTERS.map((chapter) => {
+    const theme = themes.find((t) => t.slug === chapter.id)
+    return theme ? { ...chapter, label: theme.short ?? theme.name } : chapter
+  })
   const [active, setActive] = useState(0)
   const [peek, setPeek] = useState(null)
   const [tour, setTour] = useState([]) // the chapters whose names the arrival tour is showing now
@@ -114,7 +121,7 @@ export default function ChapterRail({ still }) {
         <span ref={fill} className="block h-full origin-top bg-[#279aae]" style={{ transform: 'scaleY(0)' }} />
       </span>
       <ul className="relative flex flex-col gap-2">
-        {CHAPTERS.map(({ id, label, color }, i) => {
+        {chapters.map(({ id, label, color }, i) => {
           const isActive = i === active
           return (
             <li key={id}>

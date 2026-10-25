@@ -149,7 +149,7 @@ export default function ProfessorGrid({ professors }) {
   return (
     <div className="grid w-full flex-1 grid-cols-[repeat(auto-fill,minmax(220px,1fr))] gap-5 lg:w-auto lg:self-start">
       {professors.map((p, i) => (
-        <ProfessorCard key={i} {...p} />
+        <ProfessorCard key={p.slug ?? i} {...p} />
       ))}
     </div>
   )

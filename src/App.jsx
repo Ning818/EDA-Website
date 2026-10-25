@@ -8,7 +8,8 @@ import FundedProjects from './pages/FundedProjects'
 import Collaborations from './pages/Collaborations'
 import Teaching from './pages/Teaching'
 import NotFound from './pages/NotFound'
-import { themeBySlug } from './themes'
+import { ThemesProvider } from './ThemesProvider'
+import { useThemes } from './useThemes'
 
 // Every navigation (nav bar, in-page links, same-page links, hash links) lands at the top of the page. Keyed on
 // `location.key` rather than the path so clicking a link to the page you are already on also goes to the top;
@@ -28,24 +29,24 @@ function ScrollToTop() {
 
 const SITE = 'EDA Group | Politecnico di Torino'
 
-// a theme's name for a tab: its short form where it has one ("Industry 4.0" for "Industry 4.0 and Smart Manufacturing")
-const themeLabel = (slug = 'vlsi-cad') => {
-  const theme = themeBySlug(slug)
+// a theme's name for a tab: its short form where it has one ("Industry 4.0" for "Industry 4.0 and Smart Manufacturing"); the names are the API's (ThemesProvider.jsx)
+const themeLabel = (themes, slug = 'vlsi-cad') => {
+  const theme = themes.find((t) => t.slug === slug)
   return theme && (theme.short ?? theme.name)
 }
 
 // The title of the browser tab for each page, so the tabs, the history and the bookmarks tell the pages apart: "<the page> | EDA Group | Politecnico di Torino"
 // (the home page is just the group's name). It is set on every navigation - the pages are one document, so the browser does not do it.
-function pageTitle(pathname) {
+function pageTitle(pathname, themes) {
   const path = pathname.replace(/\/+$/, '') || '/'
   if (path === '/') return SITE
   if (path === '/collaborations') return `Collaborations | ${SITE}`
   if (path === '/people' || path === '/teaching') return `People | ${SITE}`
   // /research and /research/funded-projects are VLSI-CAD's pages (themeLabel's default); a theme the site does not have, like any other path, is the not-found page
   const projects = path.match(/^\/research\/funded-projects(?:\/([^/]+))?$/)
-  if (projects && themeLabel(projects[1])) return `${themeLabel(projects[1])} Funded Projects | ${SITE}`
+  if (projects && themeLabel(themes, projects[1])) return `${themeLabel(themes, projects[1])} Funded Projects | ${SITE}`
   const research = !projects && path.match(/^\/research(?:\/([^/]+))?$/)
-  if (research && themeLabel(research[1])) return `${themeLabel(research[1])} Research | ${SITE}`
+  if (research && themeLabel(themes, research[1])) return `${themeLabel(themes, research[1])} Research | ${SITE}`
   return `Page not found | ${SITE}`
 }
 
@@ -92,14 +93,16 @@ function SkipLink() {
 
 function DocumentTitle() {
   const { pathname } = useLocation()
+  const themes = useThemes()
   useEffect(() => {
-    document.title = pageTitle(pathname)
-  }, [pathname])
+    document.title = pageTitle(pathname, themes)
+  }, [pathname, themes])
   return null
 }
 
 export default function App() {
   return (
+    <ThemesProvider>
     <div className="min-h-screen bg-mint text-navy">
       <SkipLink />
       <ScrollToTop />
@@ -119,5 +122,6 @@ export default function App() {
       </Routes>
       <Footer />
     </div>
+    </ThemesProvider>
   )
 }

@@ -26,10 +26,10 @@ const VISUAL_BOX =
 const WIDE_TRANSITION_SHARE = 0.8
 const wideGap = (gap) => (gap + 100) * WIDE_TRANSITION_SHARE - 100
 
+// How the page lays out each theme (the scroll it holds and gives to the transition, its cloud and picture); the theme's name and paragraph come from the API (useThemes.js), by `slug`.
 const THEMES = [
   {
-    theme: 'VLSI-CAD',
-    copy: 'The EDA group works on Design Automation for standard digital CMOS circuits, Beyond-CMOS technologies and Electrical Energy Systems. We develop CAD algorithms and prototype tools for low-power, variation-tolerant integrated circuits, model Graphene-based devices for flexible, ultra-low-power circuits, and build simulation and run-time charge and thermal management for hybrid-source energy systems.',
+    slug: 'vlsi-cad',
     imageSide: 'left',
     dwell: 60, // vh of scroll the finished cloud holds still
     gap: 161, // vh of scroll for the transition into the next theme (VLSI's timeline is 0.87 long: the transition spans gap + 100vh = 0.87 x 300vh)
@@ -39,8 +39,7 @@ const THEMES = [
     snapUp: true, // the still page's phone layout snaps to this row a little further down
   },
   {
-    theme: 'Bioinformatics',
-    copy: 'With long-term experience in bioinformatics, the EDA group designs software and hardware-software solutions to manage, analyze and interpret complex biological and medical data. Our work spans gene expression and regulatory networks, sequencing data, medical image analysis, GPU and FPGA acceleration and neuromorphic computing, with hospitals and research centers.',
+    slug: 'bioinformatics',
     imageSide: 'right',
     dwell: 60,
     gap: 161, // 0.87 x 300vh - see scatteredTimeline in ParticleCanvas.jsx
@@ -49,8 +48,7 @@ const THEMES = [
     still: <StillCloud cloud={STILL_CLOUDS.dna} className={STILL_BOX} near="top" />,
   },
   {
-    theme: 'Smart City',
-    copy: 'ICT is key to optimizing energy use in the Smart City, and that is where our software solutions come in. We research distributed software and middleware that make energy, environmental and user-feedback data interoperable, visual web interfaces giving real-time feedback on energy impact, and building information models linked to real-time data.',
+    slug: 'smart-city',
     imageSide: 'left',
     dwell: 60,
     gap: 161, // 0.87 x 300vh - see scatteredTimeline in ParticleCanvas.jsx
@@ -61,8 +59,7 @@ const THEMES = [
     snapUp: true,
   },
   {
-    theme: 'Industry 4.0 and Smart Manufacturing', // must equal the name in themes.js (the home page looks the theme's links up by it)
-    copy: 'In the fourth industrial revolution, connected products and massive IoT and Big Data usage demand a new technology infrastructure. The EDA group applies its expertise in IoT, cyber-physical systems, wireless sensor networks and machine learning to make manufacturing more efficient, responsive to demand and optimized across supply chains.',
+    slug: 'industry-4-0',
     imageSide: 'right',
     // vh of scroll after the arm's pin releases, all spent on the social-media stage: the arm -> social1 transition,
     // the social1 hold, then the social2 hold (the same length as social1's) before the footer scrolls in. The
@@ -206,7 +203,7 @@ export default function Home() {
           timeline (0.28 of 300vh = 84vh) instead of stretching the other steps out. */}
       {!still && <div aria-hidden style={{ height: '116vh' }} />}
       {THEMES.map((t) => (
-        <ThemeShowcase key={t.theme} theme={t.theme} imageSide={t.imageSide} visual={still ? t.still : t.visual} still={still} snapUp={t.snapUp} copy={t.copy} dwell={t.dwell} gapAfter={t.gap ?? 100} gapAfterWide={t.gapWide} phoneLift={t.phoneLift} />
+        <ThemeShowcase key={t.slug} slug={t.slug} imageSide={t.imageSide} visual={still ? t.still : t.visual} still={still} snapUp={t.snapUp} dwell={t.dwell} gapAfter={t.gap ?? 100} gapAfterWide={t.gapWide} phoneLift={t.phoneLift} />
       ))}
       </main>
       {/* The YouTube / LinkedIn copy sits beside the social1 / social2 clouds now (it used to be the two standalone

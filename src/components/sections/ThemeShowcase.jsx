@@ -1,5 +1,5 @@
 import ArrowLink from '../ui/ArrowLink'
-import { themeByName } from '../../themes'
+import { useTheme } from '../../useThemes'
 
 /**
  * One of the four alternating "theme" rows on the homepage (VLSI-CAD, Bioinformatics,
@@ -9,7 +9,10 @@ import { themeByName } from '../../themes'
  * side by side from xl up; nothing is pinned and no scroll is set aside (`dwell`, `gapAfter` do not apply). `snapUp`: on the phone the row is snapped to
  * 40px further down, so its content stands that much higher on the screen.
  */
-export default function ThemeShowcase({ theme, imageSide = 'left', visual, still = false, snapUp = false, copy, gapAfter = 0, gapAfterWide, dwell = 60, phoneLift = 0 }) {
+export default function ThemeShowcase({ slug, imageSide = 'left', visual, still = false, snapUp = false, gapAfter = 0, gapAfterWide, dwell = 60, phoneLift = 0 }) {
+  // the theme's name and its paragraph are the API's (ThemesProvider.jsx); its addresses are the code's (themes.js)
+  const theme = useTheme(slug)
+  const copy = theme.homeSummary
 
   // Phone layout: with the cloud on top (imageSide 'left') the copy sits 24px higher than the stack puts it (more room
   // under it) and may then overlap the cloud's lower edge, which is fine; with the cloud at the bottom ('right') the
@@ -19,7 +22,7 @@ export default function ThemeShowcase({ theme, imageSide = 'left', visual, still
   // With the visual on the left the text block sits flush right, 500px wide - exactly where the social-media copy
   // (SocialCopy.jsx) sits, so the first and third themes line up with it.
   // The links name the theme in their text; a long theme name uses its short form there so each link stays on one line.
-  const linkName = themeByName(theme)?.short ?? theme
+  const linkName = theme.short ?? theme.name
   const links = (
     <div
       style={phoneLift ? { '--copy-lift': `${phoneLift}px` } : undefined}
@@ -38,13 +41,13 @@ export default function ThemeShowcase({ theme, imageSide = 'left', visual, still
       >
         {/* the theme's name heads its section */}
         <div className="flex flex-col items-start gap-2 md:gap-3">
-          <h2 className={`type-h2 text-navy ${imageSide === 'left' ? '' : 'xl:max-w-[554px]'}`}>{theme}</h2>
+          <h2 className={`type-h2 text-navy ${imageSide === 'left' ? '' : 'xl:max-w-[554px]'}`}>{theme.name}</h2>
           {copy && <p className={`type-body text-navy ${imageSide === 'left' ? '' : 'xl:max-w-[554px]'}`}>{copy}</p>}
         </div>
         {/* the two links read as one block: no blank line between them */}
         <div className="flex flex-col items-start">
-          <ArrowLink to={themeByName(theme)?.research ?? '/research'} animatedUnderline>{`Discover ${linkName} Research`}</ArrowLink>
-          <ArrowLink to={themeByName(theme)?.projects ?? '/research/funded-projects'} animatedUnderline>{`View ${linkName} Funded Projects`}</ArrowLink>
+          <ArrowLink to={theme.research} animatedUnderline>{`Discover ${linkName} Research`}</ArrowLink>
+          <ArrowLink to={theme.projects} animatedUnderline>{`View ${linkName} Funded Projects`}</ArrowLink>
         </div>
       </div>
     </div>
@@ -58,7 +61,7 @@ export default function ThemeShowcase({ theme, imageSide = 'left', visual, still
     // the next theme's shape, so the transition (spin, slide, explode, regather) gets a longer scroll.
     // `gapAfterWide` (vh): the same gap from `md` up (the medium and the large screens), where the phone keeps `gapAfter`.
     <section
-      data-chapter={themeByName(theme)?.slug}
+      data-chapter={theme.slug}
       className={`mx-auto max-w-[1440px] snap-start ${still && snapUp ? 'max-md:-scroll-mt-10' : ''} ${still ? '' : 'mb-[var(--gap)] md:mb-[var(--gap-md)]'}`}
       style={still ? undefined : { minHeight: `${100 + dwell}vh`, '--gap': `${gapAfter}vh`, '--gap-md': `${gapAfterWide ?? gapAfter}vh` }}
     >

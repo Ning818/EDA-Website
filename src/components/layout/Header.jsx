@@ -1,7 +1,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { NavLink, useLocation } from 'react-router-dom'
 import edaLogo from '../../assets/images/eda-logo.png'
-import { THEMES } from '../../themes'
+import { useThemes } from '../../useThemes'
 
 // The four research themes shown on the Home page - reused here as the Research / Projects dropdown items; each links to
 // its own Research / Funded Projects page (see themes.js). Research and Projects are not pages themselves: they only open that list, and count as
@@ -11,15 +11,16 @@ const isActiveLink = (pathname, link) => {
   return link.dropdown ? link.dropdown.some((item) => item.to === path) : path === link.to
 }
 
-const NAV_LINKS = [
+// the links of the nav bar; the dropdowns list the themes by the names the API gives them (ThemesProvider.jsx)
+const navLinksFor = (themes) => [
   { label: 'Home', to: '/' },
   {
     label: 'Research',
-    dropdown: THEMES.map((theme) => ({ label: theme.name, to: theme.research })),
+    dropdown: themes.map((theme) => ({ label: theme.name, to: theme.research })),
   },
   {
     label: 'Projects',
-    dropdown: THEMES.map((theme) => ({ label: theme.name, to: theme.projects })),
+    dropdown: themes.map((theme) => ({ label: theme.name, to: theme.projects })),
   },
   { label: 'Collaborations', to: '/collaborations' },
   { label: 'People', to: '/people' },
@@ -27,6 +28,7 @@ const NAV_LINKS = [
 
 export default function Header() {
   const { pathname, key } = useLocation()
+  const NAV_LINKS = navLinksFor(useThemes())
   const isHome = pathname === '/'
   // The Collaborations page lays soft colour glows behind the nav bar (Collaborations.jsx), so the bar there has no tint of its own: the
   // glows run on into it without a seam.

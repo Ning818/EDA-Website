@@ -113,7 +113,8 @@ export default function Footer() {
 
       <div className="mx-auto max-w-[1440px] px-8 pb-6 pt-4 md:pt-6 lg:px-[120px]">
         <p className="type-caption text-navy">
-          Copyright © 2026 EDA Group, Politecnico di Torino. All rights reserved.
+          {/* the year of the visit, so the notice is never a year behind and nobody has to remember to change it */}
+          Copyright © {new Date().getFullYear()} EDA Group, Politecnico di Torino. All rights reserved.
         </p>
       </div>
     </footer>

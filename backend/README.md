@@ -24,7 +24,8 @@ backend/
 From this folder (`backend/`):
 
 ```bash
-# 1. settings: copy the example and set your own password
+# 1. settings: copy the example, then set your own database password and a SESSION_SECRET (a long random string:
+#    python -c "import secrets; print(secrets.token_urlsafe(48))")
 cp .env.example .env
 
 # 2. the database (Docker Desktop must be running)
@@ -40,7 +41,10 @@ python -m venv .venv
 # 5. load the starting data (people, themes, collaborations, with the photos and logos); safe to run again
 .venv/Scripts/python -m app.seed
 
-# 6. the API, on http://localhost:8001 (interactive docs at /docs)
+# 6. the first admin account (asks for the password on the terminal)
+.venv/Scripts/python -m app.manage create-user --email you@example.org --name "Your Name" --role admin
+
+# 7. the API, on http://localhost:8001 (interactive docs at /docs)
 .venv/Scripts/uvicorn app.main:app --reload --port 8001
 ```
 
@@ -56,6 +60,7 @@ Check: `GET /api/health` (the API is up) and `GET /api/health/db` (it reaches th
 | `GET /api/themes/{slug}` | everything a theme's Research page and Funded Projects page show: its words (intro, funded-projects line, highlight paper and project), research areas with their topics and people, ongoing and ended projects, the figures, and the people to refer to |
 | `GET /api/collaborations` | the Collaborations page: the paragraph under its title, the logo walls of universities, institutes and companies, and the joint projects |
 | `GET /api/pages/{slug}` | the fixed paragraph under the title of a page that is not a theme's: `people` (the Collaborations page's comes with `/api/collaborations`) |
+| `POST /api/auth/login`, `POST /api/auth/logout`, `GET /api/auth/me` | log in with an email and a password, log out, who is logged in (see "Accounts and login") |
 | `GET /media/...` | the files: people's photos (`/media/people/`), the collaborators' logos (`/media/collaborators/`) and the highlight cards' pictures (`/media/highlights/`) |
 
 A person has a name (and `card_name`, the name as the small cards write it), a title (and `title_short`, the form for the small cards), a group, a photo address, the links they have (`polito`, `orcid`, `linkedin`, `dept`, `iris`) and `page_url` / `page_kind`, the page a small card links to: the polito.it staff page, else the research profile on IRIS. The group follows from the title. Wherever the API lists people for the small cards (a research area, the people to refer to) they come ranked: full professors first, then associate and assistant professors, research fellows, PhD students and former members, and within a rank in the order they were written.
@@ -66,7 +71,7 @@ What a theme looks like (its colour, the artwork in its page headers, its addres
 
 In development the pages ask their own address for `/api/...` and `/media/...`; the Vite dev server (`vite.config.js`, at the repository root) forwards both to the API on port 8001. So a phone or an iPad on the same Wi-Fi needs only the page's address (`http://<this computer>:5173`), the API listens on this computer only, and there is no CORS to allow. In production the web server in front of the site must forward the same two paths to the API (`VITE_API_URL` points the site at an API on another address instead).
 
-To work on the site, run both: `npm run dev` at the repository root, and the API (step 6 above). The People, Research, Funded Projects and Collaborations pages ask the API for what they show, and show a placeholder while it is on its way and a message with a "Try again" button when the API cannot be reached. The home page and the pages' structure and artwork do not depend on the API.
+To work on the site, run both: `npm run dev` at the repository root, and the API (step 7 above). The People, Research, Funded Projects and Collaborations pages ask the API for what they show, and show a placeholder while it is on its way and a message with a "Try again" button when the API cannot be reached. The home page and the pages' structure and artwork do not depend on the API.
 
 ## Where the data in the seed comes from
 
@@ -106,14 +111,33 @@ The tests never touch the development database: they use their own, `eda_test` (
 
 - the API says what the seed files say - the people in the order of the People page, the groups, the ranking of the small cards, the themes' words, research areas, projects and figures, the highlight cards, the collaborators and joint projects - and that every photo, logo and picture it names is served;
 - errors are the right ones: 404 for what is not there, 422 for a group that does not exist, 503 (not 500) for every route when the database is down, no file outside `media/` reachable, and only the front end allowed to call from a browser;
+- the login: passwords, the lock after wrong tries, what ends a session, the cross-site check and the roles, and the command line for the accounts;
 - the migrations and the models agree (a model changed without a migration fails), and the migrations go down and up again;
 - the seed can be run twice without changing anything, its files are in English, every address in them is `http` or `https`, and every file they name exists.
 
 Run them after every change; when a model changes, make its migration first.
 
+## Accounts and login
+
+There is no sign-up: an admin makes the accounts, from the command line (the password is asked for on the terminal, never given as an argument):
+
+```bash
+.venv/Scripts/python -m app.manage create-user --email ada@example.org --name "Ada Lovelace" --role admin   # roles: admin, editor
+.venv/Scripts/python -m app.manage set-password --email ada@example.org     # ends all of that user's logins
+.venv/Scripts/python -m app.manage deactivate --email ada@example.org       # activate: the other way
+.venv/Scripts/python -m app.manage list-users
+```
+
+- **Passwords** are stored only as Argon2id hashes. A password is 12 to 128 characters (length is what counts, a phrase of a few words is fine) and is not the email.
+- **Roles:** `editor` edits the content, `admin` also manages the users. Routes ask for a role with `Depends(require_role(...))` (`app/dependencies.py`).
+- **The login** is a signed cookie (`eda_session`): HttpOnly, SameSite=Lax, and Secure where `SESSION_COOKIE_SECURE=true` (set it wherever the site is served over HTTPS). It ends after 2 hours without a request, 12 hours after the login whatever happens, when the account is switched off or deleted, and when the password is changed. Visitors who only read the site get no cookie.
+- **Wrong passwords:** after 5 wrong tries for an email the login is refused for 15 minutes, even with the right password. An email nobody has is counted the same, and a wrong email and a wrong password get the same answer, so nothing tells which accounts exist. The times and numbers are settings (`LOGIN_MAX_FAILURES`, `LOGIN_LOCK_MINUTES`, `SESSION_IDLE_MINUTES`, `SESSION_MAX_HOURS`).
+- **Pages of other sites:** every route that changes something checks the request's `Origin` (`check_origin`): it must be the site's own address or one of `CORS_ORIGINS`, so another site cannot make a logged-in visitor's browser send it.
+- Behind a reverse proxy the proxy must pass the `Host` header on (`proxy_set_header Host $host;`) and the API must be started with `--proxy-headers`.
+
 ## Planned: the admin (not built yet)
 
-The group's members are to edit the content themselves, in an admin at `/admin` inside this app (SQLAdmin, with our own users and two roles, admin and editor). What is decided so far:
+The group's members are to edit the content themselves, in an admin at `/admin` inside this app (SQLAdmin, using the accounts and login above). The accounts and the login are built; the admin itself is not. What is decided so far:
 
 - **New theme:** a developer builds its particle cloud, models and header artwork and redeploys the front end; the staff then add the theme's own text in the admin and tick `published`. The theme list becomes the code's templates (`src/themes.js`: slug, colour, artwork) joined by slug to the database's content. Nothing is copied from another theme, and no code or particle bundle is ever uploaded through the admin.
 - **Highlight cards** (paper and project): everything on them - title, authors, venue, keywords, text, link, picture - is entered by hand; nothing is read from IRIS.

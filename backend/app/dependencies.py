@@ -1,8 +1,13 @@
+import time
 from collections.abc import Iterator
+from urllib.parse import urlparse
 
+from fastapi import Depends, HTTPException, Request
 from sqlalchemy.orm import Session
 
+from app.core.config import settings
 from app.db.session import SessionLocal
+from app.models.user import Role, User
 
 
 def get_db() -> Iterator[Session]:
@@ -12,3 +17,53 @@ def get_db() -> Iterator[Session]:
         yield db
     finally:
         db.close()
+
+
+def current_user(request: Request, db: Session = Depends(get_db)) -> User | None:
+    """The logged-in user, or None. The login is the signed cookie (SessionMiddleware): it holds the user's id and the time of the login. It does not count after
+    `session_max_hours`, once the user is switched off, or once their password was changed since the login; then it is cleared."""
+    user_id, logged_in_at = request.session.get("uid"), request.session.get("iat")
+    if not user_id or not logged_in_at:
+        return None
+    user = db.get(User, user_id)
+    expired = time.time() - logged_in_at > settings.session_max_hours * 3600
+    if user is None or not user.is_active or expired or user.password_changed_at.timestamp() > logged_in_at:
+        request.session.clear()
+        return None
+    return user
+
+
+def require_user(user: User | None = Depends(current_user)) -> User:
+    """For a route only a logged-in user may use."""
+    if user is None:
+        raise HTTPException(status_code=401, detail="Log in first")
+    return user
+
+
+def require_role(*roles: Role):
+    """For a route only users of these roles may use: `Depends(require_role(Role.ADMIN))`."""
+    allowed = {Role(role).value for role in roles}
+
+    def check(user: User = Depends(require_user)) -> User:
+        if user.role not in allowed:
+            raise HTTPException(status_code=403, detail="Your account may not do this")
+        return user
+
+    return check
+
+
+UNSAFE_METHODS = {"POST", "PUT", "PATCH", "DELETE"}
+
+
+def check_origin(request: Request) -> None:
+    """For every route that changes something: a browser always says which page a POST comes from (the Origin header); it must be the site's own page or one the
+    API's settings name, else a page of another site is making the visitor's browser send it (cross-site request forgery). A caller that is not a browser
+    sends no Origin and is let through: it cannot be made to act with someone's login cookie."""
+    if request.method not in UNSAFE_METHODS:
+        return
+    origin = request.headers.get("origin")
+    if origin is None:
+        return
+    if origin in settings.cors_origins or urlparse(origin).netloc == request.headers.get("host"):
+        return
+    raise HTTPException(status_code=403, detail="The request came from an unexpected page")

@@ -11,6 +11,7 @@ TEST_DB = "eda_test"
 # before anything of the app is imported: its settings read these
 os.environ["POSTGRES_DB"] = TEST_DB
 os.environ["MEDIA_DIR"] = tempfile.mkdtemp(prefix="eda-test-media-")
+os.environ["SESSION_SECRET"] = "test-only-secret-" + "x" * 32  # the tests sign their own cookies; nothing here is a real secret
 
 import psycopg  # noqa: E402
 import pytest  # noqa: E402

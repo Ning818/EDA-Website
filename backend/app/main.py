@@ -4,10 +4,11 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
+from starlette.middleware.sessions import SessionMiddleware
 from sqlalchemy.exc import OperationalError
 
 from app.core.config import settings
-from app.routers import collaborations, health, pages, people, themes
+from app.routers import auth, collaborations, health, pages, people, themes
 
 logger = logging.getLogger("uvicorn.error")
 
@@ -28,8 +29,20 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Who is logged in is kept in a signed cookie (HttpOnly, SameSite=Lax; Secure where the site is served over HTTPS). Nobody who only reads the site gets a cookie: it is set
+# only once a session has something in it, that is, after a login. It is renewed with every request, so it ends after `session_idle_minutes` of nothing.
+app.add_middleware(
+    SessionMiddleware,
+    secret_key=settings.session_secret,
+    session_cookie=settings.session_cookie_name,
+    max_age=settings.session_idle_minutes * 60,
+    same_site="lax",
+    https_only=settings.session_cookie_secure,
+)
+
 # every router sits under /api; each one names its own path and tag (app/routers)
 app.include_router(health.router, prefix="/api")
+app.include_router(auth.router, prefix="/api")
 app.include_router(people.router, prefix="/api")
 app.include_router(themes.router, prefix="/api")
 app.include_router(collaborations.router, prefix="/api")

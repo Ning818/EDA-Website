@@ -1,5 +1,6 @@
 from pathlib import Path
 
+from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from sqlalchemy import URL
 
@@ -20,6 +21,18 @@ class Settings(BaseSettings):
     postgres_port: int = 5432
 
     cors_origins: list[str] = ["http://localhost:5173"]
+
+    # Login. The cookie that says who is logged in is signed with `session_secret` (a long random string, secret, different on every installation).
+    # It lives `session_idle_minutes` after the last request and, whatever the visitor does, `session_max_hours` after the login. `session_cookie_secure`: true where the
+    # site is served over HTTPS, so the cookie is never sent over plain HTTP.
+    session_secret: str = Field(min_length=32)
+    session_cookie_name: str = "eda_session"
+    session_cookie_secure: bool = False
+    session_idle_minutes: int = 120
+    session_max_hours: int = 12
+    # after `login_max_failures` wrong passwords for an email (an email nobody has counts the same) the login is refused for `login_lock_minutes`
+    login_max_failures: int = 5
+    login_lock_minutes: int = 15
 
     # files the API keeps and serves (people's photos): in this folder, under this address
     media_dir: Path = BACKEND_DIR / "media"

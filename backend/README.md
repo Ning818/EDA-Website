@@ -94,6 +94,34 @@ Each organisation has its own website (`url`); a company's address is the one of
 
 The photos, logos and the highlight cards' pictures are files in the `media/` folder; the database keeps only each file's path (`people.photo`, `collaborators.logo`, `highlights.image`). A highlight card without a picture shows the site's neutral placeholder. The API turns that path into an address in one place (`app/core/media.py`), so moving the files to object storage or a CDN later changes that function and nothing else. If the API runs where the disk is wiped on every deploy, `media/` must be a persistent volume.
 
+## Tests
+
+```bash
+docker compose up -d                                  # the tests need PostgreSQL
+.venv/Scripts/pip install -r requirements-dev.txt     # pytest and the test client
+.venv/Scripts/python -m pytest                        # about 5 seconds
+```
+
+The tests never touch the development database: they use their own, `eda_test` (created on the same server if it is missing, emptied at the start of every run, built by the Alembic migrations and filled by the seed data), and write the served files to a throw-away folder. They check that:
+
+- the API says what the seed files say - the people in the order of the People page, the groups, the ranking of the small cards, the themes' words, research areas, projects and figures, the highlight cards, the collaborators and joint projects - and that every photo, logo and picture it names is served;
+- errors are the right ones: 404 for what is not there, 422 for a group that does not exist, 503 (not 500) for every route when the database is down, no file outside `media/` reachable, and only the front end allowed to call from a browser;
+- the migrations and the models agree (a model changed without a migration fails), and the migrations go down and up again;
+- the seed can be run twice without changing anything, its files are in English, every address in them is `http` or `https`, and every file they name exists.
+
+Run them after every change; when a model changes, make its migration first.
+
+## Planned: the admin (not built yet)
+
+The group's members are to edit the content themselves, in an admin at `/admin` inside this app (SQLAdmin, with our own users and two roles, admin and editor). What is decided so far:
+
+- **New theme:** a developer builds its particle cloud, models and header artwork and redeploys the front end; the staff then add the theme's own text in the admin and tick `published`. The theme list becomes the code's templates (`src/themes.js`: slug, colour, artwork) joined by slug to the database's content. Nothing is copied from another theme, and no code or particle bundle is ever uploaded through the admin.
+- **Highlight cards** (paper and project): everything on them - title, authors, venue, keywords, text, link, picture - is entered by hand; nothing is read from IRIS.
+- **Fields the admin forms add for accessibility** (to be added with the forms, with a migration):
+  - `image_alt` on `highlights` (and on any picture the admin later takes): the picture's text alternative. Empty means the site writes one from the title, as it does today; a decorative picture can be marked so, and a screen reader then skips it.
+  - `language` on projects (and on any text that is not English, such as the Italian project names): an ISO code such as `it`, which the site writes as `lang="it"` on that text so a screen reader pronounces it right. Empty means English.
+- **Accessibility of the admin itself:** SQLAdmin's keyboard and screen-reader behaviour is to be tested once it is in; the login session must warn before it ends, so a form half filled is not lost.
+
 ## Migrations
 
 After changing a model in `app/models/`:

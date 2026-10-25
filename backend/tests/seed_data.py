@@ -26,6 +26,7 @@ PEOPLE = load("people.json")
 THEMES = load("themes.json")
 COLLABORATIONS = load("collaborations.json")
 PAGES = load("pages.json")
+SITE = load("site.json")
 PEOPLE_BY_SLUG = {p["slug"]: p for p in PEOPLE}
 
 

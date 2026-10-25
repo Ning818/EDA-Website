@@ -14,7 +14,7 @@ backend/
     routers/         one file per resource, each with its own path and tag
     internal/        admin-only routes (later)
   alembic/           database migrations
-  seed/              the starting data: people.json (+ photos/), themes.json (+ highlights/), collaborations.json (+ logos/), pages.json
+  seed/              the starting data: people.json (+ photos/), themes.json (+ highlights/), collaborations.json (+ logos/), pages.json, site.json
   media/             the files the API serves under /media (not committed; created by the seed)
   docker-compose.yml PostgreSQL for local development
 ```
@@ -59,6 +59,7 @@ Check: `GET /api/health` (the API is up) and `GET /api/health/db` (it reaches th
 | `GET /api/themes` | the themes: slug, name, short name and the paragraph beside the theme on the home page. The site asks this on every page: the nav bar, the page titles, the home page and the chapter dots all show these names |
 | `GET /api/themes/{slug}` | everything a theme's Research page and Funded Projects page show: its words (intro, funded-projects line, highlight paper and project), research areas with their topics and people, ongoing and ended projects, the figures, and the people to refer to |
 | `GET /api/collaborations` | the Collaborations page: the paragraph under its title, the logo walls of universities, institutes and companies, and the joint projects |
+| `GET /api/site` | the footer's phone number (with the digits that dial it) and fax number |
 | `GET /api/pages/{slug}` | the fixed paragraph under the title of a page that is not a theme's: `people` (the Collaborations page's comes with `/api/collaborations`) |
 | `POST /api/auth/login`, `POST /api/auth/logout`, `GET /api/auth/me` | log in with an email and a password, log out, who is logged in (see "Accounts and login") |
 | `GET /media/...` | the files: people's photos (`/media/people/`), the collaborators' logos (`/media/collaborators/`) and the highlight cards' pictures (`/media/highlights/`) |
@@ -90,6 +91,10 @@ Adding or changing a person for now means editing `seed/people.json` (and puttin
 - **DRAFT, to be confirmed by the theme leads:** the research areas ("topic groups") and the placing of people in them are ours, not the group's. A person is placed in an area where the keywords on their polito.it staff page, or (for students and former members, who have no keywords there) the titles of their publications on IRIS, point to the same subject. People from the group's earlier flat list for a theme whom nothing placed (Cipolletta, Mocerino and Grimaldi under VLSI-CAD; Enrico Macii under Bioinformatics) are left off the page. The research topics themselves are the group's own wording and order within an area.
 - **Projects** are as the group's own pages give them (the texts kept as written there, with their spelling mistakes corrected). `code` is the project's acronym (a few projects are listed without one); `description` is its full name (a few have none: ARROWHEAD's official name is just "Arrowhead", so its line is the objective as the ARTEMIS-JU / CORDIS record states it); `url` is the project's own website, where the link the group's old page gave still leads to the project (many of those sites have since gone, or been taken over by something else, and are left out). The Industry 4.0 page lists no ended projects. The figures in the page headers are counted from these lists.
 - **Highlight papers** are from the group's own publications in IRIS (iris.polito.it); `url` is the IRIS record and the text is condensed from the paper's abstract there. `authors_short` (initials) is shown on a phone. The Smart City paper has eleven authors, so it uses initials everywhere. **Highlight projects** are one from the theme's own list, with the group's role as the European Commission's CORDIS record gives it; the text is condensed from the record's objective, and `url` is the project's website where it still works, else its CORDIS record.
+
+### The footer (`seed/site.json`)
+
+Only the phone and fax numbers are in the database; the rest of the footer (the names, the address, the "Visit" links, the LinkedIn and YouTube icons) is written in the code (`src/components/layout/Footer.jsx`). The footer is on every page and never waits for the API: the code keeps the same numbers as defaults (`src/site.js`), and the visitor's last answer is kept in the browser. A number that is empty leaves its line out of the footer. The "Department website" link in the code (www.dauin.polito.it/en/) did not answer when this was checked.
 
 ### Collaborations (`seed/collaborations.json`)
 

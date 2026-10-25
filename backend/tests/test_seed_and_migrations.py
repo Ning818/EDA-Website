@@ -10,9 +10,9 @@ from app.core.config import BACKEND_DIR
 from app.db.base import Base
 from app.db.session import engine
 from tests.conftest import alembic_config, seed_everything
-from tests.seed_data import COLLABORATIONS, PAGES, PEOPLE, PEOPLE_BY_SLUG, SEED_DIR, THEMES
+from tests.seed_data import COLLABORATIONS, PAGES, PEOPLE, PEOPLE_BY_SLUG, SEED_DIR, SITE, THEMES
 
-TABLES = ["people", "themes", "highlights", "topic_groups", "topics", "topic_group_people", "projects", "theme_contacts", "collaborators", "joint_projects", "pages"]
+TABLES = ["people", "themes", "highlights", "topic_groups", "topics", "topic_group_people", "projects", "theme_contacts", "collaborators", "joint_projects", "pages", "site_contact"]
 CHINESE = re.compile(r"[\u4e00-\u9fff\u3000-\u303f\uff00-\uffef]")  # Chinese characters and CJK punctuation
 
 
@@ -38,6 +38,7 @@ def test_the_seed_filled_every_table():
     assert found["collaborators"] == sum(len(COLLABORATIONS[w]) for w in ("universities", "institutes", "companies"))
     assert found["joint_projects"] == len(COLLABORATIONS["joint_projects"])
     assert found["pages"] == len(PAGES)
+    assert found["site_contact"] == 1
     assert found["projects"] == sum(len(t["projects"]["ongoing"]) + len(t["projects"]["ended"]) for t in THEMES)
 
 
@@ -85,7 +86,7 @@ def _urls(value):
 
 def test_every_address_is_http_or_https():
     """An editor-typed address such as javascript:... would run when a visitor clicks it."""
-    found = list(_urls([PEOPLE, THEMES, COLLABORATIONS]))
+    found = list(_urls([PEOPLE, THEMES, COLLABORATIONS, SITE]))
     assert len(found) > 100
     for url in found:
         assert urlparse(url).scheme in ("http", "https"), url

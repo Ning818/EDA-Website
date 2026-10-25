@@ -38,6 +38,7 @@ def seed_everything() -> None:
         seed.seed_themes(db)
         seed.seed_collaborations(db)
         seed.seed_pages(db)
+        seed.seed_site(db)
         db.commit()
 
 

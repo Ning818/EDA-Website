@@ -1,6 +1,6 @@
 """Loads the starting data into the database and the media folder: the people of the People page (seed/people.json) with their photos (seed/photos), the
 four themes (seed/themes.json) with their words, research areas, projects and contacts, the Collaborations page (seed/collaborations.json) with the logos (seed/logos), and the
-fixed paragraphs of the People and Collaborations pages (seed/pages.json).
+fixed paragraphs of the People and Collaborations pages (seed/pages.json), and the footer's phone and fax numbers (seed/site.json).
 
 Run from the backend folder:  python -m app.seed
 It can be run again: a person already there (same slug) is updated, not duplicated; a theme is rewritten from the file, with everything under it; the collaborators and
@@ -17,6 +17,7 @@ from app.db.session import SessionLocal
 from app.models.collaboration import Collaborator, CollaboratorKind, JointProject
 from app.models.page import PageText
 from app.models.person import Person, Title
+from app.models.site import SiteContact
 from app.models.theme import Highlight, Project, Theme, ThemeContact, Topic, TopicGroup, TopicGroupPerson
 from app.schemas.person import LINK_KEYS
 
@@ -112,6 +113,14 @@ def seed_pages(db: Session) -> int:
     return len(pages)
 
 
+def seed_site(db: Session) -> None:
+    """The footer's phone and fax numbers (one row)."""
+    data = json.loads((SEED_DIR / "site.json").read_text(encoding="utf-8"))
+    contact = db.get(SiteContact, 1) or SiteContact(id=1)
+    contact.phone, contact.fax = data["phone"], data["fax"]
+    db.add(contact)
+
+
 def seed_collaborations(db: Session) -> tuple[int, int]:
     data = json.loads((SEED_DIR / "collaborations.json").read_text(encoding="utf-8"))
     db.execute(delete(Collaborator))
@@ -142,5 +151,6 @@ if __name__ == "__main__":
         themes = seed_themes(session)
         collaborators, joint_projects = seed_collaborations(session)
         pages = seed_pages(session)
+        seed_site(session)
         session.commit()
-    print(f"people: {created} added, {updated} updated; themes: {themes} written; collaborators: {collaborators}, joint projects: {joint_projects} written; page texts: {pages}")
+    print(f"people: {created} added, {updated} updated; themes: {themes} written; collaborators: {collaborators}, joint projects: {joint_projects} written; page texts: {pages}; footer numbers set")

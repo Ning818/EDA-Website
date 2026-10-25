@@ -4,6 +4,7 @@ import linkedinIcon from '../../assets/images/linkedin-icon.svg'
 import youtubeIcon from '../../assets/images/youtube-icon.svg'
 // the group's real channel / page, the same links the home page's social stage uses
 import { LINKEDIN_COPY, YOUTUBE_COPY } from '../sections/socialCopyText'
+import { useSite } from '../../useSite'
 
 // Recolored to a single-accent, line-drawn footer (deep navy - the same color the nav bar's own
 // text/underline uses - for both the rule lines and all the text). Image/text layout below is
@@ -21,6 +22,8 @@ import { LINKEDIN_COPY, YOUTUBE_COPY } from '../sections/socialCopyText'
 // particle canvas. On every other (non-Home) page there's no canvas to begin with, so this has no
 // visible effect there beyond the fill itself.
 export default function Footer() {
+  // the phone and fax numbers are the database's (GET /api/site; the defaults are in site.js); the rest of the footer is written here
+  const { phone, phone_dial: phoneDial, fax } = useSite()
   return (
     <footer className="relative z-10 w-full mt-10 bg-mint md:mt-16">
       <div className="border-t border-navy/70">
@@ -51,14 +54,22 @@ export default function Footer() {
                 Corso Duca Degli Abruzzi, 24
                 <br />
                 10129, Torino, Italy
-                <br />
-                {/* the phone number dials on a phone (the fax number stays plain text) */}
-                Tel.{' '}
-                <a href="tel:+390110907042" className="underline-offset-4 hover:underline">
-                  +39 011 090 7042
-                </a>
-                <br />
-                Fax. +39 011 090 7099
+                {/* the phone number dials on a phone (the fax number stays plain text); a number that is empty leaves its line out */}
+                {phone && (
+                  <>
+                    <br />
+                    Tel.{' '}
+                    <a href={phoneDial ? `tel:${phoneDial}` : undefined} className="underline-offset-4 hover:underline">
+                      {phone}
+                    </a>
+                  </>
+                )}
+                {fax && (
+                  <>
+                    <br />
+                    Fax. {fax}
+                  </>
+                )}
               </p>
             </div>
 

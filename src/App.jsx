@@ -9,6 +9,7 @@ import Collaborations from './pages/Collaborations'
 import Teaching from './pages/Teaching'
 import NotFound from './pages/NotFound'
 import { ThemesProvider } from './ThemesProvider'
+import { SiteProvider } from './SiteProvider'
 import { useThemes } from './useThemes'
 
 // Every navigation (nav bar, in-page links, same-page links, hash links) lands at the top of the page. Keyed on
@@ -103,6 +104,7 @@ function DocumentTitle() {
 export default function App() {
   return (
     <ThemesProvider>
+    <SiteProvider>
     <div className="min-h-screen bg-mint text-navy">
       <SkipLink />
       <ScrollToTop />
@@ -122,6 +124,7 @@ export default function App() {
       </Routes>
       <Footer />
     </div>
+    </SiteProvider>
     </ThemesProvider>
   )
 }

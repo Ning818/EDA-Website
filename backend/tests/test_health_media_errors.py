@@ -31,7 +31,7 @@ def test_with_the_database_down_every_route_answers_503_not_500(client):
 
     app.dependency_overrides[get_db] = database_down
     try:
-        for path in ("/api/people", "/api/people/enrico-macii", "/api/themes", "/api/themes/vlsi-cad", "/api/collaborations", "/api/pages/people", "/api/health/db"):
+        for path in ("/api/people", "/api/people/enrico-macii", "/api/themes", "/api/themes/vlsi-cad", "/api/collaborations", "/api/pages/people", "/api/site", "/api/health/db"):
             answer = client.get(path)
             assert answer.status_code == 503, path
             assert answer.json() == {"detail": "Database unreachable"}, path

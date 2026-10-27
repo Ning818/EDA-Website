@@ -5,7 +5,7 @@ of grants given together when the account is made.
 """
 from enum import StrEnum
 
-from sqlalchemy import select
+from sqlalchemy import delete, select
 from sqlalchemy.orm import Session
 
 from app.models.grant import Area, UserGrant
@@ -86,6 +86,32 @@ def apply_preset(db: Session, user: User, preset: Preset, actor: User | None = N
     """Give the user every grant of the preset. The caller commits."""
     for area in PRESET_AREAS[Preset(preset)]:
         grant(db, user, area, None, actor)
+
+
+def preset_of(user: User) -> Preset | None:
+    """The preset whose grants are exactly the user's, if there is one (an account with other grants, given one by one, has none)."""
+    have = {(g.area, g.theme_id) for g in user.grants}
+    for preset, areas in PRESET_AREAS.items():
+        if have == {(area.value, None) for area in areas}:
+            return preset
+    return None
+
+
+def grants_snapshot(user: User) -> list[str]:
+    """The user's grants as short texts for the audit log: `people_add`, `theme` (every theme) or `theme:vlsi-cad`."""
+    return sorted(g.area + (f":{g.theme.slug}" if g.theme else "") for g in user.grants)
+
+
+def replace_with_preset(db: Session, user: User, preset: Preset | None) -> None:
+    """The user's grants become exactly those of the preset (none: they may do nothing). The caller records it and commits."""
+    db.execute(delete(UserGrant).where(UserGrant.user_id == user.id))
+    db.flush()
+    db.expire(user, ["grants"])
+    if preset is not None:
+        for area in PRESET_AREAS[Preset(preset)]:
+            db.add(UserGrant(user_id=user.id, area=area.value))
+        db.flush()
+        db.expire(user, ["grants"])
 
 
 def _theme_slug(db: Session, theme_id: int | None) -> str | None:

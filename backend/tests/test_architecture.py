@@ -5,9 +5,13 @@ import re
 from pathlib import Path
 
 from fastapi.testclient import TestClient
+from sqlalchemy import text
 
 from app.core.config import BACKEND_DIR
+from app.db.session import engine
 from app.main import app
+from app.services.grants import Preset
+from tests.admin_helpers import browser_for, cleanup_admin_data, make_user
 
 APP = BACKEND_DIR / "app"
 ADMIN_PREFIX = "/api/admin"
@@ -50,7 +54,24 @@ def test_every_admin_route_needs_a_login():
             assert answer.status_code == 401, (method, path)
 
 
-def test_nothing_outside_the_admin_changes_anything_but_the_login():
+def test_nothing_outside_the_admin_changes_anything_but_the_login_and_ones_own_password():
     for path, operations in api_paths().items():
-        if not path.startswith(ADMIN_PREFIX) and path not in ("/api/auth/login", "/api/auth/logout"):
+        if not path.startswith(ADMIN_PREFIX) and path not in ("/api/auth/login", "/api/auth/logout", "/api/auth/change-password"):
             assert set(operations) == {"get"}, (path, sorted(operations))
+
+
+def test_every_admin_route_refuses_a_user_who_is_still_on_a_temporary_password():
+    """The user may only change the password, ask who they are and log out: nothing of the admin works until then, whatever grants they have."""
+    cleanup_admin_data()
+    try:
+        make_user("tom@example.org", Preset.ADMINISTRATIVE)
+        with engine.begin() as connection:
+            connection.execute(text("UPDATE users SET must_change_password = true"))
+        tom = browser_for("tom@example.org")
+        for path, operations in api_paths().items():
+            if path.startswith(ADMIN_PREFIX):
+                for method in operations:
+                    answer = tom.request(method.upper(), re.sub(r"\{[^}]+\}", "x", path))
+                    assert answer.status_code == 403 and answer.json()["detail"]["code"] == "password_change_required", (method, path)
+    finally:
+        cleanup_admin_data()

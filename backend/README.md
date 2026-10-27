@@ -119,6 +119,7 @@ The tests never touch the development database: they use their own, `eda_test` (
 - errors are the right ones: 404 for what is not there, 422 for a group that does not exist, 503 (not 500) for every route when the database is down, no file outside `media/` reachable, and only the front end allowed to call from a browser;
 - the login: passwords, the lock after wrong tries, what ends a session, the cross-site check, and the command line for the accounts;
 - the grants and the presets, and what the database itself refuses (the same grant twice, a theme on a grant that is not about one);
+- the accounts the staff keep: who may, the temporary password (shown once, kept only as a hash, to be changed before anything else works), switching accounts off, new grants, resets, and that the last account able to manage accounts is never lost;
 - the admin's people routes: who may add, correct and let a person leave, what is refused (HTML in a name, a `javascript:` link, a photo that is not a photo or has no consent, a name that is already there), what is kept (the photo without its EXIF data, who confirmed the consent, an audit row) and that a failed change leaves nothing behind;
 - the shape that keeps the apps apart: nothing public imports the admin, every admin route needs a login, and nothing outside `/api/admin` changes anything but the login;
 - the migrations and the models agree (a model changed without a migration fails), and the migrations go down and up again;
@@ -128,7 +129,7 @@ Run them after every change; when a model changes, make its migration first.
 
 ## Accounts and login
 
-There is no sign-up. For now the accounts are made from the command line (the password is asked for on the terminal, never given as an argument); the administrative staff are to make them in the admin once it has a screen for it:
+There is no sign-up. The administrative staff make the accounts in the admin (see "The admin" below). The developer's command line goes round that on purpose, as the way back in if the staff are locked out, and makes the first account (the password is asked for on the terminal, never given as an argument):
 
 ```bash
 .venv/Scripts/python -m app.manage create-user --email ada@example.org --name "Ada Lovelace" --preset administrative   # or theme-owner, projects-owner; none: may do nothing
@@ -139,7 +140,7 @@ There is no sign-up. For now the accounts are made from the command line (the pa
 .venv/Scripts/python -m app.manage list-users
 ```
 
-- **Passwords** are stored only as Argon2id hashes. A password is 12 to 128 characters (length is what counts, a phrase of a few words is fine) and is not the email.
+- **Passwords** are stored only as Argon2id hashes. An account made by the staff, or given a new password by them, starts with a temporary one that is shown once and has to be changed at the first login. A password is 12 to 128 characters (length is what counts, a phrase of a few words is fine) and is not the email.
 - **Grants, not roles:** what a user may do is what their grants say (see "The admin" below); routes ask with `Depends(require_grant(Area.ACCOUNTS))` (`app/dependencies.py`) and the services check again.
 - **The login** is a signed cookie (`eda_session`): HttpOnly, SameSite=Lax, and Secure where `SESSION_COOKIE_SECURE=true` (set it wherever the site is served over HTTPS). It ends after 2 hours without a request, 12 hours after the login whatever happens, when the account is switched off or deleted, and when the password is changed. Visitors who only read the site get no cookie.
 - **Wrong passwords:** after 5 wrong tries for an email the login is refused for 15 minutes, even with the right password. An email nobody has is counted the same, and a wrong email and a wrong password get the same answer, so nothing tells which accounts exist. The times and numbers are settings (`LOGIN_MAX_FAILURES`, `LOGIN_LOCK_MINUTES`, `SESSION_IDLE_MINUTES`, `SESSION_MAX_HOURS`).
@@ -210,13 +211,27 @@ An account made without a preset can log in and may do nothing.
 - Text fields hold plain text (no `<` or `>`); a web address must start with `http://` or `https://`.
 - Every change writes a row in `audit_log` (who, what, before and after) in the same transaction as the change; a change that fails leaves neither.
 
+Rules for accounts (`app/services/accounts.py`):
+
+- A new account, and one given a new password, gets a **temporary password** (such as `k7mq-x3ah-p9tw`, without letters that look alike). It is in the answer once and nowhere else: the
+  database keeps only its hash and the audit log never holds a password. Until it is changed, the user can only change it (`POST /api/auth/change-password`), ask who they are and log
+  out; every route of the admin answers 403 `password_change_required`.
+- A password is changed by giving the current one (wrong tries count against the same lock as a login) and a different new one. Every other login of the user ends; this one goes on.
+- A user cannot switch off, change the grants of or reset the password of their **own** account, and **at least one active account that may manage accounts** is always left.
+- Switching an account off ends its logins at once; a reset also lifts a lock after wrong tries.
+
 ### What the admin's routes offer so far
 
 All need a login, and the ones that change something also pass the cross-site check. Refusals come as `{"detail": {"code": ..., "message": ...}}`.
 
 | Route | Does |
 |---|---|
-| `GET /api/auth/me` | who is logged in and their grants |
+| `GET /api/auth/me` | who is logged in, their grants and whether they must change a temporary password |
+| `POST /api/auth/change-password` | the user's own new password (`current_password`, `new_password`) |
+| `GET /api/admin/accounts` | the accounts, with their grants, preset and state (grant `accounts`) |
+| `POST /api/admin/accounts` | make an account (`email`, `name`, `preset`); the answer holds the temporary password |
+| `PATCH /api/admin/accounts/{id}` | change the name, the preset (null: no grants) or `is_active` |
+| `POST /api/admin/accounts/{id}/reset-password` | a new temporary password, in the answer once |
 | `GET /api/admin/people/{slug}` | a person, and whether this user may change them (`can_edit`, `editable_until`) |
 | `GET /api/admin/people/{slug}/leave-preview` | the themes that would lose this person as a contact |
 | `POST /api/admin/people` | add a person (form data: `name`, `title`, `card_name`, `polito`, `orcid`, `linkedin`, `dept`, `iris`, `photo`, `photo_consent`, `confirm_distinct`); 409 `possible_duplicate` |
@@ -224,9 +239,8 @@ All need a login, and the ones that change something also pass the cross-site ch
 
 ### Still to build
 
-- The admin's own interface, as a separate front-end application (see above), showing each user only the tasks their grants allow.
-- Account management in the admin (the administrative staff make accounts and give grants; a temporary password that has to be changed at the first login; the last administrator cannot be
-  switched off), the themes' content, the funded projects (after a change to the projects the admin asks whether the theme page's funded-projects paragraph needs updating), the
+- The admin's own interface, as a separate front-end application (see above), showing each user only the tasks their grants allow, with screens for the people and accounts routes above.
+- The themes' content, the funded projects (after a change to the projects the admin asks whether the theme page's funded-projects paragraph needs updating), the
   collaborators, the footer's numbers and the intro paragraphs.
 - A scheduled check of the links in the content. A link is reported only after several failures in a row, the checker may only fetch `http` and `https` addresses and never one on a
   private network, and each user sees the broken links of the content they keep: project links the projects owner, collaborator and people links the administrative staff, highlight

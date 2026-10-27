@@ -24,8 +24,10 @@ class UserRead(BaseModel):
     email: str
     name: str
     grants: list[GrantRead]
+    # the password is a temporary one: the user may do nothing but change it (POST /api/auth/change-password)
+    must_change_password: bool
 
     @classmethod
     def from_model(cls, user: User) -> "UserRead":
         grants = [GrantRead(area=Area(g.area), theme=g.theme.slug if g.theme else None) for g in user.grants]
-        return cls(id=user.id, email=user.email, name=user.name, grants=grants)
+        return cls(id=user.id, email=user.email, name=user.name, grants=grants, must_change_password=user.must_change_password)

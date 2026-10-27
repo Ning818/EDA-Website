@@ -50,7 +50,7 @@ def test_a_login_answers_with_the_user_and_sets_the_cookie(browser, db):
     body = answer.json()
     assert body["email"] == "ada@example.org" and body["name"] == "Ada Lovelace"
     assert body["grants"] == [{"area": "people_add", "theme": None}, {"area": "theme", "theme": None}]
-    assert set(body) == {"id", "email", "name", "grants"}  # never the password or its hash
+    assert set(body) == {"id", "email", "name", "grants", "must_change_password"} and body["must_change_password"] is False  # never the password or its hash
     assert answer.headers["cache-control"] == "no-store"
     cookie = answer.headers["set-cookie"].lower()
     assert cookie.startswith(f"{settings.session_cookie_name}=")

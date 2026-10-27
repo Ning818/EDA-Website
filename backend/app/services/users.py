@@ -18,6 +18,10 @@ class UserError(ValueError):
     """What was asked about an account cannot be done; the message can be shown."""
 
 
+class EmailTaken(UserError):
+    """There is an account with that email already."""
+
+
 class InvalidLogin(Exception):
     """The email or the password is wrong, or the account is switched off: all the same to whoever asked."""
 
@@ -38,8 +42,9 @@ def get_by_email(db: Session, email: str) -> User | None:
     return db.scalar(select(User).where(User.email == normalize_email(email)))
 
 
-def create_user(db: Session, email: str, name: str, password: str, preset: Preset | None = None, actor: User | None = None) -> User:
-    """Make an account. With a `preset` the user gets its grants; without one they can log in and may do nothing (the least a user can have)."""
+def create_user(db: Session, email: str, name: str, password: str, preset: Preset | None = None, actor: User | None = None, must_change_password: bool = False) -> User:
+    """Make an account. With a `preset` the user gets its grants; without one they can log in and may do nothing (the least a user can have). `must_change_password`: the password is
+    a temporary one that has to be replaced at the first login."""
     email = normalize_email(email)
     if len(email) > 254 or not _EMAIL.match(email):
         raise UserError("That is not an email address.")
@@ -47,12 +52,12 @@ def create_user(db: Session, email: str, name: str, password: str, preset: Prese
     if not name or len(name) > 150:
         raise UserError("The name must be 1 to 150 characters.")
     if get_by_email(db, email):
-        raise UserError("There is an account with that email already.")
+        raise EmailTaken("There is an account with that email already.")
     try:
         check_policy(password, email)
     except WeakPassword as error:
         raise UserError(str(error)) from error
-    user = User(email=email, name=name, password_hash=hash_password(password))
+    user = User(email=email, name=name, password_hash=hash_password(password), must_change_password=must_change_password)
     db.add(user)
     db.flush()
     if preset is not None:
@@ -62,18 +67,31 @@ def create_user(db: Session, email: str, name: str, password: str, preset: Prese
     return user
 
 
-def set_password(db: Session, user: User, password: str) -> None:
-    """A new password; every login the user has now is ended (a session older than the change is not accepted)."""
+def set_password(db: Session, user: User, password: str, *, must_change: bool = False, actor: User | None = None, action: str | None = None) -> None:
+    """A new password; every login the user has now is ended (a session older than the change is not accepted). `must_change`: it is a temporary one that has to be replaced at
+    the next login. With an `action` the change is written to the audit log, as `actor`'s (never the password itself)."""
     try:
         check_policy(password, user.email)
     except WeakPassword as error:
         raise UserError(str(error)) from error
     user.password_hash = hash_password(password)
     user.password_changed_at = datetime.now(UTC)
+    user.must_change_password = must_change
+    if action:
+        audit.record(db, actor, action, "user", user.email)
     db.commit()
 
 
-def authenticate(db: Session, email: str, password: str, now: datetime | None = None) -> User:
+def change_password(db: Session, user: User, current: str, new: str) -> None:
+    """The user's own change of password. The current password has to be right - checked the way a login is, so wrong tries count and lock it too - and the new one a different
+    one. Every other login of the user ends."""
+    authenticate(db, user.email, current, touch_last_login=False)
+    if new == current:
+        raise UserError("The new password must be different from the current one.")
+    set_password(db, user, new, actor=user, action="user.change_password")
+
+
+def authenticate(db: Session, email: str, password: str, now: datetime | None = None, touch_last_login: bool = True) -> User:
     """The user for this email and password. Raises InvalidLogin for any wrong or switched-off account (with the same words and about the same time whether the email has an
     account or not), and LoginLocked once there have been `login_max_failures` wrong tries for the email, until `login_lock_minutes` have passed."""
     now = now or datetime.now(UTC)
@@ -89,7 +107,8 @@ def authenticate(db: Session, email: str, password: str, now: datetime | None = 
             db.delete(attempt)
         if new_hash:  # saved with the library's current settings
             user.password_hash = new_hash
-        user.last_login_at = now
+        if touch_last_login:
+            user.last_login_at = now
         db.commit()
         return user
 

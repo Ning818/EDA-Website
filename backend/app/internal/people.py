@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile
 from sqlalchemy.orm import Session
 
 from app.core.validation import InvalidInput
-from app.dependencies import check_origin, get_db, require_user
+from app.dependencies import check_origin, get_db, require_ready_user
 from app.models.grant import Area
 from app.models.person import Person
 from app.models.user import User
@@ -14,7 +14,7 @@ from app.services import people as service
 from app.services import photos
 from app.services.grants import NotAllowed, has_grant
 
-router = APIRouter(prefix="/admin/people", tags=["admin: people"], dependencies=[Depends(check_origin), Depends(require_user)])
+router = APIRouter(prefix="/admin/people", tags=["admin: people"], dependencies=[Depends(check_origin), Depends(require_ready_user)])
 
 
 def _http(error: Exception) -> HTTPException:
@@ -77,7 +77,7 @@ def _admin_read(db: Session, actor: User, person: Person) -> AdminPersonRead:
 
 
 @router.get("/{slug}", response_model=AdminPersonRead)
-def get_person(slug: str, user: User = Depends(require_user), db: Session = Depends(get_db)):
+def get_person(slug: str, user: User = Depends(require_ready_user), db: Session = Depends(get_db)):
     """A person with whether this user may change them."""
     try:
         return _admin_read(db, user, service.get_person(db, slug))
@@ -86,7 +86,7 @@ def get_person(slug: str, user: User = Depends(require_user), db: Session = Depe
 
 
 @router.get("/{slug}/leave-preview", response_model=list[AffectedRead])
-def leave_preview(slug: str, user: User = Depends(require_user), db: Session = Depends(get_db)):
+def leave_preview(slug: str, user: User = Depends(require_ready_user), db: Session = Depends(get_db)):
     """The themes that would lose this person as a contact if they left; empty where none would (or they have left already)."""
     try:
         return [AffectedRead(**vars(a)) for a in service.leave_preview(db, user, slug)]
@@ -107,7 +107,7 @@ def add_person(
     photo: UploadFile | None = File(None),
     photo_consent: bool = Form(False),
     confirm_distinct: bool = Form(False),
-    user: User = Depends(require_user),
+    user: User = Depends(require_ready_user),
     db: Session = Depends(get_db),
 ):
     """Add a person; they show on the People page at once. A photo needs `photo_consent`; a name that is in the list already is refused (409) until `confirm_distinct`."""
@@ -134,7 +134,7 @@ def update_person(
     photo_consent: bool = Form(False),
     clear: list[str] = Form([]),
     confirm_leave: bool = Form(False),
-    user: User = Depends(require_user),
+    user: User = Depends(require_ready_user),
     db: Session = Depends(get_db),
 ):
     """Change what is sent; `clear` names the optional fields to remove (card_name, polito, orcid, linkedin, dept, iris), because a field sent empty counts as not sent. The title

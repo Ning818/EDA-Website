@@ -19,6 +19,8 @@ class User(Base):
     # an Argon2id hash; the password itself is never stored
     password_hash: Mapped[str] = mapped_column(String(255))
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, server_default="true")
+    # the password is a temporary one, given by the administrative staff: until it is changed the user may do nothing but change it
+    must_change_password: Mapped[bool] = mapped_column(Boolean, default=False, server_default="false")
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     last_login_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     # a session started before this has ended: changing the password logs the user out everywhere

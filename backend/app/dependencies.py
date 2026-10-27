@@ -42,10 +42,18 @@ def require_user(user: User | None = Depends(current_user)) -> User:
     return user
 
 
+def require_ready_user(user: User = Depends(require_user)) -> User:
+    """For a route of the admin: a logged-in user who is not still on a temporary password. Until the password is changed (`POST /api/auth/change-password`) the user may only do that,
+    ask who they are (`GET /api/auth/me`) and log out."""
+    if user.must_change_password:
+        raise HTTPException(status_code=403, detail={"code": "password_change_required", "message": "Change your temporary password first."})
+    return user
+
+
 def require_grant(area: Area):
     """For a route only users with a grant for this area may use: `Depends(require_grant(Area.ACCOUNTS))`. What a user may do is what their grants say (app/services/grants.py)."""
 
-    def check(user: User = Depends(require_user), db: Session = Depends(get_db)) -> User:
+    def check(user: User = Depends(require_ready_user), db: Session = Depends(get_db)) -> User:
         if not has_grant(db, user, area):
             raise HTTPException(status_code=403, detail="Your account may not do this")
         return user

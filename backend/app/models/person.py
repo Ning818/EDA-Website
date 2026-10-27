@@ -1,7 +1,7 @@
 from datetime import datetime
 from enum import StrEnum
 
-from sqlalchemy import DateTime, Integer, String, func
+from sqlalchemy import DateTime, ForeignKey, Integer, String, func
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.db.base import Base
@@ -72,6 +72,12 @@ class Person(Base):
     linkedin_url: Mapped[str | None] = mapped_column(String(500))
     dept_url: Mapped[str | None] = mapped_column(String(500))
     iris_url: Mapped[str | None] = mapped_column(String(500))
+
+    # who added the person through the admin (none: from the seed, or the account is gone); that user may correct the entry for a day (app/services/people.py)
+    created_by_id: Mapped[int | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"))
+    # who confirmed that the person agreed to the photo being used, and when; none where there is no photo or it came with the seed
+    photo_consent_by_id: Mapped[int | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"))
+    photo_consent_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
 
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())

@@ -7,7 +7,9 @@ from sqlalchemy.orm import Session
 
 from app.core.config import settings
 from app.db.session import SessionLocal
-from app.models.user import Role, User
+from app.models.grant import Area
+from app.models.user import User
+from app.services.grants import has_grant
 
 
 def get_db() -> Iterator[Session]:
@@ -40,12 +42,11 @@ def require_user(user: User | None = Depends(current_user)) -> User:
     return user
 
 
-def require_role(*roles: Role):
-    """For a route only users of these roles may use: `Depends(require_role(Role.ADMIN))`."""
-    allowed = {Role(role).value for role in roles}
+def require_grant(area: Area):
+    """For a route only users with a grant for this area may use: `Depends(require_grant(Area.ACCOUNTS))`. What a user may do is what their grants say (app/services/grants.py)."""
 
-    def check(user: User = Depends(require_user)) -> User:
-        if user.role not in allowed:
+    def check(user: User = Depends(require_user), db: Session = Depends(get_db)) -> User:
+        if not has_grant(db, user, area):
             raise HTTPException(status_code=403, detail="Your account may not do this")
         return user
 

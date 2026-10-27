@@ -1,4 +1,4 @@
-"""The login routes, the cookie, what ends a session, the cross-site check and the roles - through the API, as a browser would use it."""
+"""The login routes, the cookie, what ends a session, the cross-site check and the grants - through the API, as a browser would use it."""
 import pytest
 from fastapi import Depends, FastAPI
 from fastapi.testclient import TestClient
@@ -7,9 +7,10 @@ from starlette.middleware.sessions import SessionMiddleware
 
 from app.core.config import settings
 from app.db.session import SessionLocal, engine
-from app.dependencies import current_user, require_role, require_user
+from app.dependencies import current_user, require_grant, require_user
 from app.main import app
-from app.models.user import Role
+from app.models.grant import Area
+from app.services.grants import Preset
 from app.routers import auth
 from app.services.users import create_user, set_password
 
@@ -43,12 +44,13 @@ def login(browser, email="ada@example.org", password=GOOD, **kwargs):
 
 
 def test_a_login_answers_with_the_user_and_sets_the_cookie(browser, db):
-    create_user(db, "ada@example.org", "Ada Lovelace", GOOD, Role.ADMIN)
+    create_user(db, "ada@example.org", "Ada Lovelace", GOOD, Preset.THEME_OWNER)
     answer = login(browser, "ADA@example.org")
     assert answer.status_code == 200
     body = answer.json()
-    assert body["email"] == "ada@example.org" and body["name"] == "Ada Lovelace" and body["role"] == "admin"
-    assert set(body) == {"id", "email", "name", "role"}  # never the password or its hash
+    assert body["email"] == "ada@example.org" and body["name"] == "Ada Lovelace"
+    assert body["grants"] == [{"area": "people_add", "theme": None}, {"area": "theme", "theme": None}]
+    assert set(body) == {"id", "email", "name", "grants"}  # never the password or its hash
     assert answer.headers["cache-control"] == "no-store"
     cookie = answer.headers["set-cookie"].lower()
     assert cookie.startswith(f"{settings.session_cookie_name}=")
@@ -178,26 +180,26 @@ def test_a_login_from_a_sandboxed_page_is_refused(browser):
     assert login(browser, headers={"Origin": "null"}).status_code == 403
 
 
-# --- the roles --------------------------------------------------------------------------------------------------------------------------------------------------------
+# --- the grants --------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
 @pytest.fixture
 def small_app(database):
-    """The login routes plus three routes of the kind the admin will have: for any user, for editors and admins, for admins only."""
+    """The login routes plus three routes of the kind the admin has: for any user, for those who may add people, for those who may manage accounts."""
     mini = FastAPI()
     mini.add_middleware(SessionMiddleware, secret_key=settings.session_secret, session_cookie=settings.session_cookie_name, same_site="lax")
     mini.include_router(auth.router, prefix="/api")
 
     @mini.get("/anyone")
     def anyone(user=Depends(require_user)):
-        return {"role": user.role}
+        return {"email": user.email}
 
-    @mini.get("/editing", dependencies=[Depends(require_role(Role.ADMIN, Role.EDITOR))])
-    def editing():
+    @mini.get("/adding", dependencies=[Depends(require_grant(Area.PEOPLE_ADD))])
+    def adding():
         return {"ok": True}
 
-    @mini.get("/admin-only", dependencies=[Depends(require_role(Role.ADMIN))])
-    def admin_only():
+    @mini.get("/accounts-only", dependencies=[Depends(require_grant(Area.ACCOUNTS))])
+    def accounts_only():
         return {"ok": True}
 
     @mini.get("/maybe")
@@ -209,21 +211,29 @@ def small_app(database):
 
 
 def test_nobody_logged_in_gets_401_everywhere(small_app):
-    for path in ("/anyone", "/editing", "/admin-only"):
+    for path in ("/anyone", "/adding", "/accounts-only"):
         assert small_app.get(path).status_code == 401, path
     assert small_app.get("/maybe").json() == {"logged_in": False}
 
 
-def test_an_editor_may_edit_but_not_do_what_only_admins_do(small_app, db):
-    create_user(db, "ed@example.org", "Ed", GOOD, Role.EDITOR)
+def test_a_user_may_do_what_their_grants_say_and_nothing_else(small_app, db):
+    create_user(db, "ed@example.org", "Ed", GOOD, Preset.THEME_OWNER)
     login(small_app, "ed@example.org")
-    assert small_app.get("/anyone").json() == {"role": "editor"}
-    assert small_app.get("/editing").status_code == 200
-    assert small_app.get("/admin-only").status_code == 403
+    assert small_app.get("/anyone").json() == {"email": "ed@example.org"}
+    assert small_app.get("/adding").status_code == 200
+    assert small_app.get("/accounts-only").status_code == 403
 
 
-def test_an_admin_may_do_everything(small_app, db):
-    create_user(db, "ada@example.org", "Ada", GOOD, Role.ADMIN)
+def test_a_user_without_grants_is_logged_in_and_may_do_nothing(small_app, db):
+    create_user(db, "none@example.org", "None", GOOD)
+    login(small_app, "none@example.org")
+    assert small_app.get("/anyone").status_code == 200
+    for path in ("/adding", "/accounts-only"):
+        assert small_app.get(path).status_code == 403, path
+
+
+def test_the_administrative_staff_may_do_both(small_app, db):
+    create_user(db, "ada@example.org", "Ada", GOOD, Preset.ADMINISTRATIVE)
     login(small_app)
-    for path in ("/anyone", "/editing", "/admin-only"):
+    for path in ("/anyone", "/adding", "/accounts-only"):
         assert small_app.get(path).status_code == 200, path

@@ -6,7 +6,8 @@ from sqlalchemy import text
 
 from app.core.config import settings
 from app.db.session import SessionLocal, engine
-from app.models.user import LoginAttempt, Role
+from app.models.user import LoginAttempt
+from app.services.grants import Preset
 from app.services import passwords
 from app.services.users import InvalidLogin, LoginLocked, UserError, authenticate, create_user, get_by_email, set_password
 
@@ -63,14 +64,14 @@ def test_a_phrase_of_a_few_words_is_a_good_password():
 
 
 def test_an_account_is_made_with_a_lower_case_email_and_a_hashed_password(db):
-    user = create_user(db, "  Ada@Example.ORG ", " Ada Lovelace ", GOOD, Role.ADMIN)
-    assert (user.email, user.name, user.role, user.is_active) == ("ada@example.org", "Ada Lovelace", "admin", True)
+    user = create_user(db, "  Ada@Example.ORG ", " Ada Lovelace ", GOOD, Preset.ADMINISTRATIVE)
+    assert (user.email, user.name, user.is_active) == ("ada@example.org", "Ada Lovelace", True)
     assert user.password_hash.startswith("$argon2id$")
     assert get_by_email(db, "ADA@example.org").id == user.id
 
 
-def test_the_default_role_is_editor(db):
-    assert create_user(db, "ed@example.org", "Ed", GOOD).role == "editor"
+def test_an_account_made_without_a_preset_has_no_grants(db):
+    assert create_user(db, "ed@example.org", "Ed", GOOD).grants == []
 
 
 @pytest.mark.parametrize(

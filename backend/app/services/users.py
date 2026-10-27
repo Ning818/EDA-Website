@@ -6,7 +6,9 @@ from sqlalchemy import delete, select
 from sqlalchemy.orm import Session
 
 from app.core.config import settings
-from app.models.user import LoginAttempt, Role, User
+from app.models.user import LoginAttempt, User
+from app.services import audit
+from app.services.grants import Preset, apply_preset
 from app.services.passwords import DUMMY_HASH, WeakPassword, check_policy, hash_password, verify_password
 
 _EMAIL = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
@@ -36,7 +38,8 @@ def get_by_email(db: Session, email: str) -> User | None:
     return db.scalar(select(User).where(User.email == normalize_email(email)))
 
 
-def create_user(db: Session, email: str, name: str, password: str, role: Role = Role.EDITOR) -> User:
+def create_user(db: Session, email: str, name: str, password: str, preset: Preset | None = None, actor: User | None = None) -> User:
+    """Make an account. With a `preset` the user gets its grants; without one they can log in and may do nothing (the least a user can have)."""
     email = normalize_email(email)
     if len(email) > 254 or not _EMAIL.match(email):
         raise UserError("That is not an email address.")
@@ -49,8 +52,12 @@ def create_user(db: Session, email: str, name: str, password: str, role: Role = 
         check_policy(password, email)
     except WeakPassword as error:
         raise UserError(str(error)) from error
-    user = User(email=email, name=name, password_hash=hash_password(password), role=Role(role).value)
+    user = User(email=email, name=name, password_hash=hash_password(password))
     db.add(user)
+    db.flush()
+    if preset is not None:
+        apply_preset(db, user, Preset(preset), actor)
+    audit.record(db, actor, "user.create", "user", email, after={"name": name, "preset": Preset(preset).value if preset is not None else None})
     db.commit()
     return user
 

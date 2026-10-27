@@ -1,6 +1,14 @@
 from pydantic import BaseModel, Field
 
+from app.models.grant import Area
 from app.models.user import User
+
+
+class GrantRead(BaseModel):
+    """One thing a user may do: an area of the content and, for `theme`, the theme's slug (none: every theme)."""
+
+    area: Area
+    theme: str | None
 
 
 class LoginIn(BaseModel):
@@ -15,8 +23,9 @@ class UserRead(BaseModel):
     id: int
     email: str
     name: str
-    role: str
+    grants: list[GrantRead]
 
     @classmethod
     def from_model(cls, user: User) -> "UserRead":
-        return cls(id=user.id, email=user.email, name=user.name, role=user.role)
+        grants = [GrantRead(area=Area(g.area), theme=g.theme.slug if g.theme else None) for g in user.grants]
+        return cls(id=user.id, email=user.email, name=user.name, grants=grants)

@@ -6,13 +6,14 @@ FastAPI + PostgreSQL backend for the EDA Group website, laid out as FastAPI's "B
 backend/
   app/
     main.py          the FastAPI app: CORS, and every router under /api
-    dependencies.py  shared dependencies (the database session)
+    dependencies.py  shared dependencies: the database session, the login and the grant checks
     core/config.py   settings from backend/.env
     db/              Base (parent of the models) and the engine / session
     models/          table models (SQLAlchemy)
     schemas/         request and response shapes (Pydantic)
     routers/         one file per resource, each with its own path and tag
-    internal/        admin-only routes (later)
+    services/        the rules: accounts, who may do what (grants), validation of what is typed, photos, people, the audit log
+    internal/        admin-only routes (the next step)
   alembic/           database migrations
   seed/              the starting data: people.json (+ photos/), themes.json (+ highlights/), collaborations.json (+ logos/), pages.json, site.json
   media/             the files the API serves under /media (not committed; created by the seed)
@@ -42,7 +43,7 @@ python -m venv .venv
 .venv/Scripts/python -m app.seed
 
 # 6. the first admin account (asks for the password on the terminal)
-.venv/Scripts/python -m app.manage create-user --email you@example.org --name "Your Name" --role admin
+.venv/Scripts/python -m app.manage create-user --email you@example.org --name "Your Name" --preset administrative
 
 # 7. the API, on http://localhost:8001 (interactive docs at /docs)
 .venv/Scripts/uvicorn app.main:app --reload --port 8001
@@ -109,14 +110,15 @@ The photos, logos and the highlight cards' pictures are files in the `media/` fo
 ```bash
 docker compose up -d                                  # the tests need PostgreSQL
 .venv/Scripts/pip install -r requirements-dev.txt     # pytest and the test client
-.venv/Scripts/python -m pytest                        # about 5 seconds
+.venv/Scripts/python -m pytest                        # about 15 seconds
 ```
 
 The tests never touch the development database: they use their own, `eda_test` (created on the same server if it is missing, emptied at the start of every run, built by the Alembic migrations and filled by the seed data), and write the served files to a throw-away folder. They check that:
 
 - the API says what the seed files say - the people in the order of the People page, the groups, the ranking of the small cards, the themes' words, research areas, projects and figures, the highlight cards, the collaborators and joint projects - and that every photo, logo and picture it names is served;
 - errors are the right ones: 404 for what is not there, 422 for a group that does not exist, 503 (not 500) for every route when the database is down, no file outside `media/` reachable, and only the front end allowed to call from a browser;
-- the login: passwords, the lock after wrong tries, what ends a session, the cross-site check and the roles, and the command line for the accounts;
+- the login: passwords, the lock after wrong tries, what ends a session, the cross-site check, and the command line for the accounts;
+- the grants and the presets, and what the database itself refuses (the same grant twice, a theme on a grant that is not about one);
 - the migrations and the models agree (a model changed without a migration fails), and the migrations go down and up again;
 - the seed can be run twice without changing anything, its files are in English, every address in them is `http` or `https`, and every file they name exists.
 
@@ -124,32 +126,76 @@ Run them after every change; when a model changes, make its migration first.
 
 ## Accounts and login
 
-There is no sign-up: an admin makes the accounts, from the command line (the password is asked for on the terminal, never given as an argument):
+There is no sign-up. For now the accounts are made from the command line (the password is asked for on the terminal, never given as an argument); the administrative staff are to make them in the admin once it has a screen for it:
 
 ```bash
-.venv/Scripts/python -m app.manage create-user --email ada@example.org --name "Ada Lovelace" --role admin   # roles: admin, editor
+.venv/Scripts/python -m app.manage create-user --email ada@example.org --name "Ada Lovelace" --preset administrative   # or theme-owner, projects-owner; none: may do nothing
+.venv/Scripts/python -m app.manage grant --email ada@example.org --area theme [--theme vlsi-cad]   # no --theme: every theme
+.venv/Scripts/python -m app.manage revoke --email ada@example.org --area theme
 .venv/Scripts/python -m app.manage set-password --email ada@example.org     # ends all of that user's logins
 .venv/Scripts/python -m app.manage deactivate --email ada@example.org       # activate: the other way
 .venv/Scripts/python -m app.manage list-users
 ```
 
 - **Passwords** are stored only as Argon2id hashes. A password is 12 to 128 characters (length is what counts, a phrase of a few words is fine) and is not the email.
-- **Roles:** `editor` edits the content, `admin` also manages the users. Routes ask for a role with `Depends(require_role(...))` (`app/dependencies.py`).
+- **Grants, not roles:** what a user may do is what their grants say (see "The admin" below); routes ask with `Depends(require_grant(Area.ACCOUNTS))` (`app/dependencies.py`) and the services check again.
 - **The login** is a signed cookie (`eda_session`): HttpOnly, SameSite=Lax, and Secure where `SESSION_COOKIE_SECURE=true` (set it wherever the site is served over HTTPS). It ends after 2 hours without a request, 12 hours after the login whatever happens, when the account is switched off or deleted, and when the password is changed. Visitors who only read the site get no cookie.
 - **Wrong passwords:** after 5 wrong tries for an email the login is refused for 15 minutes, even with the right password. An email nobody has is counted the same, and a wrong email and a wrong password get the same answer, so nothing tells which accounts exist. The times and numbers are settings (`LOGIN_MAX_FAILURES`, `LOGIN_LOCK_MINUTES`, `SESSION_IDLE_MINUTES`, `SESSION_MAX_HOURS`).
 - **Pages of other sites:** every route that changes something checks the request's `Origin` (`check_origin`): it must be the site's own address or one of `CORS_ORIGINS`, so another site cannot make a logged-in visitor's browser send it.
 - Behind a reverse proxy the proxy must pass the `Host` header on (`proxy_set_header Host $host;`) and the API must be started with `--proxy-headers`.
 
-## Planned: the admin (not built yet)
+## The admin
 
-The group's members are to edit the content themselves, in an admin at `/admin` inside this app (SQLAdmin, using the accounts and login above). The accounts and the login are built; the admin itself is not. What is decided so far:
+### Separate applications
 
-- **New theme:** a developer builds its particle cloud, models and header artwork and redeploys the front end; the staff then add the theme's own text in the admin and tick `published`. The theme list becomes the code's templates (`src/themes.js`: slug, colour, artwork) joined by slug to the database's content. Nothing is copied from another theme, and no code or particle bundle is ever uploaded through the admin.
+The public website (the front end at the repository root), this API and the admin are three different, isolated applications. They may share one repository for simplicity, but each has
+its own dependencies, build, settings and port, none imports another's code, and they meet only through this API's HTTP routes. The website only reads (`GET`); every change to the
+content comes through the admin's routes (`/api/admin/...`), which the website never calls. The admin's interface is a front-end application of its own - not built yet - that goes in a
+folder of its own next to `backend/`, never inside the website's `src/`.
+
+### Who may do what
+
+What a user may do is what their **grants** say (`user_grants`); no code checks a name or a role. A grant is an area of the content, and for `theme` the theme it is about, or every theme
+(the ones added later included):
+
+| Area | What it allows |
+|---|---|
+| `people_add` | add a new person |
+| `people_edit` | change any person (title, photo, links) and let a person leave |
+| `site` | collaborators and joint projects, the footer's numbers, the intro paragraphs of the People and Collaborations pages |
+| `projects` | the funded projects of every theme, and the funded-projects paragraph of each theme page |
+| `theme` | a theme's content: its words, research areas and topics, highlight cards, contacts |
+| `accounts` | make accounts, switch them off, give grants |
+
+Three kinds of people keep the site, and an account made with a preset gets that bundle of grants:
+
+| Preset | Who | Grants |
+|---|---|---|
+| `administrative` | the administrative staff | `people_add`, `people_edit`, `site`, `accounts` |
+| `theme-owner` | the one person who keeps every theme page | `people_add`, `theme` (every theme) |
+| `projects-owner` | the one person who keeps the funded projects | `projects` |
+
+An account made without a preset can log in and may do nothing.
+
+### Still to build
+
+- The admin's routes for people (add a person, correct one, let one leave) with the rules that go with them: a person is never deleted, leaving takes a person out of the contacts, a photo needs the person's consent, and every change is written to the audit log.
+- The admin's own interface, as a separate front-end application (see above), showing each user only the tasks their grants allow.
+- Account management in the admin (the administrative staff make accounts and give grants; a temporary password that has to be changed at the first login; the last administrator cannot be
+  switched off), the themes' content, the funded projects (after a change to the projects the admin asks whether the theme page's funded-projects paragraph needs updating), the
+  collaborators, the footer's numbers and the intro paragraphs.
+- A scheduled check of the links in the content. A link is reported only after several failures in a row, the checker may only fetch `http` and `https` addresses and never one on a
+  private network, and each user sees the broken links of the content they keep: project links the projects owner, collaborator and people links the administrative staff, highlight
+  links the theme owner.
+- A "I cannot find what I need" request, for edits that no screen covers.
+- Rare edits outside the screens: a restricted expert mode for the administrative staff (the validation sits in the models and services, so it cannot be skipped there either); new fields
+  and new themes stay developer work.
+- **New theme:** a developer builds its particle cloud, models and header artwork and redeploys the front end; the theme owner then adds the theme's own text in the admin and ticks `published`. The theme list becomes the code's templates (`src/themes.js`: slug, colour, artwork) joined by slug to the database's content. Nothing is copied from another theme, and no code or particle bundle is ever uploaded through the admin.
 - **Highlight cards** (paper and project): everything on them - title, authors, venue, keywords, text, link, picture - is entered by hand; nothing is read from IRIS.
 - **Fields the admin forms add for accessibility** (to be added with the forms, with a migration):
   - `image_alt` on `highlights` (and on any picture the admin later takes): the picture's text alternative. Empty means the site writes one from the title, as it does today; a decorative picture can be marked so, and a screen reader then skips it.
   - `language` on projects (and on any text that is not English, such as the Italian project names): an ISO code such as `it`, which the site writes as `lang="it"` on that text so a screen reader pronounces it right. Empty means English.
-- **Accessibility of the admin itself:** SQLAdmin's keyboard and screen-reader behaviour is to be tested once it is in; the login session must warn before it ends, so a form half filled is not lost.
+- **Accessibility of the admin itself:** keyboard and screen-reader behaviour is to be tested; the login session must warn before it ends, so a form half filled is not lost.
 
 ## Migrations
 

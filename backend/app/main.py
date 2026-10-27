@@ -10,7 +10,9 @@ from sqlalchemy.exc import OperationalError
 from app.core.config import settings
 from app.internal import accounts as admin_accounts
 from app.internal import people as admin_people
+from app.internal import projects as admin_projects
 from app.internal import research_areas as admin_research_areas
+from app.internal import themes as admin_themes
 from app.routers import auth, collaborations, health, pages, people, site, themes
 
 logger = logging.getLogger("uvicorn.error")
@@ -55,6 +57,8 @@ app.include_router(site.router, prefix="/api")
 app.include_router(admin_people.router, prefix="/api")
 app.include_router(admin_accounts.router, prefix="/api")
 app.include_router(admin_research_areas.router, prefix="/api")
+app.include_router(admin_projects.router, prefix="/api")
+app.include_router(admin_themes.router, prefix="/api")
 
 # the files under the media folder (people's photos) are served as they are
 settings.media_dir.mkdir(parents=True, exist_ok=True)

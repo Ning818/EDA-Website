@@ -1,9 +1,10 @@
 """What the admin routes (app/internal) send, beyond what the public routes already do."""
 from datetime import datetime
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 from app.models.grant import Area
+from app.models.theme import Project
 from app.models.user import User
 from app.schemas.person import PersonRead
 from app.schemas.user import GrantRead
@@ -33,6 +34,68 @@ class ResearchAreaRead(BaseModel):
     title: str
     theme_slug: str
     theme_name: str
+
+
+class AdminProjectRead(BaseModel):
+    """A funded project as the admin shows it: with the theme it belongs to, which the public pages do not need to say."""
+
+    id: int
+    theme_slug: str
+    theme_name: str
+    status: str
+    code: str | None
+    description: str
+    url: str | None
+
+    @classmethod
+    def from_model(cls, project: Project) -> "AdminProjectRead":
+        return cls(
+            id=project.id,
+            theme_slug=project.theme.slug,
+            theme_name=project.theme.name,
+            status=project.status,
+            code=project.code,
+            description=project.description,
+            url=project.url,
+        )
+
+
+class ProjectIn(BaseModel):
+    """A new project. `status` is ongoing unless said; `code` and `url` may be left out."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    theme: str
+    description: str
+    status: str = "ongoing"
+    code: str | None = None
+    url: str | None = None
+
+
+class ProjectPatch(BaseModel):
+    """What to change in a project: only the fields sent. A `code` or `url` sent as null or empty is removed."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    theme: str | None = None
+    status: str | None = None
+    description: str | None = None
+    code: str | None = None
+    url: str | None = None
+
+
+class FundedBlurbIn(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    text: str
+
+
+class FundedBlurbRead(BaseModel):
+    """The sentence of a theme page about the theme's funded projects."""
+
+    theme_slug: str
+    theme_name: str
+    text: str
 
 
 class DeleteImpactRead(BaseModel):

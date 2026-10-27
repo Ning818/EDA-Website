@@ -121,6 +121,7 @@ The tests never touch the development database: they use their own, `eda_test` (
 - the grants and the presets, and what the database itself refuses (the same grant twice, a theme on a grant that is not about one);
 - the accounts the staff keep: who may, the temporary password (shown once, kept only as a hash, to be changed before anything else works), switching accounts off, new grants, resets, and that the last account able to manage accounts is never lost;
 - the admin's people routes: who may add, correct, let a person leave and delete one, what is refused (HTML in a name, a `javascript:` link, a photo that is not a photo or has no consent, a name that is already there), what is kept (the photo without its EXIF data, who confirmed the consent, an audit row) and that a failed change leaves nothing behind;
+- the admin's routes for the funded projects: who may (only the funded-projects owner), what is refused (HTML, a `javascript:` address, an unknown theme or status, a field nobody asked for), what the public pages show afterwards (the new project last in its list, the numbers, the ended list), that a project is never deleted and that the sentence about the projects is written only by hand;
 - the shape that keeps the apps apart: nothing public imports the admin, every admin route needs a login, and nothing outside `/api/admin` changes anything but the login;
 - the migrations and the models agree (a model changed without a migration fails), and the migrations go down and up again;
 - the seed can be run twice without changing anything, its files are in English, every address in them is `http` or `https`, and every file they name exists.
@@ -219,6 +220,19 @@ An account made without a preset can log in and may do nothing.
 - Text fields hold plain text (no `<` or `>`); a web address must start with `http://` or `https://`.
 - Every change writes a row in `audit_log` (who, what, before and after) in the same transaction as the change; a change that fails leaves neither.
 
+Rules for the funded projects (`app/services/projects.py`), which need the grant `projects`, for every theme:
+
+- A project is **never deleted**: when it is over it is changed to `ended` and stays in the ended list. A wrong entry is corrected, and can be moved to the right theme.
+- A new project goes **last** in its list (ongoing or ended), and so does a project that is moved to another theme or changes its status; the pages keep each list in the order of `position`.
+  The numbers in the header of a theme's pages are counted from the projects, so they follow at once.
+- A project is a theme, a status, a description and, if it has them, a code and an address. The description is plain text (at most 300 characters, never empty), the code is at most 50,
+  the address is an `http` or `https` one; a code or an address sent empty is removed.
+- The **sentence in the Funded projects card of a theme page** (`themes.funded_blurb`, for example "Ongoing projects include R2POWER300 and R3POWERUP, which work on ...") is written by hand by this
+  owner (plain text, 1 to 600 characters). Nothing writes it from the projects. After a project is added, ended or changed, the admin asks the owner whether the sentence still fits; that
+  question is the admin's, the API only offers `PUT /api/admin/themes/{slug}/funded-blurb`.
+- A change that changes nothing writes no audit row. Ending a project is recorded as `project.end`, the other changes as `project.add` and `project.update`, and a new sentence as
+  `theme.funded_blurb`.
+
 Rules for accounts (`app/services/accounts.py`):
 
 - A new account, and one given a new password, gets a **temporary password** (such as `k7mq-x3ah-p9tw`, without letters that look alike). It is in the answer once and nowhere else: the
@@ -246,13 +260,18 @@ All need a login, and the ones that change something also pass the cross-site ch
 | `GET /api/admin/people/{slug}/delete-preview` | the contacts and topic groups that would lose this person if they were deleted (grant `people_delete`, or the one who added the person for a day) |
 | `POST /api/admin/people` | add a person (form data: `name`, `title`, `card_name`, `polito`, `orcid`, `linkedin`, `dept`, `iris`, `photo`, `photo_consent`, `confirm_distinct`, `topic_group_id`); 409 `possible_duplicate` |
 | `PATCH /api/admin/people/{slug}` | change what is sent (`clear` names optional fields to remove); a title of Former member needs `confirm_leave` (409 `leave_needs_confirmation` first) |
+| `GET /api/admin/projects` | every project of every theme with its theme, in the order of the site (grant `projects`) |
+| `GET /api/admin/projects/{id}` | one project |
+| `POST /api/admin/projects` | add a project (JSON: `theme` as a slug, `description`, and if wanted `status`, `code`, `url`); it goes last in its list |
+| `PATCH /api/admin/projects/{id}` | change what is sent (JSON: `theme`, `status`, `description`, `code`, `url`; a `code` or `url` sent as null or empty is removed); a project that is over gets `status` ended |
+| `PUT /api/admin/themes/{slug}/funded-blurb` | write the sentence of the theme's Funded projects card about its own projects (JSON: `text`) |
 | `DELETE /api/admin/people/{slug}?confirm=true` | delete a person added by mistake (grant `people_delete`, or the one who added the person for a day); without `confirm` it answers 409 `delete_needs_confirmation` with what would go |
 
 ### Still to build
 
 - The admin's own interface, as a separate front-end application (see above), showing each user only the tasks their grants allow, with screens for the people and accounts routes above.
-- The themes' content, the funded projects (after a change to the projects the admin asks whether the theme page's funded-projects paragraph needs updating), the
-  collaborators, the footer's numbers and the intro paragraphs.
+- The routes for the themes' content, the collaborators, the footer's numbers and the intro paragraphs; the admin's screens for the funded projects, which after a change to a project ask
+  whether the theme page's funded-projects sentence needs updating (the routes for the projects themselves are above).
 - A scheduled check of the links in the content. A link is reported only after several failures in a row, the checker may only fetch `http` and `https` addresses and never one on a
   private network, and each user sees the broken links of the content they keep: project links the projects owner, collaborator and people links the administrative staff, highlight
   links the theme owner.

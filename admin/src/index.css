@@ -1,0 +1,342 @@
+@import "tailwindcss";
+
+/* The look is the website's: the same two typefaces (Poppins for headings, names and actions, Roboto for reading text) and the same navy, mint and teal. What differs is that
+   this is a tool, so everything is plain and easy to read: white panels on the mint ground, large targets, and nothing that moves.
+
+   Colours are checked against WCAG 2.2 AA (4.5:1 for text, 3:1 for the borders of controls and for the focus ring):
+   navy on white 15.2, navy on mint 14.0; secondary text (#4f6779) on white 5.9, on mint 5.5, on mint-deep 4.9; teal-text on white 5.7, on mint 5.3, on mint-deep 4.8;
+   danger on white 6.6; white on navy 15.2; a control's border (#4f6779) on white 5.9. The website's own softer grey-blue (#5a7385) is not used for text here: on mint it is 4.6 and on mint-deep 4.2. */
+@theme {
+  --font-heading: 'Poppins', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+  --font-body: 'Roboto Variable', Roboto, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+
+  --color-navy: #002843;
+  --color-navy-hover: #003a5f;
+  --color-ink-soft: #4f6779;
+  --color-mint: #eef8f3;
+  --color-mint-deep: #dcefe6;
+  --color-teal-text: #157082;
+  --color-line: #c0d4ca;
+
+  --color-danger: #b42318;
+  --color-danger-bg: #fdecea;
+  --color-danger-text: #8a1c13;
+  --color-ok-bg: #e3f4ea;
+  --color-ok-text: #0f5132;
+  --color-ok-border: #146c43;
+  --color-warn-bg: #fff4e0;
+  --color-warn-text: #6b4400;
+  --color-warn-border: #8a5300;
+}
+
+html {
+  font-size: 100%;
+}
+body {
+  margin: 0;
+  background: var(--color-mint);
+  color: var(--color-navy);
+  font-family: var(--font-body);
+  font-size: 1rem;
+  line-height: 1.55;
+}
+h1, h2, h3 {
+  font-family: var(--font-heading);
+  font-weight: 600;
+  line-height: 1.25;
+  margin: 0;
+}
+h1 { font-size: 1.75rem; }
+h2 { font-size: 1.375rem; }
+h3 { font-size: 1.125rem; }
+@media (width >= 48rem) {
+  h1 { font-size: 2rem; }
+}
+p { margin: 0; }
+/* Tailwind's reset takes the underline off links; a link in running text must show it is one by more than its colour, so it is put back (the navigation and the buttons turn it off again) */
+a {
+  color: var(--color-teal-text);
+  text-decoration-line: underline;
+  text-underline-offset: 0.2em;
+  text-decoration-thickness: 0.08em;
+}
+a:hover { text-decoration-thickness: 0.15em; }
+
+/* A visible focus on everything that can be reached by keyboard: 3px, 5.3:1 on the mint ground and on white (the header, which is navy, has its own ring below) */
+:focus-visible {
+  outline: 3px solid var(--color-teal-text);
+  outline-offset: 2px;
+}
+/* a heading that is focused by the program after a page change shows no ring: it is not something to operate */
+h1[tabindex='-1']:focus, main[tabindex='-1']:focus { outline: none; }
+
+.skip-link {
+  position: absolute;
+  left: 0.5rem;
+  top: -4rem;
+  z-index: 100;
+  background: #fff;
+  color: var(--color-navy);
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  border: 2px solid var(--color-navy);
+  font-family: var(--font-heading);
+  font-weight: 500;
+}
+.skip-link:focus { top: 0.5rem; }
+
+/* --- the frame ------------------------------------------------------------------------------------------------------------------------------------------------ */
+.app-header {
+  background: var(--color-navy);
+  color: #fff;
+}
+.app-header a, .app-header button { color: #fff; }
+.app-header :focus-visible { outline-color: #fff; }
+.app-header-inner {
+  max-width: 72rem;
+  margin: 0 auto;
+  padding: 0.75rem 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 1.5rem;
+}
+.brand {
+  font-family: var(--font-heading);
+  font-weight: 500;
+  font-size: 1.25rem;
+  text-decoration: none;
+}
+.brand:hover { text-decoration: underline; }
+.nav-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  flex: 1 1 auto;
+}
+.nav-link {
+  display: inline-block;
+  padding: 0.5rem 0.25rem;
+  font-family: var(--font-heading);
+  font-weight: 500;
+  text-decoration: none;
+  border-bottom: 3px solid transparent;
+}
+.nav-link:hover { border-bottom-color: #fff; }
+.nav-link[aria-current='page'] { border-bottom-color: #fff; }
+.who {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.25rem 1rem;
+}
+.who .btn-link {
+  background: none;
+  border: 2px solid #fff;
+  border-radius: 0.5rem;
+  min-height: 2.5rem;
+  padding: 0 0.875rem;
+  font-family: var(--font-heading);
+  font-weight: 500;
+  font-size: 1rem;
+  cursor: pointer;
+}
+.who .btn-link:hover { background: var(--color-navy-hover); }
+
+.page {
+  max-width: 72rem;
+  margin: 0 auto;
+  padding: 1.5rem 1rem 4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+.page-narrow { max-width: 40rem; }
+.page-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 0.75rem 1.5rem;
+}
+.lead { color: var(--color-ink-soft); max-width: 60ch; }
+.back-link { align-self: flex-start; }
+
+/* --- panels --------------------------------------------------------------------------------------------------------------------------------------------------- */
+.card {
+  background: #fff;
+  border: 1px solid var(--color-line);
+  border-radius: 0.75rem;
+  padding: 1.25rem;
+}
+.stack { display: flex; flex-direction: column; gap: 1rem; }
+.stack-lg { display: flex; flex-direction: column; gap: 1.5rem; }
+.row { display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem; }
+.muted { color: var(--color-ink-soft); }
+.meta { font-size: 0.875rem; color: var(--color-ink-soft); }
+.mono { font-family: ui-monospace, SFMono-Regular, Consolas, 'Liberation Mono', Menlo, monospace; }
+
+/* --- buttons -------------------------------------------------------------------------------------------------------------------------------------------------- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.75rem;
+  padding: 0.5rem 1.125rem;
+  border-radius: 0.5rem;
+  border: 2px solid var(--color-navy);
+  background: #fff;
+  color: var(--color-navy);
+  font-family: var(--font-heading);
+  font-weight: 500;
+  font-size: 1rem;
+  line-height: 1.3;
+  text-decoration: none;
+  cursor: pointer;
+}
+.btn:hover { background: var(--color-mint-deep); }
+.btn-primary { background: var(--color-navy); color: #fff; }
+.btn-primary:hover { background: var(--color-navy-hover); }
+.btn-danger { background: var(--color-danger); border-color: var(--color-danger); color: #fff; }
+.btn-danger:hover { background: #8f1c13; border-color: #8f1c13; }
+.btn[disabled], .btn[aria-disabled='true'] { opacity: 0.6; cursor: not-allowed; }
+
+/* --- forms ---------------------------------------------------------------------------------------------------------------------------------------------------- */
+.field { display: flex; flex-direction: column; gap: 0.375rem; }
+.field-label { font-family: var(--font-heading); font-weight: 500; }
+.field-label .req { font-family: var(--font-body); font-weight: 400; color: var(--color-ink-soft); }
+.field-hint { font-size: 0.9375rem; color: var(--color-ink-soft); }
+.input {
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 2.75rem;
+  padding: 0.5rem 0.75rem;
+  border: 2px solid var(--color-ink-soft);
+  border-radius: 0.5rem;
+  background: #fff;
+  color: var(--color-navy);
+  font-family: var(--font-body);
+  font-size: 1rem;
+}
+.input[aria-invalid='true'] { border-color: var(--color-danger); }
+.field-error {
+  display: flex;
+  gap: 0.5rem;
+  color: var(--color-danger-text);
+  font-weight: 500;
+}
+.field-error::before { content: '\26A0'; /* a warning sign: the message is in words as well, colour is not the only signal */ }
+.check { display: flex; align-items: flex-start; gap: 0.75rem; }
+.check input { width: 1.5rem; height: 1.5rem; margin: 0.125rem 0 0; flex: none; accent-color: var(--color-navy); }
+.form-grid { display: grid; gap: 1rem; grid-template-columns: minmax(0, 1fr); }
+@media (width >= 40rem) {
+  .form-grid-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .span-2 { grid-column: 1 / -1; }
+}
+fieldset { border: 1px solid var(--color-line); border-radius: 0.75rem; padding: 1rem 1.25rem 1.25rem; margin: 0; min-width: 0; }
+legend { font-family: var(--font-heading); font-weight: 500; padding: 0 0.5rem; }
+
+/* --- messages ------------------------------------------------------------------------------------------------------------------------------------------------- */
+.notice {
+  border: 2px solid;
+  border-radius: 0.75rem;
+  padding: 0.875rem 1rem;
+}
+.notice h2 { font-size: 1.0625rem; margin-bottom: 0.25rem; }
+.notice-ok { background: var(--color-ok-bg); color: var(--color-ok-text); border-color: var(--color-ok-border); }
+.notice-error { background: var(--color-danger-bg); color: var(--color-danger-text); border-color: var(--color-danger); }
+.notice-warn { background: var(--color-warn-bg); color: var(--color-warn-text); border-color: var(--color-warn-border); }
+.notice-info { background: #fff; color: var(--color-navy); border-color: var(--color-teal-text); }
+/* a link inside a message takes the message's colour (which is checked against its background), but a link that is a button keeps its own */
+.notice a:not(.btn) { color: inherit; }
+.notice ul { margin: 0.25rem 0 0; padding-left: 1.25rem; }
+
+.badge {
+  display: inline-block;
+  padding: 0.125rem 0.625rem;
+  border-radius: 999px;
+  border: 1px solid;
+  font-size: 0.875rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+.badge-ok { background: var(--color-ok-bg); color: var(--color-ok-text); border-color: var(--color-ok-border); }
+.badge-off { background: var(--color-danger-bg); color: var(--color-danger-text); border-color: var(--color-danger); }
+.badge-warn { background: var(--color-warn-bg); color: var(--color-warn-text); border-color: var(--color-warn-border); }
+.badge-plain { background: var(--color-mint-deep); color: var(--color-navy); border-color: var(--color-ink-soft); }
+
+/* --- the task cards on the home page ------------------------------------------------------------------------------------------------------------------------- */
+.task-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 1rem; grid-template-columns: minmax(0, 1fr); }
+@media (width >= 40rem) { .task-list { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.task-card {
+  display: block;
+  height: 100%;
+  box-sizing: border-box;
+  background: #fff;
+  border: 2px solid var(--color-navy);
+  border-radius: 0.75rem;
+  padding: 1.25rem;
+  color: var(--color-navy);
+  text-decoration: none;
+}
+.task-card:hover { background: var(--color-mint-deep); }
+.task-card .task-title { font-family: var(--font-heading); font-weight: 600; font-size: 1.25rem; display: block; margin-bottom: 0.25rem; }
+.task-card .task-text { color: var(--color-ink-soft); }
+.task-soon { border-style: dashed; border-color: var(--color-ink-soft); }
+
+/* --- lists and tables ----------------------------------------------------------------------------------------------------------------------------------------- */
+.plain-list { list-style: none; margin: 0; padding: 0; }
+.people-list li { border-top: 1px solid var(--color-line); }
+.people-list a { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0.25rem 1rem; padding: 0.75rem 0.25rem; text-decoration: none; color: var(--color-navy); }
+.people-list a:hover { background: var(--color-mint-deep); }
+.people-list .person-name { font-family: var(--font-heading); font-weight: 500; text-decoration: underline; text-decoration-color: var(--color-teal-text); text-underline-offset: 0.2em; }
+/* `position: relative` so that the visually hidden text inside the table (which is positioned absolutely) is clipped here with the rest, instead of widening the whole page */
+.table-wrap { position: relative; overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; background: #fff; }
+caption { text-align: left; font-family: var(--font-heading); font-weight: 600; font-size: 1.125rem; padding: 0 0 0.75rem; }
+th, td { text-align: left; padding: 0.75rem; border-top: 1px solid var(--color-line); vertical-align: top; }
+th { font-family: var(--font-heading); font-weight: 500; white-space: nowrap; }
+tbody tr:last-child th, tbody tr:last-child td { border-bottom: 1px solid var(--color-line); }
+
+.person-photo { width: 9rem; height: 9rem; object-fit: cover; border-radius: 0.75rem; border: 1px solid var(--color-line); background: var(--color-mint-deep); }
+.person-initials { width: 9rem; height: 9rem; display: grid; place-items: center; border-radius: 0.75rem; background: var(--color-mint-deep); font-family: var(--font-heading); font-size: 2rem; font-weight: 600; }
+.secret {
+  font-family: ui-monospace, SFMono-Regular, Consolas, 'Liberation Mono', Menlo, monospace;
+  font-size: 1.5rem;
+  letter-spacing: 0.04em;
+  background: #fff;
+  border: 2px dashed var(--color-navy);
+  border-radius: 0.5rem;
+  padding: 0.5rem 0.875rem;
+  overflow-wrap: anywhere;
+}
+
+dialog {
+  margin: auto; /* the reset zeroes it, and a modal dialog is centred by its automatic margins */
+  border: 2px solid var(--color-navy);
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  max-width: min(32rem, calc(100vw - 2rem));
+  color: var(--color-navy);
+  background: #fff;
+}
+dialog::backdrop { background: rgb(0 40 67 / 0.6); }
+
+.visually-hidden {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+}

@@ -7,6 +7,8 @@ Rules kept here, so that no way in can skip them:
   24 hours in which they may correct the entry.
 - When a person becomes a Former member they are taken out of every theme's "Refer to" contacts. They stay in "Involved people", where their title now reads Former member.
 - Adding a person needs the grant `people_add`; changing one needs `people_edit`. The user who added a person may also correct that entry for 24 hours.
+- A person may be added straight into a research area of a theme, as one of its "Involved people": that needs the grant `theme` for that theme, and the person goes last among the
+  people of the area.
 - A photo needs the confirmation that the person agreed to it; who confirmed it and when is kept.
 - A new person with the same name as someone already there is refused until the user confirms they are a different person.
 """
@@ -16,7 +18,7 @@ from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 
 from sqlalchemy import delete, func, select
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, selectinload
 
 from app.core.validation import InvalidInput, clean_text, clean_url
 from app.models.grant import Area
@@ -64,6 +66,16 @@ class TopicMembership:
     theme_slug: str
     theme_name: str
     group_title: str
+
+
+@dataclass(frozen=True)
+class ResearchArea:
+    """A research area of a theme that a user may list people under."""
+
+    id: int
+    title: str
+    theme_slug: str
+    theme_name: str
 
 
 @dataclass(frozen=True)
@@ -176,6 +188,12 @@ def leave_preview(db: Session, actor: User, slug: str, now: datetime | None = No
     return contacts_affected(db, person)
 
 
+def research_areas(db: Session, actor: User) -> list[ResearchArea]:
+    """The research areas the user may list people under: those of the themes they hold the grant `theme` for, in the order of the site."""
+    themes = db.scalars(select(Theme).order_by(Theme.position).options(selectinload(Theme.groups)))
+    return [ResearchArea(group.id, group.title, theme.slug, theme.name) for theme in themes if has_grant(db, actor, Area.THEME, theme.id) for group in theme.groups]
+
+
 def delete_impact(db: Session, person: Person) -> DeleteImpact:
     """The contacts and the topic groups that would lose the person if they were deleted."""
     rows = db.execute(
@@ -249,10 +267,19 @@ def add_person(
     photo: bytes | None = None,
     photo_consent: bool = False,
     confirm_distinct: bool = False,
+    topic_group_id: int | None = None,
 ) -> Person:
-    """Add a person, who shows on the People page at once. `fields`: name, title and, if wanted, card_name and the links (polito, orcid, linkedin, dept, iris)."""
+    """Add a person, who shows on the People page at once. `fields`: name, title and, if wanted, card_name and the links (polito, orcid, linkedin, dept, iris). With `topic_group_id` the
+    person is also listed under that research area of a theme, as one of its "Involved people", which needs the grant `theme` for that theme."""
     if not has_grant(db, actor, Area.PEOPLE_ADD):
         raise NotAllowed("May not add people")
+    group = None
+    if topic_group_id is not None:
+        group = db.get(TopicGroup, topic_group_id)
+        if group is None:
+            raise InvalidInput("topic_group_id", "That research area does not exist.")
+        if not has_grant(db, actor, Area.THEME, group.theme_id):
+            raise NotAllowed("May not list people under this theme")
     clean = _clean_fields(fields, partial=False)
     prepared = _prepare_photo(photo, photo_consent)
     if not confirm_distinct:
@@ -271,7 +298,12 @@ def add_person(
     try:
         db.add(person)
         db.flush()
-        audit.record(db, actor, "person.add", "person", person.slug, after=snapshot(person))
+        after = snapshot(person)
+        if group:
+            last = db.scalar(select(func.max(TopicGroupPerson.position)).where(TopicGroupPerson.group_id == group.id))
+            db.add(TopicGroupPerson(group_id=group.id, person_id=person.id, position=0 if last is None else last + 1))
+            after["listed_under"] = {"theme": group.theme.slug, "research_area": group.title}
+        audit.record(db, actor, "person.add", "person", person.slug, after=after)
         if prepared:
             photos.write(path, prepared[0])
         db.commit()

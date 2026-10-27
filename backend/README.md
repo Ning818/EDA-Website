@@ -209,6 +209,9 @@ An account made without a preset can log in and may do nothing.
   themes and topic groups the person was in), and the photo file is removed. The name and its address are free to use again.
 - When a person becomes a Former member they are **taken out of every theme's "Refer to" contacts** (a theme left with none shows no Refer to section). They stay among the "Involved
   people", where their title now reads Former member. The admin first shows which themes lose a contact and asks to confirm.
+- A person can be **added straight into a research area** of a theme, as one of its "Involved people" (`topic_group_id`): that needs the grant `theme` for that theme (a grant for every
+  theme covers all of them) as well as `people_add`, and the person goes last among the people of the area (the pages order them by rank first). A user who may not, or an area that does not
+  exist, is refused and nothing is added; the audit row of the addition (`person.add`) says which area. `GET /api/admin/research-areas` lists the areas a user may choose from.
 - A user who **added a person may correct or delete that entry for 24 hours**; after that only those with `people_edit` (to correct) or `people_delete` (to delete) can.
 - A **photo needs the confirmation that the person agreed to it**; who confirmed it and when is kept (`people.photo_consent_by_id`, `photo_consent_at`). The file is checked by its
   content, shrunk, stripped of its EXIF data and stored under a name made from the person's slug; SVG is refused.
@@ -237,10 +240,11 @@ All need a login, and the ones that change something also pass the cross-site ch
 | `POST /api/admin/accounts` | make an account (`email`, `name`, `preset`); the answer holds the temporary password |
 | `PATCH /api/admin/accounts/{id}` | change the name, the preset (null: no grants) or `is_active` |
 | `POST /api/admin/accounts/{id}/reset-password` | a new temporary password, in the answer once |
+| `GET /api/admin/research-areas` | the research areas of the themes the user holds the grant `theme` for (`id`, `title`, `theme_slug`, `theme_name`), in the order of the site; none for a user without it |
 | `GET /api/admin/people/{slug}` | a person, and whether this user may change them (`can_edit`, `editable_until`) |
 | `GET /api/admin/people/{slug}/leave-preview` | the themes that would lose this person as a contact (the 409 of a title change to Former member carries the same list, which is what the admin's form uses) |
 | `GET /api/admin/people/{slug}/delete-preview` | the contacts and topic groups that would lose this person if they were deleted (grant `people_delete`, or the one who added the person for a day) |
-| `POST /api/admin/people` | add a person (form data: `name`, `title`, `card_name`, `polito`, `orcid`, `linkedin`, `dept`, `iris`, `photo`, `photo_consent`, `confirm_distinct`); 409 `possible_duplicate` |
+| `POST /api/admin/people` | add a person (form data: `name`, `title`, `card_name`, `polito`, `orcid`, `linkedin`, `dept`, `iris`, `photo`, `photo_consent`, `confirm_distinct`, `topic_group_id`); 409 `possible_duplicate` |
 | `PATCH /api/admin/people/{slug}` | change what is sent (`clear` names optional fields to remove); a title of Former member needs `confirm_leave` (409 `leave_needs_confirmation` first) |
 | `DELETE /api/admin/people/{slug}?confirm=true` | delete a person added by mistake (grant `people_delete`, or the one who added the person for a day); without `confirm` it answers 409 `delete_needs_confirmation` with what would go |
 

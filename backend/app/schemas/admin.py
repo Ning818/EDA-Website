@@ -26,6 +26,15 @@ class TopicMembershipRead(BaseModel):
     group_title: str
 
 
+class ResearchAreaRead(BaseModel):
+    """A research area of a theme that the user may list people under (`id` is what `topic_group_id` takes when a person is added)."""
+
+    id: int
+    title: str
+    theme_slug: str
+    theme_name: str
+
+
 class DeleteImpactRead(BaseModel):
     """What deleting a person takes with them: the contacts and the topic groups they are in."""
 

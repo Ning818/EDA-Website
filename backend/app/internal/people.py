@@ -154,13 +154,15 @@ def add_person(
     photo: UploadFile | None = File(None),
     photo_consent: bool = Form(False),
     confirm_distinct: bool = Form(False),
+    topic_group_id: int | None = Form(None),
     user: User = Depends(require_ready_user),
     db: Session = Depends(get_db),
 ):
-    """Add a person; they show on the People page at once. A photo needs `photo_consent`; a name that is in the list already is refused (409) until `confirm_distinct`."""
+    """Add a person; they show on the People page at once. A photo needs `photo_consent`; a name that is in the list already is refused (409) until `confirm_distinct`. With
+    `topic_group_id` (one of `GET /api/admin/research-areas`) they are also listed under that research area, which needs the grant `theme` for its theme."""
     fields = _given(name=name, title=title, card_name=card_name, polito=polito, orcid=orcid, linkedin=linkedin, dept=dept, iris=iris)
     try:
-        person = service.add_person(db, user, fields, _read_photo(photo), photo_consent, confirm_distinct)
+        person = service.add_person(db, user, fields, _read_photo(photo), photo_consent, confirm_distinct, topic_group_id)
         return _admin_read(db, user, person)
     except _REFUSALS as error:
         raise _http(error) from None

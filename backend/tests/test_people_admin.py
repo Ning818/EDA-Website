@@ -13,6 +13,7 @@ from app.main import app
 from app.models.audit import AuditLog
 from app.models.grant import Area
 from app.models.person import GROUP_OF_TITLE, Person, Title, titles_in
+from app.models.theme import Theme, TopicGroupPerson
 from app.services import people as service
 from app.services import photos
 from app.services.grants import NotAllowed, Preset, grant
@@ -559,3 +560,105 @@ def test_only_the_optional_fields_can_be_cleared(admin):
     answer = admin.patch(f"{URL}/grace-hopper", data={"clear": ["name"]})
     assert answer.status_code == 422 and detail(answer)["field"] == "clear"
     assert admin.get(f"{URL}/grace-hopper").json()["name"] == "Grace Hopper"
+
+
+# --- listing a new person under a research area -----------------------------------------------------------------------------------------------------------------------
+
+AREAS = "/api/admin/research-areas"
+
+
+def area_of_theme(index):
+    """The first research area of the theme at this place in the site's order, as a dict."""
+    with SessionLocal() as db:
+        theme = db.scalars(select(Theme).order_by(Theme.position)).all()[index]
+        group = theme.groups[0]
+        return {"id": group.id, "title": group.title, "theme_id": theme.id, "theme_slug": theme.slug}
+
+
+def members_of(group_id):
+    with SessionLocal() as db:
+        rows = db.scalars(select(TopicGroupPerson).where(TopicGroupPerson.group_id == group_id).order_by(TopicGroupPerson.position)).all()
+        return [(row.person.slug, row.position) for row in rows]
+
+
+def make_user_for_one_theme(email, theme_id):
+    """An account that may add people and keep one theme only."""
+    make_user(email)
+    with SessionLocal() as db:
+        user = get_by_email(db, email)
+        grant(db, user, Area.PEOPLE_ADD)
+        grant(db, user, Area.THEME, theme_id)
+        db.commit()
+
+
+def test_the_theme_owner_adds_a_person_straight_into_a_research_area(owner, visitor):
+    area = area_of_theme(0)
+    before = members_of(area["id"])
+    answer = owner.post(URL, data={**ADD, "topic_group_id": area["id"]})
+    assert answer.status_code == 201, answer.text
+    last = before[-1][1] + 1 if before else 0
+    assert members_of(area["id"]) == before + [("grace-hopper", last)]  # last among the people of the area
+    theme = visitor.get(f"/api/themes/{area['theme_slug']}").json()
+    shown = next(group for group in theme["topic_groups"] if group["title"] == area["title"])
+    assert "grace-hopper" in [person["slug"] for person in shown["people"]]
+    assert visitor.get("/api/people/grace-hopper").status_code == 200  # and on the People page, as ever
+    (row,) = audit_rows("person.add")
+    assert row.after["listed_under"] == {"theme": area["theme_slug"], "research_area": area["title"]}
+
+
+def test_a_person_added_without_a_research_area_is_listed_under_none(admin):
+    assert admin.post(URL, data=ADD).status_code == 201
+    (row,) = audit_rows("person.add")
+    assert "listed_under" not in row.after
+    with SessionLocal() as db:
+        assert db.scalar(select(func.count()).select_from(TopicGroupPerson).join(Person).where(Person.slug == "grace-hopper")) == 0
+
+
+def test_a_user_without_the_theme_grant_may_not_choose_a_research_area(admin):
+    area = area_of_theme(0)
+    before = members_of(area["id"])
+    answer = admin.post(URL, data={**ADD, "topic_group_id": area["id"]})
+    assert answer.status_code == 403 and detail(answer)["code"] == "not_allowed"
+    assert not person_exists("grace-hopper") and members_of(area["id"]) == before  # nothing was done
+
+
+def test_a_theme_grant_for_one_theme_lists_people_under_the_areas_of_that_theme_only():
+    first, second = area_of_theme(0), area_of_theme(1)
+    make_user_for_one_theme("one@example.org", first["theme_id"])
+    browser = browser_for("one@example.org")
+    refused = browser.post(URL, data={**ADD, "topic_group_id": second["id"]})
+    assert refused.status_code == 403 and not person_exists("grace-hopper")
+    assert browser.post(URL, data={**ADD, "topic_group_id": first["id"]}).status_code == 201
+    assert "grace-hopper" in [slug for slug, _ in members_of(first["id"])]
+
+
+def test_an_area_that_does_not_exist_is_refused_and_nothing_is_added(owner):
+    answer = owner.post(URL, data={**ADD, "topic_group_id": 999999})
+    assert answer.status_code == 422
+    assert detail(answer)["code"] == "invalid_input" and detail(answer)["field"] == "topic_group_id"
+    assert not person_exists("grace-hopper")
+
+
+def test_a_name_that_is_there_already_is_not_listed_under_the_area_until_confirmed(owner):
+    area = area_of_theme(0)
+    before = members_of(area["id"])
+    data = {"name": "Enrico Macii", "title": "PhD Student", "topic_group_id": area["id"]}
+    asked = owner.post(URL, data=data)
+    assert asked.status_code == 409 and detail(asked)["code"] == "possible_duplicate"
+    assert members_of(area["id"]) == before
+    assert owner.post(URL, data={**data, "confirm_distinct": "true"}).status_code == 201
+    assert "enrico-macii-2" in [slug for slug, _ in members_of(area["id"])]
+
+
+def test_the_research_areas_a_user_may_choose_follow_their_theme_grants(owner, admin, visitor):
+    assert visitor.get(AREAS).status_code == 401
+    assert admin.get(AREAS).json() == []  # the administrative staff have no theme grant
+    with SessionLocal() as db:
+        every = [(g.id, g.title, t.slug, t.name) for t in db.scalars(select(Theme).order_by(Theme.position)) for g in t.groups]
+    listed = [(a["id"], a["title"], a["theme_slug"], a["theme_name"]) for a in owner.get(AREAS).json()]
+    assert listed == every and len(every) > 4  # all of them, in the order of the site
+
+    first = area_of_theme(0)
+    make_user_for_one_theme("one@example.org", first["theme_id"])
+    mine = browser_for("one@example.org").get(AREAS).json()
+    assert mine and {a["theme_slug"] for a in mine} == {first["theme_slug"]}

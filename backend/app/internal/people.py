@@ -1,6 +1,6 @@
 """The admin's routes for people. They only turn a request into a call of app/services/people.py and its answer into an HTTP one: who may do what, the validation and the audit
 row are the service's. Every route needs a login, and a route that changes something also passes the cross-site check."""
-from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile
+from fastapi import APIRouter, Depends, File, Form, HTTPException, Response, UploadFile
 from sqlalchemy.orm import Session
 
 from app.core.validation import InvalidInput
@@ -8,7 +8,7 @@ from app.dependencies import check_origin, get_db, require_ready_user
 from app.models.grant import Area
 from app.models.person import Person
 from app.models.user import User
-from app.schemas.admin import AdminPersonRead, AffectedRead
+from app.schemas.admin import AdminPersonRead, AffectedRead, DeleteImpactRead, TopicMembershipRead
 from app.schemas.person import PersonRead
 from app.services import people as service
 from app.services import photos
@@ -47,12 +47,34 @@ def _http(error: Exception) -> HTTPException:
                 "affected": [AffectedRead(**vars(a)).model_dump() for a in error.affected],
             },
         )
+    if isinstance(error, service.DeleteNeedsConfirmation):
+        return HTTPException(
+            409,
+            {
+                "code": "delete_needs_confirmation",
+                "message": "Deleting the person also removes them from these contacts and topics. Confirm to go on.",
+                "impact": _impact(error.impact).model_dump(),
+            },
+        )
     if isinstance(error, service.PersonNotFound):
         return HTTPException(404, {"code": "person_not_found", "message": "Person not found."})
     raise error
 
 
-_REFUSALS = (NotAllowed, InvalidInput, photos.InvalidPhoto, service.PhotoConsentRequired, service.PossibleDuplicate, service.LeaveNeedsConfirmation, service.PersonNotFound)
+def _impact(impact: service.DeleteImpact) -> DeleteImpactRead:
+    return DeleteImpactRead(refer_to=[AffectedRead(**vars(a)) for a in impact.refer_to], topics=[TopicMembershipRead(**vars(t)) for t in impact.topics])
+
+
+_REFUSALS = (
+    NotAllowed,
+    InvalidInput,
+    photos.InvalidPhoto,
+    service.PhotoConsentRequired,
+    service.PossibleDuplicate,
+    service.LeaveNeedsConfirmation,
+    service.DeleteNeedsConfirmation,
+    service.PersonNotFound,
+)
 
 
 def _read_photo(photo: UploadFile | None) -> bytes | None:
@@ -73,7 +95,12 @@ def _given(**values: str | None) -> dict:
 def _admin_read(db: Session, actor: User, person: Person) -> AdminPersonRead:
     can_edit = service.can_edit_person(db, actor, person)
     by_window = can_edit and not has_grant(db, actor, Area.PEOPLE_EDIT)
-    return AdminPersonRead(**PersonRead.from_model(person).model_dump(), can_edit=can_edit, editable_until=service.editable_until(person) if by_window else None)
+    return AdminPersonRead(
+        **PersonRead.from_model(person).model_dump(),
+        can_edit=can_edit,
+        can_delete=service.can_delete_person(db, actor, person),
+        editable_until=service.editable_until(person) if by_window else None,
+    )
 
 
 @router.get("/{slug}", response_model=AdminPersonRead)
@@ -92,6 +119,26 @@ def leave_preview(slug: str, user: User = Depends(require_ready_user), db: Sessi
         return [AffectedRead(**vars(a)) for a in service.leave_preview(db, user, slug)]
     except _REFUSALS as error:
         raise _http(error) from None
+
+
+@router.get("/{slug}/delete-preview", response_model=DeleteImpactRead)
+def delete_preview(slug: str, user: User = Depends(require_ready_user), db: Session = Depends(get_db)):
+    """The contacts and the topic groups that would lose this person if they were deleted (grant `people_delete`, or the one who added the person, for a day)."""
+    try:
+        return _impact(service.delete_preview(db, user, slug))
+    except _REFUSALS as error:
+        raise _http(error) from None
+
+
+@router.delete("/{slug}", status_code=204)
+def delete_person(slug: str, confirm: bool = False, user: User = Depends(require_ready_user), db: Session = Depends(get_db)):
+    """Delete a person, for one added by mistake (grant `people_delete`, or the one who added the person, for a day). Asked without `confirm=true` it only says what would go (409); a member
+    who left is made a Former member instead."""
+    try:
+        service.delete_person(db, user, slug, confirm)
+    except _REFUSALS as error:
+        raise _http(error) from None
+    return Response(status_code=204)
 
 
 @router.post("", response_model=AdminPersonRead, status_code=201)
@@ -138,7 +185,7 @@ def update_person(
     db: Session = Depends(get_db),
 ):
     """Change what is sent; `clear` names the optional fields to remove (card_name, polito, orcid, linkedin, dept, iris), because a field sent empty counts as not sent. The title
-    "Former member" lets the person leave: asked first (409), then done with `confirm_leave`. There is no way to delete a person."""
+    "Former member" lets the person leave: asked first (409), then done with `confirm_leave`."""
     fields = _given(name=name, title=title, card_name=card_name, polito=polito, orcid=orcid, linkedin=linkedin, dept=dept, iris=iris)
     try:
         for key in clear:

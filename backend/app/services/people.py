@@ -2,7 +2,9 @@
 validates every field, looks after the photo file and writes the audit row in the same transaction as the change.
 
 Rules kept here, so that no way in can skip them:
-- A person is never deleted (that would also remove them from the topics and contacts of every theme); one who leaves gets the title "Former member".
+- A person who has left is not deleted but gets the title "Former member". Deleting is for someone added by mistake, needs the grant `people_delete`, and removes the person from the
+  topics and contacts of every theme too, so it shows what will go and has to be confirmed; what went is kept in the audit log. The user who added a person may also delete them, for the
+  24 hours in which they may correct the entry.
 - When a person becomes a Former member they are taken out of every theme's "Refer to" contacts. They stay in "Involved people", where their title now reads Former member.
 - Adding a person needs the grant `people_add`; changing one needs `people_edit`. The user who added a person may also correct that entry for 24 hours.
 - A photo needs the confirmation that the person agreed to it; who confirmed it and when is kept.
@@ -19,7 +21,7 @@ from sqlalchemy.orm import Session
 from app.core.validation import InvalidInput, clean_text, clean_url
 from app.models.grant import Area
 from app.models.person import GROUP_OF_TITLE, Person, Title, titles_in
-from app.models.theme import Theme, ThemeContact
+from app.models.theme import Theme, ThemeContact, TopicGroup, TopicGroupPerson
 from app.models.user import User
 from app.schemas.person import LINK_KEYS
 from app.services import audit, photos
@@ -53,6 +55,31 @@ class Affected:
     theme_slug: str
     theme_name: str
     contacts_left: int
+
+
+@dataclass(frozen=True)
+class TopicMembership:
+    """A research topic group a person is listed under, as "Involved people"."""
+
+    theme_slug: str
+    theme_name: str
+    group_title: str
+
+
+@dataclass(frozen=True)
+class DeleteImpact:
+    """What deleting a person takes with them: the contacts and the topic groups they are in."""
+
+    refer_to: list[Affected]
+    topics: list[TopicMembership]
+
+
+class DeleteNeedsConfirmation(Exception):
+    """Deleting a person has to be confirmed (`confirm`), whatever it takes with them; `impact` is what it would take."""
+
+    def __init__(self, impact: DeleteImpact):
+        super().__init__("deleting needs a confirmation")
+        self.impact = impact
 
 
 class LeaveNeedsConfirmation(Exception):
@@ -111,6 +138,14 @@ def can_edit_person(db: Session, actor: User, person: Person, now: datetime | No
     return person.created_by_id == actor.id and has_grant(db, actor, Area.PEOPLE_ADD) and now < editable_until(person)
 
 
+def can_delete_person(db: Session, actor: User, person: Person, now: datetime | None = None) -> bool:
+    """Those with `people_delete` may always. The one who added the person (and may still add people) may delete them until a day after the entry was made, like correcting it."""
+    if has_grant(db, actor, Area.PEOPLE_DELETE):
+        return True
+    now = now or datetime.now(UTC)
+    return person.created_by_id == actor.id and has_grant(db, actor, Area.PEOPLE_ADD) and now < editable_until(person)
+
+
 # --- reading ----------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -139,6 +174,26 @@ def leave_preview(db: Session, actor: User, slug: str, now: datetime | None = No
     if person.title == Title.FORMER_MEMBER:
         return []
     return contacts_affected(db, person)
+
+
+def delete_impact(db: Session, person: Person) -> DeleteImpact:
+    """The contacts and the topic groups that would lose the person if they were deleted."""
+    rows = db.execute(
+        select(Theme.slug, Theme.name, TopicGroup.title)
+        .join(TopicGroup, TopicGroup.theme_id == Theme.id)
+        .join(TopicGroupPerson, TopicGroupPerson.group_id == TopicGroup.id)
+        .where(TopicGroupPerson.person_id == person.id)
+        .order_by(Theme.id, TopicGroup.position)
+    ).all()
+    return DeleteImpact(refer_to=contacts_affected(db, person), topics=[TopicMembership(*row) for row in rows])
+
+
+def delete_preview(db: Session, actor: User, slug: str, now: datetime | None = None) -> DeleteImpact:
+    """What deleting this person would take with them, to show before it is done."""
+    person = get_person(db, slug)
+    if not can_delete_person(db, actor, person, now):
+        raise NotAllowed("May not delete this person")
+    return delete_impact(db, person)
 
 
 def snapshot(person: Person) -> dict:
@@ -226,6 +281,27 @@ def add_person(
             photos.delete(path)
         raise
     return person
+
+
+def delete_person(db: Session, actor: User, slug: str, confirm: bool = False, now: datetime | None = None) -> None:
+    """Delete a person, for one added by mistake (a member who left is made a Former member instead): those with `people_delete`, or the one who added the person for a day. Without
+    `confirm` nothing is done and what would go is returned in the refusal. The person's rows in the topic groups and the contacts of every theme go with them (the database cascades),
+    and what went is kept in the audit log; the photo file is removed."""
+    person = get_person(db, slug)
+    if not can_delete_person(db, actor, person, now):
+        raise NotAllowed("May not delete this person")
+    impact = delete_impact(db, person)
+    if not confirm:
+        raise DeleteNeedsConfirmation(impact)
+    before = snapshot(person)
+    before["removed_from_refer_to"] = [a.theme_slug for a in impact.refer_to]
+    before["removed_from_topics"] = [f"{t.theme_slug}: {t.group_title}" for t in impact.topics]
+    photo = person.photo
+    audit.record(db, actor, "person.delete", "person", person.slug, before=before)
+    db.delete(person)
+    db.commit()
+    if photo and db.scalar(select(Person.id).where(Person.photo == photo)) is None:
+        photos.delete(photo)
 
 
 def update_person(

@@ -11,10 +11,11 @@ from app.core.config import settings
 from app.db.session import SessionLocal, engine
 from app.main import app
 from app.models.audit import AuditLog
+from app.models.grant import Area
 from app.models.person import GROUP_OF_TITLE, Person, Title, titles_in
 from app.services import people as service
 from app.services import photos
-from app.services.grants import NotAllowed, Preset
+from app.services.grants import NotAllowed, Preset, grant
 from app.services.users import get_by_email
 from tests.admin_helpers import browser_for, cleanup_admin_data, image_bytes, make_user
 from tests.conftest import seed_everything
@@ -388,9 +389,134 @@ def test_a_person_who_is_no_contact_leaves_without_being_asked(admin):
     assert audit_rows("person.leave")[0].after["removed_from_refer_to"] == []
 
 
-def test_a_person_is_never_deleted(admin):
-    assert admin.delete(f"{URL}/enrico-macii").status_code == 405
-    assert not [path for path, ops in app.openapi()["paths"].items() if path.startswith(URL) and "delete" in ops]
+# --- deleting: for a person added by mistake -----------------------------------------------------------------------------------------------------------------------------
+
+
+def make_user_with(email, *areas):
+    """An account with exactly these grants."""
+    make_user(email)
+    with SessionLocal() as db:
+        for area in areas:
+            grant(db, get_by_email(db, email), area)
+        db.commit()
+
+
+def person_exists(slug):
+    with SessionLocal() as db:
+        return db.scalar(select(Person.id).where(Person.slug == slug)) is not None
+
+
+def test_only_those_with_the_grant_or_the_one_who_added_the_person_may_delete(owner, admin):
+    owner.post(URL, data=ADD)  # the theme owner adds a person
+    make_user_with("edit@example.org", Area.PEOPLE_EDIT)  # may change people, not delete them
+    editor = browser_for("edit@example.org")
+    make_user("rae@example.org", Preset.THEME_OWNER)  # another theme owner, who did not add this person
+    other = browser_for("rae@example.org")
+    for browser in (editor, other):
+        assert browser.delete(f"{URL}/grace-hopper", params={"confirm": "true"}).status_code == 403
+        assert browser.get(f"{URL}/grace-hopper/delete-preview").status_code == 403
+    assert person_exists("grace-hopper")
+    can = {name: browser.get(f"{URL}/grace-hopper").json()["can_delete"] for name, browser in (("admin", admin), ("owner", owner), ("editor", editor), ("other", other))}
+    assert can == {"admin": True, "owner": True, "editor": False, "other": False}
+
+
+def test_the_one_who_added_a_person_may_delete_them_for_a_day_and_not_after(owner, admin, visitor):
+    owner.post(URL, data={"name": "Grace Hoper", "title": "PhD Student"})  # a typing mistake
+    assert owner.get(f"{URL}/grace-hoper/delete-preview").json() == {"refer_to": [], "topics": []}
+    assert owner.delete(f"{URL}/grace-hoper").status_code == 409  # the confirmation is needed here too
+    assert person_exists("grace-hoper")
+    assert owner.delete(f"{URL}/grace-hoper", params={"confirm": "true"}).status_code == 204
+    assert visitor.get("/api/people/grace-hoper").status_code == 404
+    (row,) = audit_rows("person.delete")
+    assert row.user_email == "tom@example.org" and row.entity_key == "grace-hoper"
+
+    # a day later the entry is the administrative staff's
+    owner.post(URL, data={"name": "Second Mistake", "title": "PhD Student"})
+    with engine.begin() as connection:
+        connection.execute(text("UPDATE people SET created_at = created_at - interval '25 hours' WHERE slug = 'second-mistake'"))
+    assert owner.get(f"{URL}/second-mistake").json()["can_delete"] is False
+    assert owner.get(f"{URL}/second-mistake/delete-preview").status_code == 403
+    assert owner.delete(f"{URL}/second-mistake", params={"confirm": "true"}).status_code == 403
+    assert person_exists("second-mistake")
+    assert admin.delete(f"{URL}/second-mistake", params={"confirm": "true"}).status_code == 204
+
+
+def test_the_day_for_deleting_ends_on_the_minute_like_the_one_for_correcting(owner, db):
+    owner.post(URL, data={"name": "Grace Hopper", "title": "PhD Student"})
+    actor = get_by_email(db, "tom@example.org")
+    person = service.get_person(db, "grace-hopper")
+    assert service.can_delete_person(db, actor, person, person.created_at + timedelta(hours=23, minutes=59))
+    assert not service.can_delete_person(db, actor, person, person.created_at + timedelta(hours=24, seconds=1))
+    with pytest.raises(NotAllowed):
+        service.delete_person(db, actor, "grace-hopper", confirm=True, now=person.created_at + timedelta(hours=24, seconds=1))
+    assert person_exists("grace-hopper")
+
+
+def test_a_delete_from_another_site_is_refused(admin):
+    admin.post(URL, data=ADD)
+    answer = admin.delete(f"{URL}/grace-hopper", params={"confirm": "true"}, headers={"Origin": "https://evil.example"})
+    assert answer.status_code == 403 and person_exists("grace-hopper")
+
+
+def test_deleting_is_asked_to_be_confirmed_and_says_what_would_go(admin, restore_seed):
+    slug = "santa-di-cataldo"
+    preview = admin.get(f"{URL}/{slug}/delete-preview").json()
+    assert {a["theme_slug"]: a["contacts_left"] for a in preview["refer_to"]} == {"bioinformatics": 0, "industry-4-0": 3}
+    assert {t["theme_slug"] for t in preview["topics"]} == {"bioinformatics", "industry-4-0"}
+    assert all(t["group_title"] and t["theme_name"] for t in preview["topics"])
+
+    asked = admin.delete(f"{URL}/{slug}")
+    assert asked.status_code == 409 and detail(asked)["code"] == "delete_needs_confirmation"
+    assert detail(asked)["impact"] == preview
+    assert person_exists(slug)  # nothing was done
+
+
+def test_a_person_added_by_mistake_is_deleted_and_the_name_can_be_used_again(admin, visitor):
+    admin.post(URL, data={"name": "Grace Hoper", "title": "PhD Student"})  # a typing mistake
+    assert admin.get(f"{URL}/grace-hoper/delete-preview").json() == {"refer_to": [], "topics": []}
+    assert admin.delete(f"{URL}/grace-hoper").status_code == 409  # confirmation is needed even where nothing else goes
+    done = admin.delete(f"{URL}/grace-hoper", params={"confirm": "true"})
+    assert done.status_code == 204 and not done.content
+    assert visitor.get("/api/people/grace-hoper").status_code == 404
+    assert count_people() == len(PEOPLE_BY_SLUG)
+    assert admin.post(URL, data={"name": "Grace Hoper", "title": "PhD Student"}).json()["slug"] == "grace-hoper"  # the address is free again
+
+    (row,) = audit_rows("person.delete")
+    assert row.entity_key == "grace-hoper" and row.user_email == "ada@example.org" and row.after is None
+    assert row.before["name"] == "Grace Hoper" and row.before["title"] == "PhD Student"
+    assert row.before["removed_from_refer_to"] == [] and row.before["removed_from_topics"] == []
+
+
+def test_deleting_a_person_takes_them_out_of_every_theme_and_leaves_the_themes_alone(admin, visitor, restore_seed):
+    slug = "santa-di-cataldo"
+    before = visitor.get("/api/themes/industry-4-0").json()
+    assert admin.delete(f"{URL}/{slug}", params={"confirm": "true"}).status_code == 204
+    assert visitor.get(f"/api/people/{slug}").status_code == 404
+
+    bioinformatics = visitor.get("/api/themes/bioinformatics").json()
+    assert bioinformatics["refer_to"] == []  # the last contact: the section is just empty
+    industry = visitor.get("/api/themes/industry-4-0").json()
+    assert slug not in [p["slug"] for p in industry["refer_to"]] and len(industry["refer_to"]) == len(before["refer_to"]) - 1
+    for theme in (bioinformatics, industry):
+        assert slug not in [p["slug"] for group in theme["topic_groups"] for p in group["people"]]
+        assert theme["topic_groups"] and theme["projects"]["ongoing"] is not None and theme["intro"]  # the theme itself is as it was
+
+    (row,) = audit_rows("person.delete")
+    assert sorted(row.before["removed_from_refer_to"]) == ["bioinformatics", "industry-4-0"]
+    assert row.before["removed_from_topics"] and all(": " in entry for entry in row.before["removed_from_topics"])
+
+
+def test_the_photo_file_goes_with_the_person(admin):
+    created = admin.post(URL, data={**ADD, "photo_consent": "true"}, files=photo_file()).json()
+    stored = settings.media_dir / created["photo_url"].removeprefix("/media/")
+    assert stored.exists()
+    assert admin.delete(f"{URL}/grace-hopper", params={"confirm": "true"}).status_code == 204
+    assert not stored.exists()
+
+
+def test_a_person_who_is_not_there_cannot_be_deleted(admin):
+    assert admin.delete(f"{URL}/nobody", params={"confirm": "true"}).status_code == 404
+    assert admin.get(f"{URL}/nobody/delete-preview").status_code == 404
 
 
 # --- all or nothing ---------------------------------------------------------------------------------------------------------------------------------------------------

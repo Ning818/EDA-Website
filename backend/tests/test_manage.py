@@ -31,9 +31,9 @@ def lines():
 def test_an_account_is_made_from_the_command_line():
     output, out = lines()
     assert run(["create-user", "--email", "Ada@Example.org", "--name", "Ada Lovelace", "--preset", "administrative"], prompt=typed(GOOD, GOOD), out=out) == 0
-    assert output == ["Made the account ada@example.org with people_add, people_edit, site, accounts."]
+    assert output == ["Made the account ada@example.org with people_add, people_edit, people_delete, site, accounts."]
     with SessionLocal() as db:
-        assert sorted(g.area for g in authenticate(db, "ada@example.org", GOOD).grants) == ["accounts", "people_add", "people_edit", "site"]
+        assert sorted(g.area for g in authenticate(db, "ada@example.org", GOOD).grants) == ["accounts", "people_add", "people_delete", "people_edit", "site"]
 
 
 def test_an_account_made_without_a_preset_may_do_nothing():

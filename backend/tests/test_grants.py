@@ -37,9 +37,9 @@ def areas(user):
 # --- the presets ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
-def test_the_administrative_staff_may_add_and_change_people_keep_the_site_pages_and_manage_accounts(db):
+def test_the_administrative_staff_may_add_change_and_delete_people_keep_the_site_pages_and_manage_accounts(db):
     user = create_user(db, "ada@example.org", "Ada", GOOD, Preset.ADMINISTRATIVE)
-    assert areas(user) == [("accounts", None), ("people_add", None), ("people_edit", None), ("site", None)]
+    assert areas(user) == [("accounts", None), ("people_add", None), ("people_delete", None), ("people_edit", None), ("site", None)]
 
 
 def test_the_theme_owner_may_add_people_and_keep_every_theme(db):
@@ -52,7 +52,7 @@ def test_the_theme_owner_may_add_people_and_keep_every_theme(db):
 def test_the_projects_owner_may_keep_the_funded_projects_and_nothing_else(db):
     user = create_user(db, "pia@example.org", "Pia", GOOD, Preset.PROJECTS_OWNER)
     assert areas(user) == [("projects", None)]
-    for area in (Area.PEOPLE_ADD, Area.PEOPLE_EDIT, Area.SITE, Area.THEME, Area.ACCOUNTS):
+    for area in (Area.PEOPLE_ADD, Area.PEOPLE_EDIT, Area.PEOPLE_DELETE, Area.SITE, Area.THEME, Area.ACCOUNTS):
         assert not has_grant(db, user, area), area
 
 

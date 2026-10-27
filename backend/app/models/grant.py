@@ -12,6 +12,7 @@ class Area(StrEnum):
 
     PEOPLE_ADD = "people_add"  # add a new person to the People list
     PEOPLE_EDIT = "people_edit"  # change any person: title, photo, links; let a person leave
+    PEOPLE_DELETE = "people_delete"  # delete a person (for one added by mistake): their rows in every theme go with them
     SITE = "site"  # collaborators and joint projects, the footer's numbers, the intro paragraphs of the People and Collaborations pages
     PROJECTS = "projects"  # the funded projects of every theme, and the funded-projects paragraph of each theme page
     THEME = "theme"  # the content of a theme (its words, research areas, highlights, contacts); `theme_id` says which one, empty means every theme

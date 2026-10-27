@@ -30,7 +30,7 @@ class Preset(StrEnum):
 
 # What each preset grants. A theme grant given by a preset is for every theme (theme_id empty), the ones added later included.
 PRESET_AREAS: dict[Preset, tuple[Area, ...]] = {
-    Preset.ADMINISTRATIVE: (Area.PEOPLE_ADD, Area.PEOPLE_EDIT, Area.SITE, Area.ACCOUNTS),
+    Preset.ADMINISTRATIVE: (Area.PEOPLE_ADD, Area.PEOPLE_EDIT, Area.PEOPLE_DELETE, Area.SITE, Area.ACCOUNTS),
     Preset.THEME_OWNER: (Area.PEOPLE_ADD, Area.THEME),
     Preset.PROJECTS_OWNER: (Area.PROJECTS,),
 }

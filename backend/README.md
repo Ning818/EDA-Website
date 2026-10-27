@@ -120,7 +120,7 @@ The tests never touch the development database: they use their own, `eda_test` (
 - the login: passwords, the lock after wrong tries, what ends a session, the cross-site check, and the command line for the accounts;
 - the grants and the presets, and what the database itself refuses (the same grant twice, a theme on a grant that is not about one);
 - the accounts the staff keep: who may, the temporary password (shown once, kept only as a hash, to be changed before anything else works), switching accounts off, new grants, resets, and that the last account able to manage accounts is never lost;
-- the admin's people routes: who may add, correct and let a person leave, what is refused (HTML in a name, a `javascript:` link, a photo that is not a photo or has no consent, a name that is already there), what is kept (the photo without its EXIF data, who confirmed the consent, an audit row) and that a failed change leaves nothing behind;
+- the admin's people routes: who may add, correct, let a person leave and delete one, what is refused (HTML in a name, a `javascript:` link, a photo that is not a photo or has no consent, a name that is already there), what is kept (the photo without its EXIF data, who confirmed the consent, an audit row) and that a failed change leaves nothing behind;
 - the shape that keeps the apps apart: nothing public imports the admin, every admin route needs a login, and nothing outside `/api/admin` changes anything but the login;
 - the migrations and the models agree (a model changed without a migration fails), and the migrations go down and up again;
 - the seed can be run twice without changing anything, its files are in English, every address in them is `http` or `https`, and every file they name exists.
@@ -145,7 +145,8 @@ There is no sign-up. The administrative staff make the accounts in the admin (se
 - **The login** is a signed cookie (`eda_session`): HttpOnly, SameSite=Lax, and Secure where `SESSION_COOKIE_SECURE=true` (set it wherever the site is served over HTTPS). It ends after 2 hours without a request, 12 hours after the login whatever happens, when the account is switched off or deleted, and when the password is changed. Visitors who only read the site get no cookie.
 - **Wrong passwords:** after 5 wrong tries for an email the login is refused for 15 minutes, even with the right password. An email nobody has is counted the same, and a wrong email and a wrong password get the same answer, so nothing tells which accounts exist. The times and numbers are settings (`LOGIN_MAX_FAILURES`, `LOGIN_LOCK_MINUTES`, `SESSION_IDLE_MINUTES`, `SESSION_MAX_HOURS`).
 - **Pages of other sites:** every route that changes something checks the request's `Origin` (`check_origin`): it must be the site's own address or one of `CORS_ORIGINS`, so another site cannot make a logged-in visitor's browser send it.
-- Behind a reverse proxy the proxy must pass the `Host` header on (`proxy_set_header Host $host;`) and the API must be started with `--proxy-headers`.
+- Behind a reverse proxy the proxy must pass the `Host` header on (`proxy_set_header Host $host;`) and the API must be started with `--proxy-headers`. The same goes for a dev server: the admin's
+  (`admin/vite.config.js`) forwards with `changeOrigin: false`, because Vite's short form of a proxy rewrites the `Host`, and the check above would then refuse every login.
 
 ## The admin
 
@@ -183,7 +184,8 @@ What a user may do is what their **grants** say (`user_grants`); no code checks 
 | Area | What it allows |
 |---|---|
 | `people_add` | add a new person |
-| `people_edit` | change any person (title, photo, links) and let a person leave |
+| `people_edit` | change any person (title, photo, links); a change of title to Former member is how a person leaves |
+| `people_delete` | delete a person (for one added by mistake) |
 | `site` | collaborators and joint projects, the footer's numbers, the intro paragraphs of the People and Collaborations pages |
 | `projects` | the funded projects of every theme, and the funded-projects paragraph of each theme page |
 | `theme` | a theme's content: its words, research areas and topics, highlight cards, contacts |
@@ -193,7 +195,7 @@ Three kinds of people keep the site, and an account made with a preset gets that
 
 | Preset | Who | Grants |
 |---|---|---|
-| `administrative` | the administrative staff | `people_add`, `people_edit`, `site`, `accounts` |
+| `administrative` | the administrative staff | `people_add`, `people_edit`, `people_delete`, `site`, `accounts` |
 | `theme-owner` | the one person who keeps every theme page | `people_add`, `theme` (every theme) |
 | `projects-owner` | the one person who keeps the funded projects | `projects` |
 
@@ -201,10 +203,13 @@ An account made without a preset can log in and may do nothing.
 
 ### Rules kept in the services (`app/services/people.py`), so that no way in can skip them
 
-- A person is **never deleted** (that would also remove them from the topics and contacts of every theme). One who leaves gets the title "Former member".
+- A person who has **left is not deleted** but gets the title "Former member". **Deleting is for someone added by mistake** and needs the grant `people_delete` (the administrative staff) - or being the
+  user who added the person, for the day in which they may correct the entry. Deleting also removes the person from the "Refer to" contacts and the "Involved people" of every theme, so the
+  admin first shows what will go (`delete-preview`) and the request has to say `confirm=true`, even where nothing else goes. What went is kept in the audit log (`person.delete`, with the
+  themes and topic groups the person was in), and the photo file is removed. The name and its address are free to use again.
 - When a person becomes a Former member they are **taken out of every theme's "Refer to" contacts** (a theme left with none shows no Refer to section). They stay among the "Involved
   people", where their title now reads Former member. The admin first shows which themes lose a contact and asks to confirm.
-- A user who **added a person may correct that entry for 24 hours**; after that only those with `people_edit` can.
+- A user who **added a person may correct or delete that entry for 24 hours**; after that only those with `people_edit` (to correct) or `people_delete` (to delete) can.
 - A **photo needs the confirmation that the person agreed to it**; who confirmed it and when is kept (`people.photo_consent_by_id`, `photo_consent_at`). The file is checked by its
   content, shrunk, stripped of its EXIF data and stored under a name made from the person's slug; SVG is refused.
 - Adding a person whose **name is already there** (capitals, accents and the order of the words do not count) is refused until the user confirms it is someone else.
@@ -233,9 +238,11 @@ All need a login, and the ones that change something also pass the cross-site ch
 | `PATCH /api/admin/accounts/{id}` | change the name, the preset (null: no grants) or `is_active` |
 | `POST /api/admin/accounts/{id}/reset-password` | a new temporary password, in the answer once |
 | `GET /api/admin/people/{slug}` | a person, and whether this user may change them (`can_edit`, `editable_until`) |
-| `GET /api/admin/people/{slug}/leave-preview` | the themes that would lose this person as a contact |
+| `GET /api/admin/people/{slug}/leave-preview` | the themes that would lose this person as a contact (the 409 of a title change to Former member carries the same list, which is what the admin's form uses) |
+| `GET /api/admin/people/{slug}/delete-preview` | the contacts and topic groups that would lose this person if they were deleted (grant `people_delete`, or the one who added the person for a day) |
 | `POST /api/admin/people` | add a person (form data: `name`, `title`, `card_name`, `polito`, `orcid`, `linkedin`, `dept`, `iris`, `photo`, `photo_consent`, `confirm_distinct`); 409 `possible_duplicate` |
 | `PATCH /api/admin/people/{slug}` | change what is sent (`clear` names optional fields to remove); a title of Former member needs `confirm_leave` (409 `leave_needs_confirmation` first) |
+| `DELETE /api/admin/people/{slug}?confirm=true` | delete a person added by mistake (grant `people_delete`, or the one who added the person for a day); without `confirm` it answers 409 `delete_needs_confirmation` with what would go |
 
 ### Still to build
 

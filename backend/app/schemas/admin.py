@@ -18,11 +18,27 @@ class AffectedRead(BaseModel):
     contacts_left: int
 
 
+class TopicMembershipRead(BaseModel):
+    """A research topic group a person is listed under."""
+
+    theme_slug: str
+    theme_name: str
+    group_title: str
+
+
+class DeleteImpactRead(BaseModel):
+    """What deleting a person takes with them: the contacts and the topic groups they are in."""
+
+    refer_to: list[AffectedRead]
+    topics: list[TopicMembershipRead]
+
+
 class AdminPersonRead(PersonRead):
-    """A person as the admin shows them: what the public page shows, and whether this user may change the entry."""
+    """A person as the admin shows them: what the public page shows, and whether this user may change or delete the entry."""
 
     can_edit: bool
-    # set where the user may change the entry only because they added it: until when (a day after it was made)
+    can_delete: bool
+    # set where the user may change or delete the entry only because they added it: until when (a day after it was made)
     editable_until: datetime | None
 
 

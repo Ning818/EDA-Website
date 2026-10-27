@@ -8,6 +8,7 @@ from starlette.middleware.sessions import SessionMiddleware
 from sqlalchemy.exc import OperationalError
 
 from app.core.config import settings
+from app.internal import people as admin_people
 from app.routers import auth, collaborations, health, pages, people, site, themes
 
 logger = logging.getLogger("uvicorn.error")
@@ -48,6 +49,8 @@ app.include_router(themes.router, prefix="/api")
 app.include_router(collaborations.router, prefix="/api")
 app.include_router(pages.router, prefix="/api")
 app.include_router(site.router, prefix="/api")
+# the admin's routes: all under /api/admin, all need a login (app/internal); nothing of the public routes imports them
+app.include_router(admin_people.router, prefix="/api")
 
 # the files under the media folder (people's photos) are served as they are
 settings.media_dir.mkdir(parents=True, exist_ok=True)

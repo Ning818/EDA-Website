@@ -13,7 +13,7 @@ backend/
     schemas/         request and response shapes (Pydantic)
     routers/         one file per resource, each with its own path and tag
     services/        the rules: accounts, who may do what (grants), validation of what is typed, photos, people, the audit log
-    internal/        admin-only routes (the next step)
+    internal/        the admin's routes: all under /api/admin, all need a login; nothing public imports them
   alembic/           database migrations
   seed/              the starting data: people.json (+ photos/), themes.json (+ highlights/), collaborations.json (+ logos/), pages.json, site.json
   media/             the files the API serves under /media (not committed; created by the seed)
@@ -119,6 +119,8 @@ The tests never touch the development database: they use their own, `eda_test` (
 - errors are the right ones: 404 for what is not there, 422 for a group that does not exist, 503 (not 500) for every route when the database is down, no file outside `media/` reachable, and only the front end allowed to call from a browser;
 - the login: passwords, the lock after wrong tries, what ends a session, the cross-site check, and the command line for the accounts;
 - the grants and the presets, and what the database itself refuses (the same grant twice, a theme on a grant that is not about one);
+- the admin's people routes: who may add, correct and let a person leave, what is refused (HTML in a name, a `javascript:` link, a photo that is not a photo or has no consent, a name that is already there), what is kept (the photo without its EXIF data, who confirmed the consent, an audit row) and that a failed change leaves nothing behind;
+- the shape that keeps the apps apart: nothing public imports the admin, every admin route needs a login, and nothing outside `/api/admin` changes anything but the login;
 - the migrations and the models agree (a model changed without a migration fails), and the migrations go down and up again;
 - the seed can be run twice without changing anything, its files are in English, every address in them is `http` or `https`, and every file they name exists.
 
@@ -151,7 +153,26 @@ There is no sign-up. For now the accounts are made from the command line (the pa
 The public website (the front end at the repository root), this API and the admin are three different, isolated applications. They may share one repository for simplicity, but each has
 its own dependencies, build, settings and port, none imports another's code, and they meet only through this API's HTTP routes. The website only reads (`GET`); every change to the
 content comes through the admin's routes (`/api/admin/...`), which the website never calls. The admin's interface is a front-end application of its own - not built yet - that goes in a
-folder of its own next to `backend/`, never inside the website's `src/`.
+folder of its own next to `backend/`, never inside the website's `src/`. `tests/test_architecture.py` keeps the API's side of this honest.
+
+### Why the admin's routes share this process, and how to split them
+
+For now the admin's routes (`app/internal/`, under `/api/admin`) and the login routes run in the same FastAPI process as the public read routes. That is the usual shape for a small site
+(WordPress, Django's admin and Strapi or Directus all work this way): the protection that matters is the login, the per-area grants, the cross-site check, the validation and the audit
+log, and all of those are in place. The project is only run locally so far, and a second process would only add something to start, deploy and hand over. Whether to split them is to be
+decided before the site goes live, once it is known what the university can host and who may reach the admin (it may be limited to the campus network, which a reverse proxy can also
+do by restricting `/api/admin` without any change to the code).
+
+What keeps a later split cheap, and must be kept:
+
+- the admin's routes stay in `app/internal/` under `/api/admin`, and no public route imports them (`tests/test_architecture.py` checks it);
+- the rules and the validation stay in `app/services/`, never in a route;
+- the admin's interface stays a separate front-end application that only uses the HTTP routes.
+
+To split, when needed: add a second entry point (for example `app/admin_app.py`) that mounts only the admin and login routers and the session middleware; take those routers and the
+middleware out of `app/main.py`, so that the public process answers `GET` only; and route `/api/admin` and `/api/auth` to the admin process in the web server. Two things to watch: both
+processes must see the same `media/` folder (the admin writes the photos, the public process serves them), and the session secret belongs to the admin process only unless something
+public ever needs to know who is logged in. The database, the models and the services are shared as they are; it is still one backend, in one repository.
 
 ### Who may do what
 
@@ -177,9 +198,32 @@ Three kinds of people keep the site, and an account made with a preset gets that
 
 An account made without a preset can log in and may do nothing.
 
+### Rules kept in the services (`app/services/people.py`), so that no way in can skip them
+
+- A person is **never deleted** (that would also remove them from the topics and contacts of every theme). One who leaves gets the title "Former member".
+- When a person becomes a Former member they are **taken out of every theme's "Refer to" contacts** (a theme left with none shows no Refer to section). They stay among the "Involved
+  people", where their title now reads Former member. The admin first shows which themes lose a contact and asks to confirm.
+- A user who **added a person may correct that entry for 24 hours**; after that only those with `people_edit` can.
+- A **photo needs the confirmation that the person agreed to it**; who confirmed it and when is kept (`people.photo_consent_by_id`, `photo_consent_at`). The file is checked by its
+  content, shrunk, stripped of its EXIF data and stored under a name made from the person's slug; SVG is refused.
+- Adding a person whose **name is already there** (capitals, accents and the order of the words do not count) is refused until the user confirms it is someone else.
+- Text fields hold plain text (no `<` or `>`); a web address must start with `http://` or `https://`.
+- Every change writes a row in `audit_log` (who, what, before and after) in the same transaction as the change; a change that fails leaves neither.
+
+### What the admin's routes offer so far
+
+All need a login, and the ones that change something also pass the cross-site check. Refusals come as `{"detail": {"code": ..., "message": ...}}`.
+
+| Route | Does |
+|---|---|
+| `GET /api/auth/me` | who is logged in and their grants |
+| `GET /api/admin/people/{slug}` | a person, and whether this user may change them (`can_edit`, `editable_until`) |
+| `GET /api/admin/people/{slug}/leave-preview` | the themes that would lose this person as a contact |
+| `POST /api/admin/people` | add a person (form data: `name`, `title`, `card_name`, `polito`, `orcid`, `linkedin`, `dept`, `iris`, `photo`, `photo_consent`, `confirm_distinct`); 409 `possible_duplicate` |
+| `PATCH /api/admin/people/{slug}` | change what is sent (`clear` names optional fields to remove); a title of Former member needs `confirm_leave` (409 `leave_needs_confirmation` first) |
+
 ### Still to build
 
-- The admin's routes for people (add a person, correct one, let one leave) with the rules that go with them: a person is never deleted, leaving takes a person out of the contacts, a photo needs the person's consent, and every change is written to the audit log.
 - The admin's own interface, as a separate front-end application (see above), showing each user only the tasks their grants allow.
 - Account management in the admin (the administrative staff make accounts and give grants; a temporary password that has to be changed at the first login; the last administrator cannot be
   switched off), the themes' content, the funded projects (after a change to the projects the admin asks whether the theme page's funded-projects paragraph needs updating), the

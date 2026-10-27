@@ -35,6 +35,22 @@ def clean_text(value: str | None, field: str, *, label: str, max_length: int, re
     return text
 
 
+_PHONE_CHARS = re.compile(r"^\+?[0-9 ()./-]+$")
+
+
+def clean_phone(value: str | None, field: str, *, label: str) -> str | None:
+    """A phone or fax number as it is shown ("+39 011 090 7042"): digits, spaces and ( ) . / - , and a + only at the start; 6 to 15 digits, so a mistyped number is caught. Empty gives None."""
+    text = " ".join(str(value or "").split())
+    if not text:
+        return None
+    digits = sum(c.isdigit() for c in text)
+    if not _PHONE_CHARS.match(text) or not 6 <= digits <= 15:
+        raise InvalidInput(field, f"{label} must be a phone number: 6 to 15 digits, which may have spaces, ( ) . / - between them and a + at the start.")
+    if len(text) > 40:
+        raise InvalidInput(field, f"{label} must be at most 40 characters long.")
+    return text
+
+
 def clean_url(value: str | None, field: str, *, label: str) -> str | None:
     """A web address that starts with http:// or https:// and names a host (so never javascript: or data:). Empty gives None."""
     url = (value or "").strip()

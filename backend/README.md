@@ -122,6 +122,7 @@ The tests never touch the development database: they use their own, `eda_test` (
 - the accounts the staff keep: who may, the temporary password (shown once, kept only as a hash, to be changed before anything else works), switching accounts off, new grants, resets, and that the last account able to manage accounts is never lost;
 - the admin's people routes: who may add, correct, let a person leave and delete one, what is refused (HTML in a name, a `javascript:` link, a photo that is not a photo or has no consent, a name that is already there), what is kept (the photo without its EXIF data, who confirmed the consent, an audit row) and that a failed change leaves nothing behind;
 - the admin's routes for the funded projects: who may (only the funded-projects owner), what is refused (HTML, a `javascript:` address, an unknown theme or status, a field nobody asked for), what the public pages show afterwards (the new project last in its list, the numbers, the ended list), that a project is never deleted and that the sentence about the projects is written only by hand;
+- the admin's routes for the collaborators, the joint projects, the footer's numbers and the page paragraphs: who may (only the administrative staff), what is refused (HTML, a `javascript:` address, a file that is not a logo or an SVG, a name or code that is taken, a number that is not a phone number), what the public pages show afterwards, the logo files that are written and removed, and that a change that changes nothing is not recorded;
 - the shape that keeps the apps apart: nothing public imports the admin, every admin route needs a login, and nothing outside `/api/admin` changes anything but the login;
 - the migrations and the models agree (a model changed without a migration fails), and the migrations go down and up again;
 - the seed can be run twice without changing anything, its files are in English, every address in them is `http` or `https`, and every file they name exists.
@@ -233,6 +234,21 @@ Rules for the funded projects (`app/services/projects.py`), which need the grant
 - A change that changes nothing writes no audit row. Ending a project is recorded as `project.end`, the other changes as `project.add` and `project.update`, and a new sentence as
   `theme.funded_blurb`.
 
+Rules for the parts of the site the administrative staff keep (`app/services/collaborations.py` and `site.py`), which need the grant `site`:
+
+- A **collaborator** is in one of the three walls (university, institute, company) and goes **last** in its wall; one whose kind is corrected goes last in the new wall. A wall cannot hold
+  two with the same name (capitals do not count): 409 `name_taken`. The name is at most 200 characters of plain text and the address, if there is one, an `http` or `https` one.
+- A **logo** is optional. It is checked by its content, shrunk to at most 600 pixels, stripped of everything but the picture, kept as a PNG where it has transparent parts, and stored under a
+  name made from the collaborator's name and the picture's hash (`media/collaborators/`); SVG is refused. A replaced or removed logo, and the logo of a removed collaborator, is deleted.
+- A collaborator can be **removed** (the collaboration ended, or it was added by mistake); what it was is kept in the audit log. Nothing else refers to a collaborator, because the other
+  partners of a joint project are only names, as the project's record on CORDIS gives them.
+- A **joint project** has a code that no other has (409 `code_taken`; capitals do not count), a name, funding, years, a coordinator and the address of its record (all required), and its other
+  partners (up to 40 names, which need not be collaborators). It goes last in the list.
+- The footer's **phone and fax numbers** are checked for being phone numbers (6 to 15 digits, with only spaces and `( ) . / -` between them and a `+` at the start), because a visitor dials
+  the number with one tap. Either may be sent empty, and the footer then leaves that line out. The link that dials is made from the digits.
+- The **paragraph under the title of the People and Collaborations pages** is plain text of at most 1000 characters and is never empty. Only a page that has a paragraph can be written.
+- A change that changes nothing writes no audit row. The actions are `collaborator.add`, `.update`, `.delete`, `joint_project.add`, `.update`, `.delete`, `site.contact` and `page.intro`.
+
 Rules for accounts (`app/services/accounts.py`):
 
 - A new account, and one given a new password, gets a **temporary password** (such as `k7mq-x3ah-p9tw`, without letters that look alike). It is in the answer once and nowhere else: the
@@ -260,6 +276,18 @@ All need a login, and the ones that change something also pass the cross-site ch
 | `GET /api/admin/people/{slug}/delete-preview` | the contacts and topic groups that would lose this person if they were deleted (grant `people_delete`, or the one who added the person for a day) |
 | `POST /api/admin/people` | add a person (form data: `name`, `title`, `card_name`, `polito`, `orcid`, `linkedin`, `dept`, `iris`, `photo`, `photo_consent`, `confirm_distinct`, `topic_group_id`); 409 `possible_duplicate` |
 | `PATCH /api/admin/people/{slug}` | change what is sent (`clear` names optional fields to remove); a title of Former member needs `confirm_leave` (409 `leave_needs_confirmation` first) |
+| `GET /api/admin/collaborators` | every collaborator, wall by wall in the order of the page (grant `site`) |
+| `GET /api/admin/collaborators/{id}` | one collaborator |
+| `POST /api/admin/collaborators` | add a collaborator (form data: `kind`, `name`, `url`, `logo`); it goes last in its wall; 409 `name_taken` |
+| `PATCH /api/admin/collaborators/{id}` | change what is sent (`clear` names what to remove: `url`, `logo`); a new `logo` replaces the old one |
+| `DELETE /api/admin/collaborators/{id}` | remove a collaborator and its logo file |
+| `GET /api/admin/joint-projects` | the joint projects in the order of the page |
+| `GET /api/admin/joint-projects/{id}` | one joint project |
+| `POST /api/admin/joint-projects` | add one (JSON: `code`, `name`, `funding`, `years`, `coordinator`, `url`, `partners`); 409 `code_taken` |
+| `PATCH /api/admin/joint-projects/{id}` | change what is sent (JSON) |
+| `DELETE /api/admin/joint-projects/{id}` | remove a joint project |
+| `PATCH /api/admin/site/contact` | change the footer's numbers (JSON: `phone`, `fax`; only what is sent changes, null or empty removes one); the answer is what `GET /api/site` gives |
+| `PUT /api/admin/site/pages/{slug}` | write the paragraph under the title of the `people` or `collaborations` page (JSON: `intro`) |
 | `GET /api/admin/projects` | every project of every theme with its theme, in the order of the site (grant `projects`) |
 | `GET /api/admin/projects/{id}` | one project |
 | `POST /api/admin/projects` | add a project (JSON: `theme` as a slug, `description`, and if wanted `status`, `code`, `url`); it goes last in its list |
@@ -270,8 +298,8 @@ All need a login, and the ones that change something also pass the cross-site ch
 ### Still to build
 
 - The admin's own interface, as a separate front-end application (see above), showing each user only the tasks their grants allow, with screens for the people and accounts routes above.
-- The routes for the themes' content, the collaborators, the footer's numbers and the intro paragraphs; the admin's screens for the funded projects, which after a change to a project ask
-  whether the theme page's funded-projects sentence needs updating (the routes for the projects themselves are above).
+- The routes for the themes' content (the theme owner's part). The admin's screens for the funded projects, which after a change to a project ask whether the theme page's
+  funded-projects sentence needs updating, and for the collaborators, the footer's numbers and the page paragraphs (the routes for all of these are above).
 - A scheduled check of the links in the content. A link is reported only after several failures in a row, the checker may only fetch `http` and `https` addresses and never one on a
   private network, and each user sees the broken links of the content they keep: project links the projects owner, collaborator and people links the administrative staff, highlight
   links the theme owner.

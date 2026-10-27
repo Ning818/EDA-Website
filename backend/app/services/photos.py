@@ -1,5 +1,6 @@
-"""Photos of people: what is uploaded is checked by its content (never by its name or the type the browser claims), made smaller, cleaned of everything but the picture (the EXIF
-data of a phone photo can hold where it was taken) and stored under a name made here, never one the user chose. SVG is refused: it can carry a script."""
+"""Pictures the admin takes, photos of people and logos of collaborators: what is uploaded is checked by its content (never by its name or the type the browser claims), made smaller,
+cleaned of everything but the picture (the EXIF data of a phone photo can hold where it was taken) and stored under a name made here, never one the user chose. SVG is refused: it can
+carry a script."""
 import hashlib
 import io
 from pathlib import Path
@@ -25,10 +26,10 @@ class PhotoTooLarge(InvalidPhoto):
     pass
 
 
-def prepare(data: bytes) -> tuple[bytes, str]:
-    """The photo as it will be stored, and its file extension (`jpg`, or `png` where the picture has transparent parts)."""
+def prepare(data: bytes, max_side: int = MAX_SIDE, what: str = "photo") -> tuple[bytes, str]:
+    """The picture as it will be stored, and its file extension (`jpg`, or `png` where the picture has transparent parts). `what` is how the messages call it."""
     if len(data) > MAX_BYTES:
-        raise PhotoTooLarge(f"The photo is larger than {MAX_BYTES // (1024 * 1024)} MB.")
+        raise PhotoTooLarge(f"The {what} is larger than {MAX_BYTES // (1024 * 1024)} MB.")
     try:
         with Image.open(io.BytesIO(data)) as probe:
             if probe.format not in ALLOWED_FORMATS:
@@ -42,10 +43,10 @@ def prepare(data: bytes) -> tuple[bytes, str]:
     except InvalidPhoto:
         raise
     except (UnidentifiedImageError, OSError, SyntaxError, ValueError, Image.DecompressionBombError) as error:
-        raise InvalidPhoto("That file is not a photo that can be used. Use a JPEG, PNG or WebP image.") from error
+        raise InvalidPhoto(f"That file is not a {what} that can be used. Use a JPEG, PNG or WebP image.") from error
 
     has_alpha = image.mode in ("RGBA", "LA", "PA") or (image.mode == "P" and "transparency" in image.info)
-    image.thumbnail((MAX_SIDE, MAX_SIDE), Image.Resampling.LANCZOS)
+    image.thumbnail((max_side, max_side), Image.Resampling.LANCZOS)
     out = io.BytesIO()
     if has_alpha:
         image.convert("RGBA").save(out, "PNG", optimize=True, icc_profile=None)
@@ -54,25 +55,25 @@ def prepare(data: bytes) -> tuple[bytes, str]:
     return out.getvalue(), "jpg"
 
 
-def stored_path(slug: str, data: bytes, extension: str) -> str:
-    """The path under the media folder: the person's slug and a few characters of the picture's own hash, so a replaced photo has a new address and no cache keeps the old one."""
-    return f"{FOLDER}/{slug}-{hashlib.sha256(data).hexdigest()[:10]}.{extension}"
+def stored_path(slug: str, data: bytes, extension: str, folder: str = FOLDER) -> str:
+    """The path under the media folder: the slug and a few characters of the picture's own hash, so a replaced picture has a new address and no cache keeps the old one."""
+    return f"{folder}/{slug}-{hashlib.sha256(data).hexdigest()[:10]}.{extension}"
 
 
-def _inside_people_folder(path: str) -> Path:
-    root = (settings.media_dir / FOLDER).resolve()
+def _inside_folder(path: str, folder: str) -> Path:
+    root = (settings.media_dir / folder).resolve()
     target = (settings.media_dir / path).resolve()
     if root not in target.parents:
-        raise ValueError("Not a photo path")
+        raise ValueError(f"Not a path in {folder}")
     return target
 
 
-def write(path: str, data: bytes) -> None:
-    target = _inside_people_folder(path)
+def write(path: str, data: bytes, folder: str = FOLDER) -> None:
+    target = _inside_folder(path, folder)
     target.parent.mkdir(parents=True, exist_ok=True)
     target.write_bytes(data)
 
 
-def delete(path: str) -> None:
-    """Remove a stored photo (nothing happens if it is not there)."""
-    _inside_people_folder(path).unlink(missing_ok=True)
+def delete(path: str, folder: str = FOLDER) -> None:
+    """Remove a stored picture (nothing happens if it is not there)."""
+    _inside_folder(path, folder).unlink(missing_ok=True)

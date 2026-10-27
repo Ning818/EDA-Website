@@ -3,9 +3,12 @@ from datetime import datetime
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from app.core.media import media_url
+from app.models.collaboration import Collaborator, JointProject
 from app.models.grant import Area
 from app.models.theme import Project
 from app.models.user import User
+from app.schemas.collaboration import JointProjectRead
 from app.schemas.person import PersonRead
 from app.schemas.user import GrantRead
 from app.services.grants import Preset, preset_of
@@ -96,6 +99,80 @@ class FundedBlurbRead(BaseModel):
     theme_slug: str
     theme_name: str
     text: str
+
+
+class AdminCollaboratorRead(BaseModel):
+    """A collaborator of a logo wall as the admin shows it: with its id and its place in the wall."""
+
+    id: int
+    kind: str
+    name: str
+    url: str | None
+    logo_url: str | None
+    position: int
+
+    @classmethod
+    def from_model(cls, collaborator: Collaborator) -> "AdminCollaboratorRead":
+        return cls(id=collaborator.id, kind=collaborator.kind, name=collaborator.name, url=collaborator.url, logo_url=media_url(collaborator.logo), position=collaborator.position)
+
+
+class JointProjectIn(BaseModel):
+    """A new joint project: every field but the partners is required."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    code: str
+    name: str
+    funding: str
+    years: str
+    coordinator: str
+    url: str
+    partners: list[str] = []
+
+
+class JointProjectPatch(BaseModel):
+    """What to change in a joint project: only the fields sent."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    code: str | None = None
+    name: str | None = None
+    funding: str | None = None
+    years: str | None = None
+    coordinator: str | None = None
+    url: str | None = None
+    partners: list[str] | None = None
+
+
+class AdminJointProjectRead(JointProjectRead):
+    id: int
+    position: int
+
+    @classmethod
+    def from_model(cls, project: JointProject) -> "AdminJointProjectRead":
+        return cls(**JointProjectRead.from_model(project).model_dump(), id=project.id, position=project.position)
+
+
+class SiteContactPatch(BaseModel):
+    """What to change in the footer's numbers: only the fields sent; a number sent as null or empty is removed."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    phone: str | None = None
+    fax: str | None = None
+
+
+class PageIntroIn(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    intro: str
+
+
+class PageIntroRead(BaseModel):
+    """The paragraph under the title of a page."""
+
+    slug: str
+    intro: str
 
 
 class DeleteImpactRead(BaseModel):

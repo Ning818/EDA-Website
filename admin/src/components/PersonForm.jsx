@@ -11,14 +11,16 @@ const isWebAddress = (value) => /^https?:\/\/\S+$/i.test(value.trim())
  * The form for a person, to add one (`person` empty) or to correct one. `onSave(formData)` sends it and rejects with the API's refusal. A name that is in the list already comes back
  * as a warning with the people it matches, and the person is added once the user confirms they are someone else. Only what was changed is sent when correcting. A member leaves by the
  * title being changed to Former member: when that takes the person out of the contacts of some themes the API asks first, and the dialog here shows which, before it is sent again.
+ * `areas` (adding only): the research areas the user may list the person under, as the API gives them; given, the form asks which one, and the person is added into it.
  */
-export default function PersonForm({ person = null, onSave, submitLabel }) {
+export default function PersonForm({ person = null, onSave, submitLabel, areas = null }) {
   const editing = Boolean(person)
   const initial = useMemo(
     () => ({
       name: person?.name ?? '',
       card_name: person && person.card_name !== person.name ? person.card_name : '',
       title: person?.title ?? '',
+      area: '',
       ...Object.fromEntries(LINK_FIELDS.map(({ key }) => [key, person?.links?.[key] ?? ''])),
     }),
     [person],
@@ -46,6 +48,7 @@ export default function PersonForm({ person = null, onSave, submitLabel }) {
     const found = {}
     if (!values.name.trim()) found['person-name'] = 'Enter the name.'
     if (!values.title) found['person-title'] = 'Choose a title.'
+    if (areas && !values.area) found['person-area'] = 'Choose the research area to list the person under.'
     for (const { key, label } of LINK_FIELDS) {
       if (values[key].trim() && !isWebAddress(values[key])) found[`person-${key}`] = `The ${label} link must be a web address starting with http:// or https://.`
     }
@@ -66,6 +69,7 @@ export default function PersonForm({ person = null, onSave, submitLabel }) {
       send('title', values.title)
       if (values.card_name.trim()) send('card_name', values.card_name)
       for (const { key } of LINK_FIELDS) if (values[key].trim()) send(key, values[key])
+      if (areas && values.area) send('topic_group_id', values.area)
       if (confirmDistinct) form.append('confirm_distinct', 'true')
     } else {
       for (const key of ['name', 'title']) if (values[key].trim() !== initial[key]) send(key, values[key])
@@ -99,7 +103,7 @@ export default function PersonForm({ person = null, onSave, submitLabel }) {
       setDuplicates(error.detail.matches ?? [])
       return
     }
-    if (error.code === 'invalid_input' && error.field) setErrors({ [`person-${error.field}`]: error.message })
+    if (error.code === 'invalid_input' && error.field) setErrors({ [error.field === 'topic_group_id' ? 'person-area' : `person-${error.field}`]: error.message })
     else if (error.code === 'photo_invalid' || error.code === 'photo_too_large') setErrors({ 'person-photo': error.message })
     else if (error.code === 'photo_consent_required') setErrors({ 'person-consent': error.message })
     else {
@@ -180,6 +184,33 @@ export default function PersonForm({ person = null, onSave, submitLabel }) {
               </option>
             ))}
           </SelectField>
+          {areas && (
+            <div className="span-2">
+              <SelectField
+                id="person-area"
+                label="Research area"
+                hint={'The person is listed under "Involved people" of this research area on the theme page, and on the People page.'}
+                required
+                value={values.area}
+                onChange={set('area')}
+                error={errors['person-area']}
+              >
+                <option value="">Choose a research area</option>
+                {[...new Set(areas.map((area) => area.theme_slug))].map((slug) => {
+                  const inTheme = areas.filter((area) => area.theme_slug === slug)
+                  return (
+                    <optgroup key={slug} label={inTheme[0].theme_name}>
+                      {inTheme.map((area) => (
+                        <option key={area.id} value={area.id}>
+                          {area.title}
+                        </option>
+                      ))}
+                    </optgroup>
+                  )
+                })}
+              </SelectField>
+            </div>
+          )}
           <div className="span-2">
             <TextField
               id="person-card_name"

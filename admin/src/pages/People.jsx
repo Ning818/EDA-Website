@@ -15,10 +15,18 @@ export default function People() {
   const { status, data, error, reload } = useLoad(() => api.get('/api/people'), [])
   const [query, setQuery] = useState('')
 
+  // the titles stay in the order the API gives them; within one title the people are in alphabetical order of the name as it is written here (accents and capitals do not count)
+  const sorted = useMemo(() => {
+    const people = data ?? []
+    const rank = new Map()
+    people.forEach((person) => rank.has(person.title) || rank.set(person.title, rank.size))
+    return [...people].sort((a, b) => rank.get(a.title) - rank.get(b.title) || a.name.localeCompare(b.name, 'en', { sensitivity: 'base' }))
+  }, [data])
+
   const shown = useMemo(() => {
     const wanted = plain(query.trim())
-    return (data ?? []).filter((person) => !wanted || plain(`${person.name} ${person.card_name}`).includes(wanted))
-  }, [data, query])
+    return sorted.filter((person) => !wanted || plain(`${person.name} ${person.card_name}`).includes(wanted))
+  }, [sorted, query])
 
   return (
     <div className="page">

@@ -6,7 +6,7 @@ import { Notice, PageHeading } from '../components/ui'
 // What a user can do, by what they are allowed to: a task is offered if the user has any of its grants.
 const TASKS = [
   { id: 'add-person', title: 'Add a new person', text: 'Add a new member to the People list, with a photo and links if you have them.', to: '/people/new', areas: ['people_add'] },
-  { id: 'people', title: 'Find or update a person', text: "Change a member's title, photo or links (a member who leaves becomes a Former member), or delete a person who was added by mistake.", to: '/people', areas: ['people_add', 'people_edit', 'people_delete'] },
+  { id: 'people', title: 'Find or update a person', text: "Change a member's title, photo or links, or delete a person who was added by mistake.", to: '/people', areas: ['people_add', 'people_edit', 'people_delete'] },
   { id: 'accounts', title: 'Manage accounts', text: 'Make an account, change what someone may do, switch an account off or give a new temporary password.', to: '/accounts', areas: ['accounts'] },
 ]
 

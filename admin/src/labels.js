@@ -32,7 +32,7 @@ export const GROUPS = [
 // the person's pages elsewhere: the API's key, the label of the field, an example of the address
 export const LINK_FIELDS = [
   { key: 'polito', label: 'Politecnico page', example: 'https://www.polito.it/…' },
-  { key: 'orcid', label: 'ORCID', example: 'https://orcid.org/0000-0000-0000-0000' },
+  { key: 'orcid', label: 'ORCID', example: 'https://orcid.org/…' },
   { key: 'linkedin', label: 'LinkedIn', example: 'https://www.linkedin.com/in/…' },
   { key: 'dept', label: 'Department page', example: 'https://www.dauin.polito.it/…' },
   { key: 'iris', label: 'IRIS profile', example: 'https://iris.polito.it/…' },

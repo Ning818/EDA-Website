@@ -22,6 +22,27 @@ describe('the people list', () => {
     await expectNoAxeViolations(container)
   })
 
+  it('puts the people of one title in alphabetical order, and keeps the titles in the order the API gives them', async () => {
+    const mixed = [
+      person({ slug: 'massimo', name: 'Massimo Poncino', card_name: 'Massimo Poncino' }),
+      person({ slug: 'enrico', name: 'Enrico Macii', card_name: 'Enrico Macii' }),
+      person({ slug: 'bruno', name: 'bruno Zed', card_name: 'bruno Zed' }),
+      person({ slug: 'alvaro', name: 'Álvaro Rossi', card_name: 'Álvaro Rossi' }),
+      person({ slug: 'sara', name: 'Sara Vinco', card_name: 'Sara Vinco', title: 'Associate Professor' }),
+      person({ slug: 'santa', name: 'Santa Di Cataldo', card_name: 'Santa Di Cataldo', title: 'Associate Professor' }),
+    ]
+    renderAdmin('/people', { 'GET /api/auth/me': { body: me() }, 'GET /api/people': { body: mixed } })
+    const section = await screen.findByRole('region', { name: /Professors/ })
+    expect(within(section).getAllByRole('link').map((link) => link.textContent)).toEqual([
+      'Álvaro RossiFull Professor',
+      'bruno ZedFull Professor',
+      'Enrico MaciiFull Professor',
+      'Massimo PoncinoFull Professor',
+      'Santa Di CataldoAssociate Professor',
+      'Sara VincoAssociate Professor',
+    ])
+  })
+
   it('finds a name whatever its capitals and accents', async () => {
     const user = userEvent.setup()
     renderAdmin('/people', { 'GET /api/auth/me': { body: me() }, 'GET /api/people': { body: people } })
@@ -57,7 +78,12 @@ describe('the people list', () => {
 })
 
 describe('adding a person', () => {
-  const routes = (extra = {}) => ({ 'GET /api/auth/me': { body: me({ grants: THEME_OWNER }) }, ...extra })
+  const AREAS = [
+    { id: 11, title: 'Gene expression and modeling', theme_slug: 'bioinformatics', theme_name: 'Bioinformatics' },
+    { id: 12, title: 'Genome analysis', theme_slug: 'bioinformatics', theme_name: 'Bioinformatics' },
+    { id: 21, title: 'Smart grids', theme_slug: 'smart-city', theme_name: 'Smart City' },
+  ]
+  const routes = (extra = {}) => ({ 'GET /api/auth/me': { body: me({ grants: THEME_OWNER }) }, 'GET /api/admin/research-areas': { body: AREAS }, ...extra })
 
   it('asks for what is needed, with its words, and has no accessibility violations', async () => {
     const user = userEvent.setup()
@@ -65,9 +91,63 @@ describe('adding a person', () => {
     expect(await screen.findByRole('heading', { level: 1, name: 'Add a new person' })).toBeInTheDocument()
     await expectNoAxeViolations(container)
     await user.click(screen.getByRole('button', { name: 'Add person' }))
-    expect(screen.getByText('There are 2 problems')).toBeInTheDocument()
+    expect(screen.getByText('There are 3 problems')).toBeInTheDocument()
     expect(screen.getByLabelText(/Full name/)).toHaveAccessibleDescription(/Enter the name/)
     expect(calls.filter((c) => c.method === 'POST')).toHaveLength(0)
+  })
+
+  it('tells the one who only adds people that the entry can be changed for a day, and the administrative staff that it can at any time', async () => {
+    const { unmount } = renderAdmin('/people/new', routes())
+    expect(await screen.findByText(/for 24 hours; after that only the administrative staff can/)).toBeInTheDocument()
+    expect(screen.getByText(/listed under the research area you choose/)).toBeInTheDocument()
+    unmount()
+    const { calls } = renderAdmin('/people/new', { 'GET /api/auth/me': { body: me() } })
+    expect(await screen.findByText(/You can correct or delete the entry at any time\./)).toBeInTheDocument()
+    expect(screen.queryByText(/24 hours/)).not.toBeInTheDocument()
+    expect(screen.queryByLabelText(/Research area/)).not.toBeInTheDocument() // the administrative staff keep no theme page, so there is no area to choose
+    expect(calls.filter((c) => c.url === '/api/admin/research-areas')).toHaveLength(0)
+  })
+
+  it('asks which research area to list the person under, by theme, and adds the person into it', async () => {
+    const user = userEvent.setup()
+    const added = person({ slug: 'grace-hopper', name: 'Grace Hopper' })
+    const { calls } = renderAdmin('/people/new', routes({ 'POST /api/admin/people': { status: 201, body: added }, 'GET /api/admin/people/grace-hopper': { body: added } }))
+    const area = await screen.findByLabelText(/Research area/)
+    expect(area).toBeRequired()
+    expect([...area.querySelectorAll('optgroup')].map((group) => group.label)).toEqual(['Bioinformatics', 'Smart City'])
+    expect(area.querySelector('optgroup[label="Bioinformatics"]').querySelectorAll('option')).toHaveLength(2)
+    await user.type(screen.getByLabelText(/Full name/), 'Grace Hopper')
+    await user.selectOptions(screen.getByLabelText(/Title/), 'PhD Student')
+    await user.click(screen.getByRole('button', { name: 'Add person' }))
+    expect(screen.getByLabelText(/Research area/)).toHaveAccessibleDescription(/Choose the research area to list the person under/)
+    expect(calls.filter((c) => c.method === 'POST')).toHaveLength(0)
+    await user.selectOptions(screen.getByLabelText(/Research area/), 'Smart grids')
+    await user.click(screen.getByRole('button', { name: 'Add person' }))
+    await waitFor(() => expect(calls.filter((c) => c.method === 'POST')).toHaveLength(1))
+    expect(formOf(calls.find((c) => c.method === 'POST'))).toMatchObject({ name: 'Grace Hopper', title: 'PhD Student', topic_group_id: '21' })
+    expect(await screen.findByText(/was added to the People list and listed under Smart grids \(Smart City\), and shows on the People page now/)).toBeInTheDocument()
+  })
+
+  it('puts the refusal of an area at its field', async () => {
+    const user = userEvent.setup()
+    renderAdmin('/people/new', routes({ 'POST /api/admin/people': { status: 422, body: { detail: { code: 'invalid_input', field: 'topic_group_id', message: 'That research area does not exist.' } } } }))
+    await user.type(await screen.findByLabelText(/Full name/), 'Grace Hopper')
+    await user.selectOptions(screen.getByLabelText(/Title/), 'PhD Student')
+    await user.selectOptions(screen.getByLabelText(/Research area/), 'Smart grids')
+    await user.click(screen.getByRole('button', { name: 'Add person' }))
+    await waitFor(() => expect(screen.getByLabelText(/Research area/)).toHaveAccessibleDescription(/That research area does not exist/))
+  })
+
+  it('adds the person to the People list alone when there is no research area to choose from', async () => {
+    const user = userEvent.setup()
+    const added = person({ slug: 'grace-hopper', name: 'Grace Hopper' })
+    const { calls } = renderAdmin('/people/new', routes({ 'GET /api/admin/research-areas': { body: [] }, 'POST /api/admin/people': { status: 201, body: added }, 'GET /api/admin/people/grace-hopper': { body: added } }))
+    await user.type(await screen.findByLabelText(/Full name/), 'Grace Hopper')
+    expect(screen.queryByLabelText(/Research area/)).not.toBeInTheDocument()
+    await user.selectOptions(screen.getByLabelText(/Title/), 'PhD Student')
+    await user.click(screen.getByRole('button', { name: 'Add person' }))
+    await waitFor(() => expect(calls.filter((c) => c.method === 'POST')).toHaveLength(1))
+    expect(formOf(calls.find((c) => c.method === 'POST'))).not.toHaveProperty('topic_group_id')
   })
 
   it('refuses a link that is not a web address before asking the server', async () => {
@@ -75,6 +155,7 @@ describe('adding a person', () => {
     renderAdmin('/people/new', routes())
     await user.type(await screen.findByLabelText(/Full name/), 'Grace Hopper')
     await user.selectOptions(screen.getByLabelText(/Title/), 'PhD Student')
+    await user.selectOptions(screen.getByLabelText(/Research area/), 'Smart grids')
     await user.type(screen.getByLabelText(/Politecnico page link/), 'javascript:alert(1)')
     await user.click(screen.getByRole('button', { name: 'Add person' }))
     expect(screen.getByLabelText(/Politecnico page link/)).toHaveAccessibleDescription(/must be a web address starting with http/)
@@ -85,6 +166,7 @@ describe('adding a person', () => {
     const { calls } = renderAdmin('/people/new', routes({ 'POST /api/admin/people': { status: 201, body: person({ slug: 'grace-hopper', name: 'Grace Hopper' }) }, 'GET /api/admin/people/grace-hopper': { body: person({ slug: 'grace-hopper', name: 'Grace Hopper' }) } }))
     await user.type(await screen.findByLabelText(/Full name/), 'Grace Hopper')
     await user.selectOptions(screen.getByLabelText(/Title/), 'PhD Student')
+    await user.selectOptions(screen.getByLabelText(/Research area/), 'Smart grids')
     expect(screen.queryByLabelText(/agreed to this photo/)).not.toBeInTheDocument() // only once a photo is chosen
     await user.upload(screen.getByLabelText(/Choose a photo/), new File(['x'], 'me.jpg', { type: 'image/jpeg' }))
     await user.click(screen.getByRole('button', { name: 'Add person' }))
@@ -115,6 +197,7 @@ describe('adding a person', () => {
     )
     await user.type(await screen.findByLabelText(/Full name/), 'Enrico Macii')
     await user.selectOptions(screen.getByLabelText(/Title/), 'PhD Student')
+    await user.selectOptions(screen.getByLabelText(/Research area/), 'Smart grids')
     await user.click(screen.getByRole('button', { name: 'Add person' }))
     const warning = await screen.findByText('Someone with this name is in the list already')
     expect(warning.parentElement).toHaveFocus() // the warning takes the focus: it has to be read before going on
@@ -130,6 +213,7 @@ describe('adding a person', () => {
     renderAdmin('/people/new', routes({ 'POST /api/admin/people': { status: 422, body: { detail: { code: 'invalid_input', field: 'name', message: 'The name must be plain text, without < or >.' } } } }))
     await user.type(await screen.findByLabelText(/Full name/), 'Grace <b>')
     await user.selectOptions(screen.getByLabelText(/Title/), 'PhD Student')
+    await user.selectOptions(screen.getByLabelText(/Research area/), 'Smart grids')
     await user.click(screen.getByRole('button', { name: 'Add person' }))
     expect(await screen.findByLabelText(/Full name/)).toHaveAccessibleDescription(/plain text/)
   })

@@ -65,10 +65,10 @@ function focusField(event, id) {
 }
 
 /** The label, hint and error around one control. Every control has a visible label; "required" is said in words. */
-function Field({ id, label, hint, error, required, children }) {
+function Field({ id, label, hint, error, required, labelClass = '', children }) {
   return (
     <div className="field">
-      <label htmlFor={id} className="field-label">
+      <label htmlFor={id} className={`field-label ${labelClass}`.trim()}>
         {label}
         {required ? <span className="req"> (required)</span> : null}
       </label>
@@ -90,11 +90,11 @@ function Field({ id, label, hint, error, required, children }) {
 
 const describedBy = (id, hint, error) => [hint ? `${id}-hint` : null, error ? `${id}-error` : null].filter(Boolean).join(' ') || undefined
 
-export function TextField({ id: given, label, hint, error, required, className = '', ...input }) {
+export function TextField({ id: given, label, labelClass, hint, error, required, className = '', ...input }) {
   const generated = useId()
   const id = given ?? generated
   return (
-    <Field id={id} label={label} hint={hint} error={error} required={required}>
+    <Field id={id} label={label} labelClass={labelClass} hint={hint} error={error} required={required}>
       <input id={id} className={`input ${className}`} aria-invalid={error ? 'true' : undefined} aria-describedby={describedBy(id, hint, error)} aria-required={required ? 'true' : undefined} {...input} />
     </Field>
   )

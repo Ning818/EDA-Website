@@ -75,6 +75,43 @@ export const jointProject = (over = {}) => ({
   ...over,
 })
 
+export const personRef = (over = {}) => ({ slug: 'enrico-macii', name: 'Enrico Macii', title: 'Full Professor', title_short: 'Full Prof.', ...over })
+
+export const theme = (over = {}) => ({
+  slug: 'bioinformatics',
+  name: 'Bioinformatics',
+  short_name: null,
+  home_summary: 'The home paragraph.',
+  intro: 'The introduction of the Research page.',
+  areas: [
+    { id: 11, title: 'Gene expression and modeling', topics: [{ id: 101, text: 'Regulatory networks' }, { id: 102, text: 'Modeling of expression' }], people: [personRef(), personRef({ slug: 'sara-vinco', name: 'Sara Vinco', title: 'Associate Professor', title_short: 'Assoc. Prof.' })] },
+    { id: 12, title: 'Sequencing data analysis', topics: [], people: [] },
+  ],
+  contacts: [personRef()],
+  highlight_paper: {
+    kind: 'paper',
+    title: 'A paper on genes',
+    subtitle: null,
+    authors_full: 'Ada Lovelace, Grace Hopper',
+    authors_short: 'A. Lovelace, G. Hopper',
+    venue: 'Journal of Genes',
+    tags: ['Genes', 'Models'],
+    text: 'What the paper shows.',
+    url: 'https://iris.polito.it/handle/11583/1',
+    image_url: '/media/highlights/paper-bioinformatics.jpg',
+    image_alt: 'A plot of gene expression',
+  },
+  highlight_project: null,
+  ...over,
+})
+
+export const everyone = [
+  person({ slug: 'enrico-macii', name: 'Enrico Macii', card_name: 'Enrico Macii' }),
+  person({ slug: 'sara-vinco', name: 'Sara Vinco', card_name: 'Sara Vinco', title: 'Associate Professor' }),
+  person({ slug: 'jose-garcia', name: 'José García', card_name: 'José García', title: 'PhD Student', group: 'phd-students' }),
+  person({ slug: 'old-friend', name: 'Old Friend', card_name: 'Old Friend', title: 'Former member', group: 'alumni' }),
+]
+
 export const account = (over = {}) => ({
   id: 2,
   email: 'tom@example.org',

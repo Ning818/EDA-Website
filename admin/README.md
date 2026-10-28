@@ -1,6 +1,6 @@
 # EDA Group admin
 
-The interface the group's staff use to keep the EDA Group website up to date: add and correct people (a member who leaves is a change of title), keep the funded projects, the collaborations, the footer numbers and the page introductions, and manage the accounts of those who may do so. It is a front-end
+The interface the group's staff use to keep the EDA Group website up to date: add and correct people (a member who leaves is a change of title), keep the theme pages, the funded projects, the collaborations, the footer numbers and the page introductions, and manage the accounts of those who may do so. It is a front-end
 application of its own, written in React, and it talks to the API in `../backend` over HTTP. All of its text is English.
 
 ## A separate application
@@ -38,11 +38,12 @@ npm run build    # the files to serve, in dist/
 | Home | everyone | the tasks the user's grants allow, and the ones their grants allow but that have no screen yet |
 | People, a person, Add a new person | `people_add`, `people_edit` | find a person; add one (a user who keeps theme pages chooses the research area to list them under; with a photo that needs the confirmation that the person agreed, and a warning about a name that is there already); correct one, a change of title to Former member included (a member who leaves), after seeing which themes lose a contact; delete one added by mistake (grant `people_delete`, or the one who added the person, for 24 hours), after seeing what goes with them |
 | Accounts, Make a new account, one account | `accounts` | make an account with a temporary password shown once; change the name or what the account may do; switch it off or on; give a new temporary password |
+| Themes, a theme, Change the words, Change the contacts, Research areas, a research area, Highlight paper, Highlight project | `theme` | the themes the user keeps; for each, its words (name, short name, home-page paragraph, introduction), its contacts, its research areas in order, and its two highlight cards. Contacts and the involved people of an area are chosen from the People list with a search, each with buttons to move it up or down and to take it out, and every change is also said in words; a Former member is not offered as a contact. An area has its title, its topics (change, move, remove, add) and its involved people, and can be removed after seeing what goes with it. A highlight card is typed by hand with a picture that needs its text alternative |
 | Funded projects, a project, Add a project | `projects` | the projects of every theme, ongoing and ended, with a search; add one; correct one; mark one as ended (a project is never deleted). After a project is added, ended or changed (its address alone does not count) the admin asks whether the theme's Guided Introduction (the paragraph in the Funded projects card of its Research page) still fits, with the projects next to it; that text is written by hand and can be opened from the list at any time |
 | Collaborations, a collaborator, Add a collaborator, a joint project, Add a joint project | `site` | the three logo walls and the joint projects of the Collaborations page; add, correct and remove a collaborator, which needs a logo (required when adding, replaced but never taken away; checked, made smaller and kept as a PNG where it is transparent); add, correct and remove a joint project, with its other partners one to a line; a name or code that is taken is put at its field |
 | Site text, Footer numbers, Page introductions | `site` | the footer's phone and fax numbers, checked for being phone numbers and showing what the phone link dials; the paragraph under the title of the People page and of the Collaborations page, each saved on its own, with its length |
 
-Not built yet: the screens for the themes (the API does not have those routes yet either), and the list of broken links.
+Not built yet: the list of broken links, the warning before a login ends, and the request for what no screen covers.
 
 What a user sees is decided by the grants the API sends with `GET /api/auth/me`; the API checks them again on every request, so hiding a screen is only a convenience.
 
@@ -75,10 +76,10 @@ come from the group.
 
 | Scenario | Trigger | What is done | What follows, what can go wrong | Done when | In the admin |
 |---|---|---|---|---|---|
-| B1 A research direction changes | A new direction, or topics are regrouped | Add or change research areas and the topics under them, choosing the people involved from the People list | A person who is needed may not be in the list yet (B5) | The theme's research topics and involved people are right | Not yet (`theme`) |
-| B2 A new representative paper or project | There is something new to show | Replace a Highlight card; everything is typed by hand: title, authors (full names and short forms), venue, keywords, summary, link, picture | Picture rights and size; the picture needs a text alternative; nothing is read from IRIS | The card is replaced and the authors' short forms are right on a phone | Not yet (`theme`) |
-| B3 A theme is reworded | The name or the introduction changes | Change the name, the short name, the home-page text and the introduction of the theme page | The navigation, the page titles, the home page and the section dots follow; a long name can break the navigation. The colours and the background drawing are in the code, not here | The name is the same everywhere | Not yet (`theme`) |
-| B4 The contacts change | A contact person changes | Choose the "Refer to" contacts from the People list and put them in order | Not a former member (a leaver is taken out by the admin, A2); the section disappears when no contact is left | The contact cards are right | Not yet (`theme`) |
+| B1 A research direction changes | A new direction, or topics are regrouped | Add or change research areas and the topics under them, choosing the people involved from the People list | A person who is needed may not be in the list yet (B5) | The theme's research topics and involved people are right | Built |
+| B2 A new representative paper or project | There is something new to show | Replace a Highlight card; everything is typed by hand: title, authors (full names and short forms), venue, keywords, summary, link, picture | Picture rights and size; the picture needs a text alternative; nothing is read from IRIS | The card is replaced and the authors' short forms are right on a phone | Built |
+| B3 A theme is reworded | The name or the introduction changes | Change the name, the short name, the home-page text and the introduction of the theme page | The navigation, the page titles, the home page and the section dots follow; a long name can break the navigation. The colours and the background drawing are in the code, not here | The name is the same everywhere | Built |
+| B4 The contacts change | A contact person changes | Choose the "Refer to" contacts from the People list and put them in order | Not a former member (a leaver is taken out by the admin, A2); the section disappears when no contact is left | The contact cards are right | Built |
 | B5 A person a theme needs is not in the list | B1 or B4 needs someone who has not been added | Add the person (name, title, photo with the agreement, links) and choose the research area they are listed under; they show at once on the People page and under that area's "Involved people", with no review | A mistake can be corrected or deleted for 24 hours; after that only the administrative staff can. A name in the list already is warned about | The person can be chosen straight away, without asking anyone | Built |
 
 **C. Funded-projects owner**
@@ -141,7 +142,7 @@ The target is WCAG 2.2 level AA. What the code does about it:
 
 How it was checked: axe runs on every screen in the tests (which cannot judge colour contrast), and was run again in a real browser, with the real stylesheet and contrast included, on the
 login, home, people, add a person, a person, accounts and one account screens, and later on the site text, footer numbers, page introductions, collaborations, a collaborator, adding a collaborator
-and adding a joint project screens, with no violations; reflow was measured at 320 px. The funded-projects screens were run through axe in the tests only, not yet in a real browser.
+and adding a joint project screens, with no violations; reflow was measured at 320 px. The funded-projects screens were run through axe in the tests only, not yet in a real browser. The theme screens (a theme, its words, its contacts, its research areas, a research area and a highlight card) were run in a real browser too, with no violations.
 
 Not checked yet, and needed before the admin is relied on: a manual pass with a screen reader (NVDA, VoiceOver), with the keyboard alone on every flow, with Windows high-contrast mode and
 with 200% text size; and the warning before a login ends (the API's idle limit is 2 hours), which does not exist yet.

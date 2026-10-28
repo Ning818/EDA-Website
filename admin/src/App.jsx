@@ -24,10 +24,18 @@ import ProjectNew from './pages/ProjectNew'
 import ProjectPage from './pages/ProjectPage'
 import Projects from './pages/Projects'
 import Site from './pages/Site'
+import ThemeArea from './pages/ThemeArea'
+import ThemeAreas from './pages/ThemeAreas'
+import ThemeContacts from './pages/ThemeContacts'
+import ThemeHighlight from './pages/ThemeHighlight'
+import ThemePage from './pages/ThemePage'
+import ThemeWords from './pages/ThemeWords'
+import Themes from './pages/Themes'
 
 const PEOPLE = ['people_add', 'people_edit', 'people_delete']
 const PROJECTS = ['projects']
 const SITE = ['site']
+const THEME = ['theme']
 
 export default function App() {
   return (
@@ -53,6 +61,13 @@ export default function App() {
             <Route path="site" element={<RequireGrant areas={SITE}><Site /></RequireGrant>} />
             <Route path="site/footer" element={<RequireGrant areas={SITE}><FooterNumbers /></RequireGrant>} />
             <Route path="site/intros" element={<RequireGrant areas={SITE}><PageIntros /></RequireGrant>} />
+            <Route path="themes" element={<RequireGrant areas={THEME}><Themes /></RequireGrant>} />
+            <Route path="themes/:slug" element={<RequireGrant areas={THEME}><ThemePage /></RequireGrant>} />
+            <Route path="themes/:slug/words" element={<RequireGrant areas={THEME}><ThemeWords /></RequireGrant>} />
+            <Route path="themes/:slug/contacts" element={<RequireGrant areas={THEME}><ThemeContacts /></RequireGrant>} />
+            <Route path="themes/:slug/areas" element={<RequireGrant areas={THEME}><ThemeAreas /></RequireGrant>} />
+            <Route path="themes/:slug/areas/:id" element={<RequireGrant areas={THEME}><ThemeArea /></RequireGrant>} />
+            <Route path="themes/:slug/highlights/:kind" element={<RequireGrant areas={THEME}><ThemeHighlight /></RequireGrant>} />
             <Route path="accounts" element={<RequireGrant areas={['accounts']}><Accounts /></RequireGrant>} />
             <Route path="accounts/new" element={<RequireGrant areas={['accounts']}><AccountNew /></RequireGrant>} />
             <Route path="accounts/:id" element={<RequireGrant areas={['accounts']}><AccountEdit /></RequireGrant>} />

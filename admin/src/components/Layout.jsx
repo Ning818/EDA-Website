@@ -44,6 +44,13 @@ export default function Layout() {
                       </NavLink>
                     </li>
                   )}
+                  {can('theme') && (
+                    <li>
+                      <NavLink to="/themes" className="nav-link">
+                        Themes
+                      </NavLink>
+                    </li>
+                  )}
                   {can('projects') && (
                     <li>
                       <NavLink to="/projects" className="nav-link">

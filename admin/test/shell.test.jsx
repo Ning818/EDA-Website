@@ -19,13 +19,13 @@ describe('the home page', () => {
     await expectNoAxeViolations(container)
   })
 
-  it('shows the theme owner the tasks that exist and says which ones are still to come', async () => {
+  it('shows the theme owner the tasks of a theme owner and no more', async () => {
     renderAdmin('/', { 'GET /api/auth/me': { body: me({ grants: THEME_OWNER }) } })
     await screen.findByRole('heading', { level: 1, name: 'What would you like to do?' })
     expect(screen.getByRole('link', { name: /Add a new person/ })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: /Edit the theme pages/ })).toHaveAttribute('href', '/themes')
     expect(screen.queryByRole('link', { name: /Manage accounts/ })).not.toBeInTheDocument()
-    expect(screen.getByRole('heading', { level: 2, name: 'Coming soon' })).toBeInTheDocument()
-    expect(screen.getByText('Edit the theme pages')).toBeInTheDocument()
+    expect(screen.queryByRole('heading', { name: 'Coming soon' })).not.toBeInTheDocument()
   })
 
   it('offers a user who may only keep the funded projects that task and nothing else', async () => {

@@ -6,8 +6,8 @@ Rules kept here, so that no way in can skip them:
 - Everything here needs the grant `site` (the administrative staff).
 - A collaborator is in one of the three walls (university, institute, company) and goes last in its wall; one whose kind is corrected goes last in the new wall. A wall cannot hold two
   with the same name (capitals do not count).
-- A logo is checked by its content, made smaller, stripped of what is not the picture and stored under a name made here; SVG is refused (app/services/photos.py). It is optional.
-  The file goes with the collaborator, and a replaced logo is removed.
+- A collaborator **needs a logo**: one is required to add a collaborator, and a logo can be replaced but never taken away. It is checked by its content, made smaller, stripped of what is
+  not the picture and stored under a name made here; SVG is refused (app/services/photos.py). The file goes with the collaborator, and a replaced logo is removed.
 - A joint project is a record from CORDIS: a code (which no other has), a name, who funds it, the years, who coordinated it and the address of its record; its other partners are the
   names as the record gives them, which need not be collaborators. It goes last in the list.
 - The words are plain text and the addresses http(s) ones (app/core/validation.py).
@@ -115,10 +115,12 @@ def _logo_in_use(db: Session, path: str) -> bool:
 
 
 def add_collaborator(db: Session, actor: User, fields: dict, logo: bytes | None = None) -> Collaborator:
-    """Add a collaborator: `kind`, `name` and, if wanted, `url`; a `logo` is the uploaded file's bytes. It goes last in its wall."""
+    """Add a collaborator: `kind`, `name` and, if wanted, `url`; the `logo`, which is required, is the uploaded file's bytes. It goes last in its wall."""
     require(db, actor, Area.SITE)
     clean = _clean_collaborator(fields, partial=False)
     prepared = _prepare_logo(logo)
+    if prepared is None:
+        raise InvalidInput("logo", "A logo is required: choose the organisation's logo.")
     if _name_taken(db, clean["kind"], clean["name"]):
         raise NameTaken
     collaborator = Collaborator(position=_end_of_wall(db, clean["kind"]), **clean)
@@ -141,12 +143,10 @@ def add_collaborator(db: Session, actor: User, fields: dict, logo: bytes | None 
     return collaborator
 
 
-def update_collaborator(db: Session, actor: User, collaborator_id: int, fields: dict, logo: bytes | None = None, remove_logo: bool = False) -> Collaborator:
-    """Correct a collaborator: only the fields given change (an `url` given empty is removed). A new `logo` replaces the old one; `remove_logo` takes it away."""
+def update_collaborator(db: Session, actor: User, collaborator_id: int, fields: dict, logo: bytes | None = None) -> Collaborator:
+    """Correct a collaborator: only the fields given change (an `url` given empty is removed). A new `logo` replaces the old one; a logo cannot be taken away."""
     collaborator = get_collaborator(db, actor, collaborator_id)
     clean = _clean_collaborator(fields, partial=True)
-    if logo is not None and remove_logo:
-        raise InvalidInput("logo", "Choose a new logo or remove the logo, not both.")
     prepared = _prepare_logo(logo)
 
     kind = clean.get("kind", collaborator.kind)
@@ -163,8 +163,6 @@ def update_collaborator(db: Session, actor: User, collaborator_id: int, fields: 
     if prepared:
         new_path = photos.stored_path(slugify(name), prepared[0], prepared[1], LOGO_FOLDER)
         collaborator.logo = new_path
-    elif remove_logo:
-        collaborator.logo = None
     try:
         db.flush()
         after = collaborator_snapshot(collaborator)

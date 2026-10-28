@@ -6,19 +6,28 @@ import AccountEdit from './pages/AccountEdit'
 import AccountNew from './pages/AccountNew'
 import Accounts from './pages/Accounts'
 import ChangePassword from './pages/ChangePassword'
+import CollaboratorNew from './pages/CollaboratorNew'
+import CollaboratorPage from './pages/CollaboratorPage'
+import Collaborations from './pages/Collaborations'
+import FooterNumbers from './pages/FooterNumbers'
 import FundedSentence from './pages/FundedSentence'
 import Home from './pages/Home'
+import JointProjectNew from './pages/JointProjectNew'
+import JointProjectPage from './pages/JointProjectPage'
 import Login from './pages/Login'
 import NotFound from './pages/NotFound'
+import PageIntros from './pages/PageIntros'
 import PersonNew from './pages/PersonNew'
 import PersonPage from './pages/PersonPage'
 import People from './pages/People'
 import ProjectNew from './pages/ProjectNew'
 import ProjectPage from './pages/ProjectPage'
 import Projects from './pages/Projects'
+import Site from './pages/Site'
 
 const PEOPLE = ['people_add', 'people_edit', 'people_delete']
 const PROJECTS = ['projects']
+const SITE = ['site']
 
 export default function App() {
   return (
@@ -36,6 +45,14 @@ export default function App() {
             <Route path="projects/new" element={<RequireGrant areas={PROJECTS}><ProjectNew /></RequireGrant>} />
             <Route path="projects/sentence/:slug" element={<RequireGrant areas={PROJECTS}><FundedSentence /></RequireGrant>} />
             <Route path="projects/:id" element={<RequireGrant areas={PROJECTS}><ProjectPage /></RequireGrant>} />
+            <Route path="collaborations" element={<RequireGrant areas={SITE}><Collaborations /></RequireGrant>} />
+            <Route path="collaborators/new" element={<RequireGrant areas={SITE}><CollaboratorNew /></RequireGrant>} />
+            <Route path="collaborators/:id" element={<RequireGrant areas={SITE}><CollaboratorPage /></RequireGrant>} />
+            <Route path="joint-projects/new" element={<RequireGrant areas={SITE}><JointProjectNew /></RequireGrant>} />
+            <Route path="joint-projects/:id" element={<RequireGrant areas={SITE}><JointProjectPage /></RequireGrant>} />
+            <Route path="site" element={<RequireGrant areas={SITE}><Site /></RequireGrant>} />
+            <Route path="site/footer" element={<RequireGrant areas={SITE}><FooterNumbers /></RequireGrant>} />
+            <Route path="site/intros" element={<RequireGrant areas={SITE}><PageIntros /></RequireGrant>} />
             <Route path="accounts" element={<RequireGrant areas={['accounts']}><Accounts /></RequireGrant>} />
             <Route path="accounts/new" element={<RequireGrant areas={['accounts']}><AccountNew /></RequireGrant>} />
             <Route path="accounts/:id" element={<RequireGrant areas={['accounts']}><AccountEdit /></RequireGrant>} />

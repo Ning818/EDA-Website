@@ -34,7 +34,7 @@ def _http(error: Exception) -> HTTPException:
 
 _REFUSALS = (NotAllowed, InvalidInput, photos.InvalidPhoto, service.NameTaken, service.CollaboratorNotFound)
 
-CLEARABLE = ("url", "logo")
+CLEARABLE = ("url",)
 
 
 def _read_logo(logo: UploadFile | None) -> bytes | None:
@@ -75,7 +75,7 @@ def add_collaborator(
     user: User = Depends(require_ready_user),
     db: Session = Depends(get_db),
 ):
-    """Add a collaborator to a wall (`kind`: university, institute or company); it goes last there. A name that is in the wall already is refused (409)."""
+    """Add a collaborator to a wall (`kind`: university, institute or company); it goes last there. The logo is required. A name that is in the wall already is refused (409)."""
     try:
         return AdminCollaboratorRead.from_model(service.add_collaborator(db, user, _given(kind=kind, name=name, url=url), _read_logo(logo)))
     except _REFUSALS as error:
@@ -93,16 +93,16 @@ def update_collaborator(
     user: User = Depends(require_ready_user),
     db: Session = Depends(get_db),
 ):
-    """Change what is sent; `clear` names what to remove (url, logo), because a field sent empty counts as not sent. A new logo replaces the old one. A change of kind moves the
-    collaborator to the end of the other wall."""
+    """Change what is sent; `clear` names what to remove (url), because a field sent empty counts as not sent. A new logo replaces the old one, and a logo cannot be taken away. A
+    change of kind moves the collaborator to the end of the other wall."""
     fields = _given(kind=kind, name=name, url=url)
     try:
         for key in clear:
             if key not in CLEARABLE:
-                raise InvalidInput("clear", "Only url and logo can be cleared.")
+                raise InvalidInput("clear", "Only url can be cleared; a collaborator keeps its logo until a new one replaces it.")
             if key == "url":
                 fields["url"] = ""
-        return AdminCollaboratorRead.from_model(service.update_collaborator(db, user, collaborator_id, fields, _read_logo(logo), remove_logo="logo" in clear))
+        return AdminCollaboratorRead.from_model(service.update_collaborator(db, user, collaborator_id, fields, _read_logo(logo)))
     except _REFUSALS as error:
         raise _http(error) from None
 

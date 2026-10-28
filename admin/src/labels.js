@@ -35,6 +35,19 @@ export const PROJECT_STATUSES = [
   { value: 'ended', label: 'Ended' },
 ]
 
+// the three logo walls of the Collaborations page, in the order of the page
+export const KINDS = [
+  { value: 'university', label: 'University', wall: 'Universities' },
+  { value: 'institute', label: 'Institute', wall: 'Institutes' },
+  { value: 'company', label: 'Company', wall: 'Companies' },
+]
+
+// the pages that have a paragraph under their title (the slug the API uses, and the name of the page)
+export const INTRO_PAGES = [
+  { slug: 'people', label: 'People' },
+  { slug: 'collaborations', label: 'Collaborations' },
+]
+
 // the person's pages elsewhere: the API's key, the label of the field, an example of the address
 export const LINK_FIELDS = [
   { key: 'polito', label: 'Politecnico page', example: 'https://www.polito.it/…' },

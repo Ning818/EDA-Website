@@ -12,6 +12,10 @@ describe('the home page', () => {
     expect(tasks).toHaveTextContent('Find or update a person')
     expect(tasks).toHaveTextContent('Manage accounts')
     expect(screen.getByRole('link', { name: /Add a new person/ })).toHaveAttribute('href', '/people/new')
+    expect(screen.getByRole('link', { name: /Update the collaborations/ })).toHaveAttribute('href', '/collaborations')
+    expect(screen.getByRole('link', { name: /Change the footer numbers/ })).toHaveAttribute('href', '/site/footer')
+    expect(screen.getByRole('link', { name: /Change a page introduction/ })).toHaveAttribute('href', '/site/intros')
+    expect(screen.queryByRole('link', { name: /Keep the funded projects/ })).not.toBeInTheDocument() // the administrative staff do not keep them
     await expectNoAxeViolations(container)
   })
 

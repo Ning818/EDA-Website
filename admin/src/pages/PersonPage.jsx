@@ -107,7 +107,7 @@ export default function PersonPage() {
               <dd style={{ margin: 0 }}>{group}</dd>
             </div>
             <div>
-              <dt className="meta">Pages elsewhere</dt>
+              <dt className="meta">Links for People Card</dt>
               <dd style={{ margin: 0 }}>
                 {links.length === 0 ? (
                   <span className="muted">None.</span>

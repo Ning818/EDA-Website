@@ -214,7 +214,7 @@ export default function PersonForm({ person = null, onSave, submitLabel, areas =
           <div className="span-2">
             <TextField
               id="person-card_name"
-              label="Name on the small cards"
+              label="Name on the small cards (optional)"
               hint="Only if it is written differently there, for example with a middle name shortened to its initial. Leave it empty to use the full name."
               value={values.card_name}
               onChange={set('card_name')}
@@ -225,7 +225,7 @@ export default function PersonForm({ person = null, onSave, submitLabel, areas =
         </div>
 
         <fieldset>
-          <legend>Pages elsewhere (optional)</legend>
+          <legend>Links for People Card (optional)</legend>
           <div className="form-grid form-grid-2">
             {LINK_FIELDS.map(({ key, label, example }) => (
               <TextField

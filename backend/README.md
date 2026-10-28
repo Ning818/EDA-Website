@@ -238,8 +238,10 @@ Rules for the parts of the site the administrative staff keep (`app/services/col
 
 - A **collaborator** is in one of the three walls (university, institute, company) and goes **last** in its wall; one whose kind is corrected goes last in the new wall. A wall cannot hold
   two with the same name (capitals do not count): 409 `name_taken`. The name is at most 200 characters of plain text and the address, if there is one, an `http` or `https` one.
-- A **logo** is optional. It is checked by its content, shrunk to at most 600 pixels, stripped of everything but the picture, kept as a PNG where it has transparent parts, and stored under a
-  name made from the collaborator's name and the picture's hash (`media/collaborators/`); SVG is refused. A replaced or removed logo, and the logo of a removed collaborator, is deleted.
+- A collaborator **needs a logo**: it is required to add one (422 on `logo` without it), and a logo can be replaced but never taken away (`clear` takes only `url`). An entry from before this
+  rule that has no logo can still be corrected without one. The logo is checked by its content, shrunk to at most 600 pixels, stripped of everything but the picture, kept as a PNG where it
+  has transparent parts, and stored under a name made from the collaborator's name and the picture's hash (`media/collaborators/`); SVG is refused. A replaced logo, and the logo of a removed
+  collaborator, is deleted.
 - A collaborator can be **removed** (the collaboration ended, or it was added by mistake); what it was is kept in the audit log. Nothing else refers to a collaborator, because the other
   partners of a joint project are only names, as the project's record on CORDIS gives them.
 - A **joint project** has a code that no other has (409 `code_taken`; capitals do not count), a name, funding, years, a coordinator and the address of its record (all required), and its other
@@ -278,8 +280,8 @@ All need a login, and the ones that change something also pass the cross-site ch
 | `PATCH /api/admin/people/{slug}` | change what is sent (`clear` names optional fields to remove); a title of Former member needs `confirm_leave` (409 `leave_needs_confirmation` first) |
 | `GET /api/admin/collaborators` | every collaborator, wall by wall in the order of the page (grant `site`) |
 | `GET /api/admin/collaborators/{id}` | one collaborator |
-| `POST /api/admin/collaborators` | add a collaborator (form data: `kind`, `name`, `url`, `logo`); it goes last in its wall; 409 `name_taken` |
-| `PATCH /api/admin/collaborators/{id}` | change what is sent (`clear` names what to remove: `url`, `logo`); a new `logo` replaces the old one |
+| `POST /api/admin/collaborators` | add a collaborator (form data: `kind`, `name`, `logo` (required), `url`); it goes last in its wall; 409 `name_taken` |
+| `PATCH /api/admin/collaborators/{id}` | change what is sent (`clear` names what to remove: only `url`); a new `logo` replaces the old one, and a logo cannot be taken away |
 | `DELETE /api/admin/collaborators/{id}` | remove a collaborator and its logo file |
 | `GET /api/admin/joint-projects` | the joint projects in the order of the page |
 | `GET /api/admin/joint-projects/{id}` | one joint project |
@@ -297,9 +299,9 @@ All need a login, and the ones that change something also pass the cross-site ch
 
 ### Still to build
 
-- The admin's own interface, as a separate front-end application (see above), showing each user only the tasks their grants allow, with screens for the people and accounts routes above.
-- The routes for the themes' content (the theme owner's part). The admin's screens for the funded projects, which after a change to a project ask whether the theme page's
-  funded-projects sentence needs updating, and for the collaborators, the footer's numbers and the page paragraphs (the routes for all of these are above).
+- The admin's own interface is a separate front-end application (`../admin`) that shows each user only the tasks their grants allow; its README lists the screens that exist and the ones still to build.
+- The routes and the admin's screens for the themes' content (the theme owner's part). The screens for the funded projects, the collaborators, the footer's numbers and the page paragraphs
+  are built (`../admin/README.md`).
 - A scheduled check of the links in the content. A link is reported only after several failures in a row, the checker may only fetch `http` and `https` addresses and never one on a
   private network, and each user sees the broken links of the content they keep: project links the projects owner, collaborator and people links the administrative staff, highlight
   links the theme owner.

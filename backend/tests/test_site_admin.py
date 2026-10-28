@@ -169,15 +169,23 @@ def test_the_list_has_every_collaborator_wall_by_wall_in_the_order_of_the_page(a
 
 def test_a_new_collaborator_goes_last_in_its_wall(ada, visitor):
     before = public_page(visitor)
-    answer = ada.post(COLLAB, data={"kind": "company", "name": "  Acme   Chips ", "url": "https://www.acme.example/en"})
+    answer = ada.post(COLLAB, data={"kind": "company", "name": "  Acme   Chips ", "url": "https://www.acme.example/en"}, files=logo_file())
     assert answer.status_code == 201, answer.text
     body = answer.json()
-    assert body["name"] == "Acme Chips" and body["kind"] == "company" and body["url"] == "https://www.acme.example/en" and body["logo_url"] is None
+    assert body["name"] == "Acme Chips" and body["kind"] == "company" and body["url"] == "https://www.acme.example/en" and body["logo_url"]
     after = public_page(visitor)
     assert [c["name"] for c in after["companies"]] == [c["name"] for c in before["companies"]] + ["Acme Chips"]
     assert after["universities"] == before["universities"] and after["institutes"] == before["institutes"]
     (row,) = audit_rows("collaborator.add")
     assert row.user_email == "ada@example.org" and row.after["name"] == "Acme Chips"
+
+
+def test_a_collaborator_cannot_be_added_without_a_logo(ada):
+    before = count(Collaborator)
+    for files in (None, {"logo": ("logo.png", b"", "image/png")}):  # no file part at all, and an empty one
+        answer = ada.post(COLLAB, data={"kind": "company", "name": "Acme Chips"}, files=files)
+        assert answer.status_code == 422 and detail(answer)["code"] == "invalid_input" and detail(answer)["field"] == "logo", answer.text
+    assert count(Collaborator) == before and audit_rows("collaborator.add") == []
 
 
 def test_a_logo_is_checked_made_smaller_and_stored_under_a_name_made_here(ada, visitor):
@@ -232,23 +240,23 @@ def test_a_name_that_is_in_the_wall_already_is_refused_whatever_its_capitals_but
         existing = db.get(Collaborator, a_collaborator("company"))
         name = existing.name
     before = count(Collaborator)
-    answer = ada.post(COLLAB, data={"kind": "company", "name": name.upper()})
+    answer = ada.post(COLLAB, data={"kind": "company", "name": name.upper()}, files=logo_file())
     assert answer.status_code == 409 and detail(answer)["code"] == "name_taken"
     assert count(Collaborator) == before
-    assert ada.post(COLLAB, data={"kind": "institute", "name": name}).status_code == 201  # the same name in another wall is another collaborator
+    assert ada.post(COLLAB, data={"kind": "institute", "name": name}, files=logo_file()).status_code == 201  # the same name in another wall is another collaborator
 
 
-def test_a_collaborator_can_be_corrected_and_an_address_or_logo_removed(ada, visitor):
+def test_a_collaborator_can_be_corrected_and_an_address_removed_and_keeps_its_logo(ada, visitor):
     collaborator_id = a_collaborator()
     one = ada.get(f"{COLLAB}/{collaborator_id}").json()
     assert one["logo_url"] and one["url"]
-    answer = ada.patch(f"{COLLAB}/{collaborator_id}", data={"name": "Renamed University", "clear": ["url", "logo"]})
+    answer = ada.patch(f"{COLLAB}/{collaborator_id}", data={"name": "Renamed University", "clear": ["url"]})
     assert answer.status_code == 200
     body = answer.json()
-    assert body["name"] == "Renamed University" and body["url"] is None and body["logo_url"] is None and body["position"] == one["position"]
+    assert body["name"] == "Renamed University" and body["url"] is None and body["logo_url"] == one["logo_url"] and body["position"] == one["position"]
     (row,) = audit_rows("collaborator.update")
-    assert row.before["name"] == one["name"] and row.after["name"] == "Renamed University" and row.after["logo"] is None
-    assert not (settings.media_dir / one["logo_url"].split("/media/", 1)[1]).exists()  # the logo file went with it
+    assert row.before["name"] == one["name"] and row.after["name"] == "Renamed University" and row.after["logo"] == row.before["logo"]
+    assert (settings.media_dir / one["logo_url"].split("/media/", 1)[1]).is_file()
 
 
 def test_a_new_logo_replaces_the_old_one_and_the_old_file_is_removed(ada):
@@ -262,12 +270,23 @@ def test_a_new_logo_replaces_the_old_one_and_the_old_file_is_removed(ada):
     assert not (settings.media_dir / old.split("/media/", 1)[1]).exists()
 
 
-def test_a_new_logo_and_a_removed_one_together_are_refused(ada):
+def test_a_logo_cannot_be_taken_away_only_replaced(ada):
     collaborator_id = a_collaborator()
     one = ada.get(f"{COLLAB}/{collaborator_id}").json()
-    answer = ada.patch(f"{COLLAB}/{collaborator_id}", data={"clear": ["logo"]}, files=logo_file())
-    assert answer.status_code == 422 and detail(answer)["field"] == "logo"
+    for files in (None, logo_file()):  # on its own, and together with a new logo
+        answer = ada.patch(f"{COLLAB}/{collaborator_id}", data={"clear": ["logo"]}, files=files)
+        assert answer.status_code == 422 and detail(answer)["field"] == "clear", answer.text
     assert ada.get(f"{COLLAB}/{collaborator_id}").json() == one
+    assert (settings.media_dir / one["logo_url"].split("/media/", 1)[1]).is_file()
+
+
+def test_a_collaborator_that_has_no_logo_can_still_be_corrected_without_one(ada):
+    collaborator_id = a_collaborator()
+    with SessionLocal() as db:  # an entry from before the logo was required
+        db.get(Collaborator, collaborator_id).logo = None
+        db.commit()
+    answer = ada.patch(f"{COLLAB}/{collaborator_id}", data={"url": "https://www.example.edu/new"})
+    assert answer.status_code == 200 and answer.json()["logo_url"] is None
 
 
 def test_a_collaborator_moved_to_another_wall_goes_last_there(ada, visitor):
@@ -283,7 +302,7 @@ def test_a_collaborator_moved_to_another_wall_goes_last_there(ada, visitor):
 def test_a_correction_that_is_not_acceptable_or_changes_nothing_leaves_the_collaborator_as_it_was(ada):
     collaborator_id = a_collaborator()
     one = ada.get(f"{COLLAB}/{collaborator_id}").json()
-    for data in ({"kind": "bank"}, {"name": "<i>"}, {"url": "ftp://x.example"}, {"clear": ["position"]}):
+    for data in ({"kind": "bank"}, {"name": "<i>"}, {"url": "ftp://x.example"}, {"clear": ["position"]}, {"clear": ["logo"]}):
         assert ada.patch(f"{COLLAB}/{collaborator_id}", data=data).status_code == 422, data
     assert ada.patch(f"{COLLAB}/{collaborator_id}", data={"name": one["name"]}).json() == one  # nothing changed
     assert ada.get(f"{COLLAB}/{collaborator_id}").json() == one

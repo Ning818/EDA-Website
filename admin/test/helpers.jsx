@@ -52,6 +52,29 @@ export const project = (over = {}) => ({
   ...over,
 })
 
+export const collaborator = (over = {}) => ({
+  id: 5,
+  kind: 'university',
+  name: 'Brown University',
+  url: 'https://www.brown.edu/',
+  logo_url: '/media/collaborators/universities/brown.png',
+  position: 0,
+  ...over,
+})
+
+export const jointProject = (over = {}) => ({
+  id: 3,
+  code: 'DIMMER',
+  name: 'District Information Modeling and Management for Energy Reduction',
+  funding: 'EU FP7',
+  years: '2013-2016',
+  coordinator: 'Politecnico di Torino',
+  partners: ['Arup', 'IREN'],
+  url: 'https://cordis.europa.eu/project/id/609084',
+  position: 0,
+  ...over,
+})
+
 export const account = (over = {}) => ({
   id: 2,
   email: 'tom@example.org',

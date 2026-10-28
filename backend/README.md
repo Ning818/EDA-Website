@@ -67,13 +67,13 @@ Check: `GET /api/health` (the API is up) and `GET /api/health/db` (it reaches th
 
 A person has a name (and `card_name`, the name as the small cards write it), a title (and `title_short`, the form for the small cards), a group, a photo address, the links they have (`polito`, `orcid`, `linkedin`, `dept`, `iris`) and `page_url` / `page_kind`, the page a small card links to: the polito.it staff page, else the research profile on IRIS. The group follows from the title. Wherever the API lists people for the small cards (a research area, the people to refer to) they come ranked: full professors first, then associate and assistant professors, research fellows, PhD students and former members, and within a rank in the order they were written.
 
-What a theme looks like (its colour, the artwork in its page headers, its addresses) stays in the site's code (`src/themes.js`); what it says is here - including its name. The code holds default names and paragraphs too (`src/themes.js`), which the site shows until the API answers or if it cannot be reached; the last answer is kept in the visitor's browser, so a repeat visit shows the current words at once. A theme the API lists that the code has no template for is not shown: the code decides which themes the site can draw.
+What a theme looks like (its colour, the artwork in its page headers, its addresses) stays in the site's code (`frontend/src/themes.js`); what it says is here - including its name. The code holds default names and paragraphs too (`frontend/src/themes.js`), which the site shows until the API answers or if it cannot be reached; the last answer is kept in the visitor's browser, so a repeat visit shows the current words at once. A theme the API lists that the code has no template for is not shown: the code decides which themes the site can draw.
 
 ## How the site reaches the API
 
-In development the pages ask their own address for `/api/...` and `/media/...`; the Vite dev server (`vite.config.js`, at the repository root) forwards both to the API on port 8001. So a phone or an iPad on the same Wi-Fi needs only the page's address (`http://<this computer>:5173`), the API listens on this computer only, and there is no CORS to allow. In production the web server in front of the site must forward the same two paths to the API (`VITE_API_URL` points the site at an API on another address instead).
+In development the pages ask their own address for `/api/...` and `/media/...`; the Vite dev server (`frontend/vite.config.js`) forwards both to the API on port 8001. So a phone or an iPad on the same Wi-Fi needs only the page's address (`http://<this computer>:5173`), the API listens on this computer only, and there is no CORS to allow. In production the web server in front of the site must forward the same two paths to the API (`VITE_API_URL` points the site at an API on another address instead).
 
-To work on the site, run both: `npm run dev` at the repository root, and the API (step 7 above). The People, Research, Funded Projects and Collaborations pages ask the API for what they show, and show a placeholder while it is on its way and a message with a "Try again" button when the API cannot be reached. The home page and the pages' structure and artwork do not depend on the API.
+To work on the site, run both: `npm run dev` in `frontend/`, and the API (step 7 above). The People, Research, Funded Projects and Collaborations pages ask the API for what they show, and show a placeholder while it is on its way and a message with a "Try again" button when the API cannot be reached. The home page and the pages' structure and artwork do not depend on the API.
 
 ## Where the data in the seed comes from
 
@@ -95,7 +95,7 @@ Adding or changing a person for now means editing `seed/people.json` (and puttin
 
 ### The footer (`seed/site.json`)
 
-Only the phone and fax numbers are in the database; the rest of the footer (the names, the address, the "Visit" links, the LinkedIn and YouTube icons) is written in the code (`src/components/layout/Footer.jsx`). The footer is on every page and never waits for the API: the code keeps the same numbers as defaults (`src/site.js`), and the visitor's last answer is kept in the browser. A number that is empty leaves its line out of the footer. The "Department website" link in the code (www.dauin.polito.it/en/) did not answer when this was checked.
+Only the phone and fax numbers are in the database; the rest of the footer (the names, the address, the "Visit" links, the LinkedIn and YouTube icons) is written in the code (`frontend/src/components/layout/Footer.jsx`). The footer is on every page and never waits for the API: the code keeps the same numbers as defaults (`src/site.js`), and the visitor's last answer is kept in the browser. A number that is empty leaves its line out of the footer. The "Department website" link in the code (www.dauin.polito.it/en/) did not answer when this was checked.
 
 ### Collaborations (`seed/collaborations.json`)
 
@@ -155,10 +155,10 @@ There is no sign-up. The administrative staff make the accounts in the admin (se
 
 ### Separate applications
 
-The public website (the front end at the repository root), this API and the admin are three different, isolated applications. They may share one repository for simplicity, but each has
+The public website (the front end in `frontend/`), this API and the admin are three different, isolated applications. They may share one repository for simplicity, but each has
 its own dependencies, build, settings and port, none imports another's code, and they meet only through this API's HTTP routes. The website only reads (`GET`); every change to the
-content comes through the admin's routes (`/api/admin/...`), which the website never calls. The admin's interface is a front-end application of its own - not built yet - that goes in a
-folder of its own next to `backend/`, never inside the website's `src/`. `tests/test_architecture.py` keeps the API's side of this honest.
+content comes through the admin's routes (`/api/admin/...`), which the website never calls. The admin's interface is a front-end application of its own, in `admin/`, next to
+`backend/` and `frontend/` and never inside the website's folder. `tests/test_architecture.py` keeps the API's side of this honest.
 
 ### Why the admin's routes share this process, and how to split them
 
@@ -338,7 +338,7 @@ All need a login, and the ones that change something also pass the cross-site ch
 - A "I cannot find what I need" request, for edits that no screen covers.
 - Rare edits outside the screens: a restricted expert mode for the administrative staff (the validation sits in the models and services, so it cannot be skipped there either); new fields
   and new themes stay developer work.
-- **New theme:** a developer builds its particle cloud, models and header artwork and redeploys the front end; the theme owner then adds the theme's own text in the admin and ticks `published`. The theme list becomes the code's templates (`src/themes.js`: slug, colour, artwork) joined by slug to the database's content. Nothing is copied from another theme, and no code or particle bundle is ever uploaded through the admin.
+- **New theme:** a developer builds its particle cloud, models and header artwork and redeploys the front end; the theme owner then adds the theme's own text in the admin and ticks `published`. The theme list becomes the code's templates (`frontend/src/themes.js`: slug, colour, artwork) joined by slug to the database's content. Nothing is copied from another theme, and no code or particle bundle is ever uploaded through the admin.
 - **Fields the admin forms add for accessibility** (to be added with the forms, with a migration): `image_alt` on the highlight cards is done (a picture needs one; a card saved before has none, and
   the site then writes one from the title). Still to come:
   - `language` on projects (and on any text that is not English, such as the Italian project names): an ISO code such as `it`, which the site writes as `lang="it"` on that text so a screen reader pronounces it right. Empty means English.

@@ -1,16 +1,29 @@
-# React + Vite
+# EDA Group website
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+The website of the EDA Group (Politecnico di Torino), made of three applications in one repository. They are different and isolated: each has its own dependencies, build, settings and port,
+none imports another's code, and they meet only through the API's HTTP routes.
 
-Currently, two official plugins are available:
+| Folder | What it is | Stack | Port | Read |
+|---|---|---|---|---|
+| [`frontend/`](frontend/) | the public website: what visitors read | React, Vite, Tailwind | 5173 | [`frontend/README.md`](frontend/README.md) |
+| [`backend/`](backend/) | the API and the database, and the routes the admin uses | FastAPI, PostgreSQL | 8001 | [`backend/README.md`](backend/README.md) |
+| [`admin/`](admin/) | the interface the group's staff use to keep the site up to date | React, Vite, Tailwind | 5174 | [`admin/README.md`](admin/README.md) |
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+The website only reads from the API. Everything that changes the content goes through the admin, which logs in and talks to the API's `/api/admin/...` routes.
 
-## React Compiler
+## Run it locally
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+Each application is started from its own folder (the backend's first steps, with the database, are in [`backend/README.md`](backend/README.md)).
 
-## Expanding the Oxlint configuration
+```bash
+# the database and the API first: see backend/README.md
+cd frontend
+npm install
+npm run dev      # http://localhost:5173
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
+cd admin
+npm install
+npm run dev      # http://localhost:5174
+```
+
+The two Vite dev servers forward `/api` and `/media` to the API on port 8001.

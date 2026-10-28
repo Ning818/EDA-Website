@@ -5,10 +5,10 @@ application of its own, written in React, and it talks to the API in `../backend
 
 ## A separate application
 
-The website (the repository root), the API (`../backend`) and this admin are three different, isolated applications that share one repository for simplicity. So:
+The website (`../frontend`), the API (`../backend`) and this admin are three different, isolated applications that share one repository for simplicity. So:
 
-- this folder has its own `package.json`, build, settings and port (5174); it is never built into the website and nothing of it is in the website's `src/`;
-- it imports nothing from `../src`, and the website imports nothing from here; the look of the website (its two typefaces and its colours) is copied into `src/index.css`, not shared;
+- this folder has its own `package.json`, build, settings and port (5174); it is never built into the website and nothing of it is in `../frontend`;
+- it imports nothing from `../frontend`, and the website imports nothing from here; the look of the website (its two typefaces and its colours) is copied into `src/index.css`, not shared;
 - it reaches the API only through the routes the API offers: `/api/auth/...` (login, who is logged in, change of password) and `/api/admin/...`. The website never calls those.
 
 ## Run it

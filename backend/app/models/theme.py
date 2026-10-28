@@ -19,7 +19,7 @@ class ProjectStatus(StrEnum):
 
 
 class Theme(Base):
-    """One of the four research themes. What a theme looks like (colour, header artwork, addresses) stays in the site's code (src/themes.js); the words are here."""
+    """One of the four research themes. What a theme looks like (colour, header artwork, addresses) stays in the site's code (frontend/src/themes.js); the words are here."""
 
     __tablename__ = "themes"
 

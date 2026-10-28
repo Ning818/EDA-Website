@@ -112,6 +112,16 @@ export function SelectField({ id: given, label, hint, error, required, children,
   )
 }
 
+export function TextAreaField({ id: given, label, hint, error, required, rows = 4, ...input }) {
+  const generated = useId()
+  const id = given ?? generated
+  return (
+    <Field id={id} label={label} hint={hint} error={error} required={required}>
+      <textarea id={id} rows={rows} className="input" aria-invalid={error ? 'true' : undefined} aria-describedby={describedBy(id, hint, error)} aria-required={required ? 'true' : undefined} {...input} />
+    </Field>
+  )
+}
+
 export function FileField({ id: given, label, hint, error, required, ...input }) {
   const generated = useId()
   const id = given ?? generated

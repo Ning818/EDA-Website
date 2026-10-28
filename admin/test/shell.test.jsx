@@ -1,4 +1,4 @@
-import { screen } from '@testing-library/react'
+import { screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it } from 'vitest'
 import { PROJECTS_OWNER, THEME_OWNER, expectNoAxeViolations, me, person, renderAdmin } from './helpers'
@@ -24,11 +24,13 @@ describe('the home page', () => {
     expect(screen.getByText('Edit the theme pages')).toBeInTheDocument()
   })
 
-  it('tells a user who may only keep the funded projects that the screen is not there yet', async () => {
+  it('offers a user who may only keep the funded projects that task and nothing else', async () => {
     renderAdmin('/', { 'GET /api/auth/me': { body: me({ grants: PROJECTS_OWNER }) } })
     await screen.findByRole('heading', { level: 1, name: 'What would you like to do?' })
-    expect(screen.getByText('Keep the funded projects')).toBeInTheDocument()
-    expect(screen.queryByRole('list', { name: 'Things you can do' })).not.toBeInTheDocument()
+    const tasks = screen.getByRole('list', { name: 'Things you can do' })
+    expect(within(tasks).getAllByRole('listitem')).toHaveLength(1)
+    expect(screen.getByRole('link', { name: /Keep the funded projects/ })).toHaveAttribute('href', '/projects')
+    expect(screen.queryByRole('heading', { name: 'Coming soon' })).not.toBeInTheDocument()
   })
 
   it('tells a user with no grants to ask for access', async () => {

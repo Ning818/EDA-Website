@@ -36,6 +36,22 @@ export const person = (over = {}) => ({
   ...over,
 })
 
+export const THEMES = [
+  { slug: 'bioinformatics', name: 'Bioinformatics', short_name: null, home_summary: null },
+  { slug: 'smart-city', name: 'Smart City', short_name: null, home_summary: null },
+]
+
+export const project = (over = {}) => ({
+  id: 1,
+  theme_slug: 'bioinformatics',
+  theme_name: 'Bioinformatics',
+  status: 'ongoing',
+  code: 'GENEX',
+  description: 'GENE EXPRESSION AND MODELING',
+  url: 'https://genex.example.eu/',
+  ...over,
+})
+
 export const account = (over = {}) => ({
   id: 2,
   email: 'tom@example.org',

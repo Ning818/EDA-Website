@@ -29,6 +29,12 @@ export const GROUPS = [
   { value: 'alumni', label: 'Former members' },
 ]
 
+// a funded project is ongoing or ended; it is never deleted
+export const PROJECT_STATUSES = [
+  { value: 'ongoing', label: 'Ongoing' },
+  { value: 'ended', label: 'Ended' },
+]
+
 // the person's pages elsewhere: the API's key, the label of the field, an example of the address
 export const LINK_FIELDS = [
   { key: 'polito', label: 'Politecnico page', example: 'https://www.polito.it/…' },

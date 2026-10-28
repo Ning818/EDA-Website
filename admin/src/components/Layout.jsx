@@ -70,7 +70,7 @@ export default function Layout() {
           </div>
         </div>
       </header>
-      <main id="main" tabIndex={-1}>
+      <main id="main" tabIndex={-1} className="app-main">
         <Outlet />
       </main>
     </>

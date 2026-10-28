@@ -100,6 +100,28 @@ come from the group.
 Every scenario shares these rules: a link must be `http` or `https`, text has no HTML, and every change is written to the audit log with who made it. Still to come with the theme screens: a text
 alternative for each picture and the language of text that is not English.
 
+## The look
+
+The typefaces (Poppins for headings, names and actions; Roboto for reading text) and the colours are the website's. So is the **type scale**: the same named roles with the same sizes, in rem so
+that they follow the user's own text size, and in three steps (phone, below 768px; tablet and small laptop, 768 to 1199px; wide desktop, 1200px and up). It is defined at the top of
+`src/index.css`, together with what each role is used for, and nothing else in the stylesheet sets a font size. The admin shares no code with the website, so the two copies are kept in step by hand.
+
+| Role | Size (phone / tablet / desktop) | Used for |
+|---|---|---|
+| `type-h1` | 36 / 44 / 48 px | the page title |
+| `type-h2` | 28 / 32 / 32 px | a theme's name on the list of funded projects |
+| `type-h3` | 20 / 24 / 24 px | the title of a panel (every `h2`), the title of a task card, the Ongoing and Ended headings of the projects |
+| `type-name` | 18 px | a sub-section (every `h3`), a table caption, the title of a message, a name in a list |
+| `type-lead` | 18 / 20 / 20 px | the summary under the page title |
+| `type-compact` | 16 px | all running text, and what is typed in the fields |
+| `type-action` | 16 px | labels, buttons, the links of the navigation, table headings |
+| `type-meta` | 14 px | hints, counts, badges |
+| `type-brand` | 20 px | the name by the logo |
+| `type-stat-sm` | 28 / 32 / 32 px | the initials that stand for a missing photo |
+
+On a desktop screen (1280px and wider) the content of every page after the login keeps 240px from the sides of the screen, and the navigation 40px; the two are chosen so that the left edge of
+the content lines up with the first link of the navigation. Below that the pages use the full width, and the layout reflows down to 320px.
+
 ## Accessibility
 
 The target is WCAG 2.2 level AA. What the code does about it:

@@ -18,6 +18,11 @@
   --color-teal-text: #157082;
   --color-line: #c0d4ca;
 
+  /* a project that is ongoing and one that has ended: the green is the Bioinformatics theme's (#4ab47a) taken darker until it can carry text (5.9:1 on white, 4.9:1 on mint-deep), and the
+     red is a warm brick, 6.0:1 on white and 5.0:1 on mint-deep. The words say which is which as well; the colour is only an extra signal. */
+  --color-ongoing: #1b7347;
+  --color-ended: #b3382c;
+
   --color-danger: #b42318;
   --color-danger-bg: #fdecea;
   --color-danger-text: #8a1c13;
@@ -29,6 +34,110 @@
   --color-warn-border: #8a5300;
 }
 
+/* The type scale. It is the website's (src/index.css), role for role and size for size, so that the same kind of text has the same size here as there; the admin shares no code with the
+   website, so the two copies are kept in step by hand. Three steps: phone (below 768px), tablet / small laptop (768-1199px) and wide desktop (1200px and up); a role with one size keeps it
+   at every width. Sizes are in rem, so they follow the user's own text size; line heights are unitless. Family and weight come with the role. Nothing else in this file sets a font size.
+   What each role is used for here:
+   - type-h1: the page title.   - type-h2: a theme's name on the list of funded projects.   - type-h3: the title of a panel (every h2), the Ongoing and Ended headings.   - type-name: a sub-section (every h3), a table caption, the title of a message, a name in a list.
+   - type-lead: the summary under the page title.  - type-compact: all running text, in panels, lists, tables and the fields themselves.
+   - type-action: labels, buttons, links of the navigation, table headings.   - type-meta: hints, counts, badges.   - type-brand: the name by the logo.
+   - type-stat-sm: the initials that stand for a missing photo.  (type-body, type-caption, type-nav and type-stat are the website's and have no use in the admin yet.) */
+@utility type-h1 {
+  font-family: var(--font-heading);
+  font-weight: 600;
+  font-size: 2.25rem;
+  line-height: 1.15;
+  @media (width >= 48rem) { font-size: 2.75rem; }
+  @media (width >= 75rem) { font-size: 3rem; }
+}
+@utility type-h2 {
+  font-family: var(--font-heading);
+  font-weight: 600;
+  font-size: 1.75rem;
+  line-height: 1.25;
+  @media (width >= 48rem) { font-size: 2rem; }
+}
+@utility type-h3 {
+  font-family: var(--font-heading);
+  font-weight: 600;
+  font-size: 1.25rem;
+  line-height: 1.3;
+  @media (width >= 48rem) { font-size: 1.5rem; }
+}
+@utility type-lead {
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: 1.125rem;
+  line-height: 1.5;
+  @media (width >= 48rem) { font-size: 1.25rem; }
+}
+@utility type-body {
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: 1rem;
+  line-height: 1.6;
+  @media (width >= 48rem) { font-size: 1.125rem; }
+}
+@utility type-compact {
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: 1rem;
+  line-height: 1.5;
+}
+@utility type-name {
+  font-family: var(--font-heading);
+  font-weight: 600;
+  font-size: 1.125rem;
+  line-height: 1.4;
+}
+@utility type-action {
+  font-family: var(--font-heading);
+  font-weight: 500;
+  font-size: 1rem;
+  line-height: 1.5;
+}
+@utility type-nav {
+  font-family: var(--font-heading);
+  font-weight: 500;
+  font-size: 1.125rem;
+  line-height: 1.5;
+}
+@utility type-meta {
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: 0.875rem;
+  line-height: 1.45;
+}
+@utility type-caption {
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+@utility type-brand {
+  font-family: var(--font-heading);
+  font-weight: 500;
+  font-size: 1.25rem;
+  line-height: 1.3;
+}
+@utility type-stat {
+  font-family: var(--font-heading);
+  font-weight: 600;
+  font-size: 2.5rem;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+  @media (width >= 48rem) { font-size: 3rem; }
+  @media (width >= 75rem) { font-size: 3.5rem; }
+}
+@utility type-stat-sm {
+  font-family: var(--font-heading);
+  font-weight: 600;
+  font-size: 1.75rem;
+  line-height: 1.15;
+  font-variant-numeric: tabular-nums;
+  @media (width >= 48rem) { font-size: 2rem; }
+}
+
 html {
   font-size: 100%;
 }
@@ -36,22 +145,12 @@ body {
   margin: 0;
   background: var(--color-mint);
   color: var(--color-navy);
-  font-family: var(--font-body);
-  font-size: 1rem;
-  line-height: 1.55;
+  @apply type-compact;
 }
-h1, h2, h3 {
-  font-family: var(--font-heading);
-  font-weight: 600;
-  line-height: 1.25;
-  margin: 0;
-}
-h1 { font-size: 1.75rem; }
-h2 { font-size: 1.375rem; }
-h3 { font-size: 1.125rem; }
-@media (width >= 48rem) {
-  h1 { font-size: 2rem; }
-}
+h1, h2, h3 { margin: 0; }
+h1 { @apply type-h1; }
+h2 { @apply type-h3; }
+h3 { @apply type-name; }
 p { margin: 0; }
 /* Tailwind's reset takes the underline off links; a link in running text must show it is one by more than its colour, so it is put back (the navigation and the buttons turn it off again) */
 a {
@@ -80,8 +179,7 @@ h1[tabindex='-1']:focus, main[tabindex='-1']:focus { outline: none; }
   padding: 0.75rem 1rem;
   border-radius: 0.5rem;
   border: 2px solid var(--color-navy);
-  font-family: var(--font-heading);
-  font-weight: 500;
+  @apply type-action;
 }
 .skip-link:focus { top: 0.5rem; }
 
@@ -93,25 +191,23 @@ h1[tabindex='-1']:focus, main[tabindex='-1']:focus { outline: none; }
 .app-header a, .app-header button { color: #fff; }
 .app-header :focus-visible { outline-color: #fff; }
 .app-header-inner {
-  max-width: 72rem;
+  max-width: 90rem; /* wider than the pages, so that the brand, six links and the user's own links stay on one line on a desktop screen */
   margin: 0 auto;
   padding: 0.75rem 1rem;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 0.5rem 1.5rem;
+  gap: 0.5rem 1.25rem;
 }
 .brand {
-  font-family: var(--font-heading);
-  font-weight: 500;
-  font-size: 1.25rem;
+  @apply type-brand;
   text-decoration: none;
 }
 .brand:hover { text-decoration: underline; }
 .nav-list {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.25rem 1rem;
+  gap: 0.25rem 0.75rem;
   list-style: none;
   margin: 0;
   padding: 0;
@@ -120,8 +216,7 @@ h1[tabindex='-1']:focus, main[tabindex='-1']:focus { outline: none; }
 .nav-link {
   display: inline-block;
   padding: 0.5rem 0.25rem;
-  font-family: var(--font-heading);
-  font-weight: 500;
+  @apply type-action;
   text-decoration: none;
   border-bottom: 3px solid transparent;
 }
@@ -139,9 +234,7 @@ h1[tabindex='-1']:focus, main[tabindex='-1']:focus { outline: none; }
   border-radius: 0.5rem;
   min-height: 2.5rem;
   padding: 0 0.875rem;
-  font-family: var(--font-heading);
-  font-weight: 500;
-  font-size: 1rem;
+  @apply type-action;
   cursor: pointer;
 }
 .who .btn-link:hover { background: var(--color-navy-hover); }
@@ -155,6 +248,12 @@ h1[tabindex='-1']:focus, main[tabindex='-1']:focus { outline: none; }
   gap: 1.5rem;
 }
 .page-narrow { max-width: 40rem; }
+/* On a desktop screen the content of every page after the login, forms included, keeps 240px from the sides of the screen, so that its left edge lines up with the first link of the
+   navigation (the header's 40px, the brand's width and the gap after it come to about 238px); both are multiples of 8. The login page stays narrow and centred. */
+@media (width >= 80rem) {
+  .app-header-inner { max-width: none; padding-left: 40px; padding-right: 40px; }
+  .app-main > .page { max-width: none; padding-left: 240px; padding-right: 240px; }
+}
 .page-head {
   display: flex;
   flex-wrap: wrap;
@@ -162,7 +261,7 @@ h1[tabindex='-1']:focus, main[tabindex='-1']:focus { outline: none; }
   justify-content: space-between;
   gap: 0.75rem 1.5rem;
 }
-.lead { color: var(--color-ink-soft); max-width: 60ch; }
+.lead { @apply type-lead; color: var(--color-ink-soft); } /* as wide as the form under it */
 .back-link { align-self: flex-start; }
 
 /* --- panels --------------------------------------------------------------------------------------------------------------------------------------------------- */
@@ -176,7 +275,7 @@ h1[tabindex='-1']:focus, main[tabindex='-1']:focus { outline: none; }
 .stack-lg { display: flex; flex-direction: column; gap: 1.5rem; }
 .row { display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem; }
 .muted { color: var(--color-ink-soft); }
-.meta { font-size: 0.875rem; color: var(--color-ink-soft); }
+.meta { @apply type-meta; color: var(--color-ink-soft); }
 .mono { font-family: ui-monospace, SFMono-Regular, Consolas, 'Liberation Mono', Menlo, monospace; }
 
 /* --- buttons -------------------------------------------------------------------------------------------------------------------------------------------------- */
@@ -190,10 +289,7 @@ h1[tabindex='-1']:focus, main[tabindex='-1']:focus { outline: none; }
   border: 2px solid var(--color-navy);
   background: #fff;
   color: var(--color-navy);
-  font-family: var(--font-heading);
-  font-weight: 500;
-  font-size: 1rem;
-  line-height: 1.3;
+  @apply type-action;
   text-decoration: none;
   cursor: pointer;
 }
@@ -206,9 +302,9 @@ h1[tabindex='-1']:focus, main[tabindex='-1']:focus { outline: none; }
 
 /* --- forms ---------------------------------------------------------------------------------------------------------------------------------------------------- */
 .field { display: flex; flex-direction: column; gap: 0.375rem; }
-.field-label { font-family: var(--font-heading); font-weight: 500; }
-.field-label .req { font-family: var(--font-body); font-weight: 400; color: var(--color-ink-soft); }
-.field-hint { font-size: 0.9375rem; color: var(--color-ink-soft); }
+.field-label { @apply type-action; }
+.field-label .req { @apply type-compact; color: var(--color-ink-soft); }
+.field-hint { @apply type-meta; color: var(--color-ink-soft); }
 .input {
   width: 100%;
   box-sizing: border-box;
@@ -218,8 +314,7 @@ h1[tabindex='-1']:focus, main[tabindex='-1']:focus { outline: none; }
   border-radius: 0.5rem;
   background: #fff;
   color: var(--color-navy);
-  font-family: var(--font-body);
-  font-size: 1rem;
+  @apply type-compact;
 }
 .input[aria-invalid='true'] { border-color: var(--color-danger); }
 .field-error {
@@ -232,12 +327,14 @@ h1[tabindex='-1']:focus, main[tabindex='-1']:focus { outline: none; }
 .check { display: flex; align-items: flex-start; gap: 0.75rem; }
 .check input { width: 1.5rem; height: 1.5rem; margin: 0.125rem 0 0; flex: none; accent-color: var(--color-navy); }
 .form-grid { display: grid; gap: 1rem; grid-template-columns: minmax(0, 1fr); }
+/* fields side by side: whatever the length of their hints, their controls sit at the same height (the fields of a row are as tall as the tallest, and each control goes to the bottom of its field) */
+.form-grid > .field > .input { margin-top: auto; }
 @media (width >= 40rem) {
   .form-grid-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .span-2 { grid-column: 1 / -1; }
 }
 fieldset { border: 1px solid var(--color-line); border-radius: 0.75rem; padding: 1rem 1.25rem 1.25rem; margin: 0; min-width: 0; }
-legend { font-family: var(--font-heading); font-weight: 500; padding: 0 0.5rem; }
+legend { @apply type-action; padding: 0 0.5rem; }
 
 /* --- messages ------------------------------------------------------------------------------------------------------------------------------------------------- */
 .notice {
@@ -245,7 +342,7 @@ legend { font-family: var(--font-heading); font-weight: 500; padding: 0 0.5rem; 
   border-radius: 0.75rem;
   padding: 0.875rem 1rem;
 }
-.notice h2 { font-size: 1.0625rem; margin-bottom: 0.25rem; }
+.notice h2 { @apply type-name; margin-bottom: 0.25rem; }
 .notice-ok { background: var(--color-ok-bg); color: var(--color-ok-text); border-color: var(--color-ok-border); }
 .notice-error { background: var(--color-danger-bg); color: var(--color-danger-text); border-color: var(--color-danger); }
 .notice-warn { background: var(--color-warn-bg); color: var(--color-warn-text); border-color: var(--color-warn-border); }
@@ -259,13 +356,21 @@ legend { font-family: var(--font-heading); font-weight: 500; padding: 0 0.5rem; 
   padding: 0.125rem 0.625rem;
   border-radius: 999px;
   border: 1px solid;
-  font-size: 0.875rem;
+  @apply type-meta;
   font-weight: 500;
   white-space: nowrap;
 }
 .badge-ok { background: var(--color-ok-bg); color: var(--color-ok-text); border-color: var(--color-ok-border); }
 .badge-off { background: var(--color-danger-bg); color: var(--color-danger-text); border-color: var(--color-danger); }
 .badge-warn { background: var(--color-warn-bg); color: var(--color-warn-text); border-color: var(--color-warn-border); }
+.badge-ongoing { background: var(--color-ok-bg); color: var(--color-ongoing); border-color: var(--color-ongoing); }
+.badge-ended { background: var(--color-danger-bg); color: var(--color-ended); border-color: var(--color-ended); }
+/* the name of a theme on the list of funded projects: a step above the title of a panel, so that it stands over the Ongoing and Ended headings below it */
+.theme-title { @apply type-h2; }
+/* the Ongoing and Ended headings of the projects: one step above a sub-section, the step of a panel's title, and in the colour of the status */
+.status-heading { @apply type-h3; }
+.status-ongoing { color: var(--color-ongoing); }
+.status-ended { color: var(--color-ended); }
 .badge-plain { background: var(--color-mint-deep); color: var(--color-navy); border-color: var(--color-ink-soft); }
 
 /* --- the task cards on the home page ------------------------------------------------------------------------------------------------------------------------- */
@@ -283,7 +388,7 @@ legend { font-family: var(--font-heading); font-weight: 500; padding: 0 0.5rem; 
   text-decoration: none;
 }
 .task-card:hover { background: var(--color-mint-deep); }
-.task-card .task-title { font-family: var(--font-heading); font-weight: 600; font-size: 1.25rem; display: block; margin-bottom: 0.25rem; }
+.task-card .task-title { @apply type-h3; display: block; margin-bottom: 0.25rem; }
 .task-card .task-text { color: var(--color-ink-soft); }
 .task-soon { border-style: dashed; border-color: var(--color-ink-soft); }
 
@@ -292,20 +397,26 @@ legend { font-family: var(--font-heading); font-weight: 500; padding: 0 0.5rem; 
 .people-list li { border-top: 1px solid var(--color-line); }
 .people-list a { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0.25rem 1rem; padding: 0.75rem 0.25rem; text-decoration: none; color: var(--color-navy); }
 .people-list a:hover { background: var(--color-mint-deep); }
-.people-list .person-name { font-family: var(--font-heading); font-weight: 500; text-decoration: underline; text-decoration-color: var(--color-teal-text); text-underline-offset: 0.2em; }
+/* the second part of a row (a title, a description) sits at the right end, and when it does not fit beside the first and drops to a line of its own it stays at the right end, its text right-aligned too */
+.people-list a > .muted { margin-left: auto; text-align: right; }
+.people-list .person-name { @apply type-name; text-decoration: underline; text-decoration-color: var(--color-teal-text); text-underline-offset: 0.2em; }
 /* `position: relative` so that the visually hidden text inside the table (which is positioned absolutely) is clipped here with the rest, instead of widening the whole page */
 .table-wrap { position: relative; overflow-x: auto; }
 table { border-collapse: collapse; width: 100%; background: #fff; }
-caption { text-align: left; font-family: var(--font-heading); font-weight: 600; font-size: 1.125rem; padding: 0 0 0.75rem; }
+caption { @apply type-name; text-align: left; padding: 0 0 0.75rem; }
 th, td { text-align: left; padding: 0.75rem; border-top: 1px solid var(--color-line); vertical-align: top; }
-th { font-family: var(--font-heading); font-weight: 500; white-space: nowrap; }
+th { @apply type-action; white-space: nowrap; }
 tbody tr:last-child th, tbody tr:last-child td { border-bottom: 1px solid var(--color-line); }
 
+.logo-thumb { width: 4rem; height: 2.5rem; object-fit: contain; flex: none; }
+.logo-current { max-width: 12rem; max-height: 6rem; object-fit: contain; border: 1px solid var(--color-line); border-radius: 0.5rem; background: #fff; padding: 0.25rem; }
+textarea.input { resize: vertical; }
 .person-photo { width: 9rem; height: 9rem; object-fit: cover; border-radius: 0.75rem; border: 1px solid var(--color-line); background: var(--color-mint-deep); }
-.person-initials { width: 9rem; height: 9rem; display: grid; place-items: center; border-radius: 0.75rem; background: var(--color-mint-deep); font-family: var(--font-heading); font-size: 2rem; font-weight: 600; }
+.person-initials { width: 9rem; height: 9rem; display: grid; place-items: center; border-radius: 0.75rem; background: var(--color-mint-deep); @apply type-stat-sm; }
 .secret {
+  @apply type-h3;
   font-family: ui-monospace, SFMono-Regular, Consolas, 'Liberation Mono', Menlo, monospace;
-  font-size: 1.5rem;
+  font-weight: 400;
   letter-spacing: 0.04em;
   background: #fff;
   border: 2px dashed var(--color-navy);

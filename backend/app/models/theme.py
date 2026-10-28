@@ -59,6 +59,8 @@ class Highlight(Base):
     tags: Mapped[list[str]] = mapped_column(ARRAY(String(100)), default=list)
     # the card's picture (4:3): its path under the media folder, e.g. "highlights/paper-vlsi-cad.jpg"; none: the site shows a neutral placeholder
     image: Mapped[str | None] = mapped_column(String(255))
+    # what the picture shows, for those who cannot see it (its text alternative); none: the site writes one from the title
+    image_alt: Mapped[str | None] = mapped_column(String(300))
     text: Mapped[str] = mapped_column(Text)
     url: Mapped[str] = mapped_column(String(500))
 

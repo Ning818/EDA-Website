@@ -6,7 +6,8 @@ from pydantic import BaseModel, ConfigDict, Field
 from app.core.media import media_url
 from app.models.collaboration import Collaborator, JointProject
 from app.models.grant import Area
-from app.models.theme import Project
+from app.models.person import SHORT_TITLE, Person, Title
+from app.models.theme import Highlight, Project, Theme, TopicGroup
 from app.models.user import User
 from app.schemas.collaboration import JointProjectRead
 from app.schemas.person import PersonRead
@@ -173,6 +174,145 @@ class PageIntroRead(BaseModel):
 
     slug: str
     intro: str
+
+
+class PersonRefRead(BaseModel):
+    """A person as a theme's pages list them (a contact, an involved person): who they are, with the title as it is written on the small cards."""
+
+    slug: str
+    name: str
+    title: str
+    title_short: str
+
+    @classmethod
+    def from_model(cls, person: Person) -> "PersonRefRead":
+        return cls(slug=person.slug, name=person.name, title=person.title, title_short=SHORT_TITLE[Title(person.title)])
+
+
+class AdminTopicRead(BaseModel):
+    id: int
+    text: str
+
+
+class AdminAreaRead(BaseModel):
+    """A research area with its topics and involved people, each in the order they are kept (the pages show the people by rank first)."""
+
+    id: int
+    title: str
+    topics: list[AdminTopicRead]
+    people: list[PersonRefRead]
+
+    @classmethod
+    def from_model(cls, area: TopicGroup) -> "AdminAreaRead":
+        return cls(
+            id=area.id,
+            title=area.title,
+            topics=[AdminTopicRead(id=t.id, text=t.text) for t in sorted(area.topics, key=lambda t: (t.position, t.id))],
+            people=[PersonRefRead.from_model(m.person) for m in sorted(area.members, key=lambda m: m.position)],
+        )
+
+
+class AdminHighlightRead(BaseModel):
+    kind: str
+    title: str
+    subtitle: str | None
+    authors_full: str | None
+    authors_short: str | None
+    venue: str | None
+    tags: list[str]
+    text: str
+    url: str
+    image_url: str | None
+    image_alt: str | None
+
+    @classmethod
+    def from_model(cls, card: Highlight) -> "AdminHighlightRead":
+        return cls(
+            kind=card.kind,
+            title=card.title,
+            subtitle=card.subtitle,
+            authors_full=card.authors_full,
+            authors_short=card.authors_short,
+            venue=card.venue,
+            tags=list(card.tags or []),
+            text=card.text,
+            url=card.url,
+            image_url=media_url(card.image),
+            image_alt=card.image_alt,
+        )
+
+
+class AdminThemeRead(BaseModel):
+    """Everything of a theme that the theme owner keeps, with the ids the routes for its parts take."""
+
+    slug: str
+    name: str
+    short_name: str | None
+    home_summary: str | None
+    intro: str
+    areas: list[AdminAreaRead]
+    contacts: list[PersonRefRead]
+    highlight_paper: AdminHighlightRead | None
+    highlight_project: AdminHighlightRead | None
+
+    @classmethod
+    def from_model(cls, theme: Theme) -> "AdminThemeRead":
+        card = {h.kind: h for h in theme.highlights}
+        return cls(
+            slug=theme.slug,
+            name=theme.name,
+            short_name=theme.short_name,
+            home_summary=theme.home_summary,
+            intro=theme.intro,
+            areas=[AdminAreaRead.from_model(a) for a in sorted(theme.groups, key=lambda a: (a.position, a.id))],
+            contacts=[PersonRefRead.from_model(c.person) for c in sorted(theme.contacts, key=lambda c: c.position)],
+            highlight_paper=AdminHighlightRead.from_model(card["paper"]) if "paper" in card else None,
+            highlight_project=AdminHighlightRead.from_model(card["project"]) if "project" in card else None,
+        )
+
+
+class ThemeWordsPatch(BaseModel):
+    """What to change in a theme's words: only the fields sent; `short_name` and `home_summary` sent as null or empty are removed."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    name: str | None = None
+    short_name: str | None = None
+    home_summary: str | None = None
+    intro: str | None = None
+
+
+class PeopleIn(BaseModel):
+    """People from the People list, by their addresses, in the order they are to be kept."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    people: list[str]
+
+
+class AreaIn(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    title: str
+
+
+class TopicIn(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    text: str
+
+
+class MoveIn(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    direction: str
+
+
+class AreaImpactRead(BaseModel):
+    """What removing a research area takes with it."""
+
+    topics: int
+    people: int
 
 
 class DeleteImpactRead(BaseModel):

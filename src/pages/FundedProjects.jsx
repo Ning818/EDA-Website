@@ -58,7 +58,7 @@ function FundedProjectsPage({ slug }) {
                 </>
               }
               image={highlightImage(highlight.image_url)}
-              imageAlt={`Illustration for the project ${highlight.title.replace(':', '')}`}
+              imageAlt={highlight.image_alt ?? `Illustration for the project ${highlight.title.replace(':', '')}`}
               tags={highlight.tags}
               cta="Discover this project"
               to={highlight.url}

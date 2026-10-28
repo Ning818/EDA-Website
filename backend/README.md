@@ -123,6 +123,7 @@ The tests never touch the development database: they use their own, `eda_test` (
 - the admin's people routes: who may add, correct, let a person leave and delete one, what is refused (HTML in a name, a `javascript:` link, a photo that is not a photo or has no consent, a name that is already there), what is kept (the photo without its EXIF data, who confirmed the consent, an audit row) and that a failed change leaves nothing behind;
 - the admin's routes for the funded projects: who may (only the funded-projects owner), what is refused (HTML, a `javascript:` address, an unknown theme or status, a field nobody asked for), what the public pages show afterwards (the new project last in its list, the numbers, the ended list), that a project is never deleted and that the sentence about the projects is written only by hand;
 - the admin's routes for the collaborators, the joint projects, the footer's numbers and the page paragraphs: who may (only the administrative staff), what is refused (HTML, a `javascript:` address, a file that is not a logo or an SVG, a name or code that is taken, a number that is not a phone number), what the public pages show afterwards, the logo files that are written and removed, and that a change that changes nothing is not recorded;
+- the admin's routes for the theme pages: who may (the theme owner, and for one theme only whoever holds that theme's grant), what is refused (HTML, a `javascript:` address, a Former member as a contact, someone who is not in the People list, too many of anything, a file that is not a picture, a picture without its text alternative), what the public pages show afterwards, the files that are written and removed, and that a change that changes nothing is not recorded;
 - the shape that keeps the apps apart: nothing public imports the admin, every admin route needs a login, and nothing outside `/api/admin` changes anything but the login;
 - the migrations and the models agree (a model changed without a migration fails), and the migrations go down and up again;
 - the seed can be run twice without changing anything, its files are in English, every address in them is `http` or `https`, and every file they name exists.
@@ -251,6 +252,24 @@ Rules for the parts of the site the administrative staff keep (`app/services/col
 - The **paragraph under the title of the People and Collaborations pages** is plain text of at most 1000 characters and is never empty. Only a page that has a paragraph can be written.
 - A change that changes nothing writes no audit row. The actions are `collaborator.add`, `.update`, `.delete`, `joint_project.add`, `.update`, `.delete`, `site.contact` and `page.intro`.
 
+Rules for the theme pages (`app/services/themes.py`), which need the grant `theme` for the theme (a grant for every theme covers all of them):
+
+- A theme's **words** are its name, short name, the paragraph beside its particle cloud on the home page and the introduction of its Research page: plain text, with limits (100, 50, 1000 and
+  1000 characters). The colours and the drawing of the header are in the site's code and cannot be changed here, nor can the sentence about the funded projects, which is the funded-projects
+  owner's.
+- The **contacts** ("Refer to") are people of the People list, in an order; a Former member is refused, duplicates count once, there can be at most 12, and none at all is allowed (the section
+  then disappears from the page).
+- A theme has at most 12 **research areas** (a title of up to 200 characters), each with at most 15 **topics** (a line of up to 300) and at most 24 **involved people**, who are chosen from
+  the People list and may include those who have left. Areas and topics go last where they are added and move up or down one place at a time; the pages show the people by rank first, and
+  within a rank in the order they were chosen. Removing an area removes its topics and its involved people (the people stay in the People list), so it first shows what goes and needs
+  `confirm=true`.
+- The two **highlight cards** of a theme, a paper and a project, are typed by hand and written whole: a paper has a title, authors in full and in short form, a journal or conference, keywords
+  (at most 8), a summary (at most 1200 characters) and an address; a project has a second line of the title in place of the authors and the venue. Nothing is read from IRIS. The picture is
+  optional, is checked, shrunk to 1200 pixels and stored like the others (SVG is refused), and **needs a text alternative** (`highlights.image_alt`, 300 characters), which the public API
+  sends and the website uses for the picture's `alt`; a replaced or removed picture is deleted.
+- A change that changes nothing writes no audit row. The actions are `theme.words`, `theme.contacts`, `area.add`, `.update`, `.move`, `.delete`, `.people`, `topic.add`, `.update`, `.move`,
+  `.delete` and `highlight.save`.
+
 Rules for accounts (`app/services/accounts.py`):
 
 - A new account, and one given a new password, gets a **temporary password** (such as `k7mq-x3ah-p9tw`, without letters that look alike). It is in the answer once and nowhere else: the
@@ -294,14 +313,25 @@ All need a login, and the ones that change something also pass the cross-site ch
 | `GET /api/admin/projects/{id}` | one project |
 | `POST /api/admin/projects` | add a project (JSON: `theme` as a slug, `description`, and if wanted `status`, `code`, `url`); it goes last in its list |
 | `PATCH /api/admin/projects/{id}` | change what is sent (JSON: `theme`, `status`, `description`, `code`, `url`; a `code` or `url` sent as null or empty is removed); a project that is over gets `status` ended |
+| `GET /api/admin/themes` | the themes the user may keep (grant `theme`), in the order of the site; none without the grant |
+| `GET /api/admin/themes/{slug}` | everything of a theme that the theme owner keeps: words, research areas with their topics and involved people (with the ids the other routes take), contacts, highlight cards |
+| `PATCH /api/admin/themes/{slug}` | change the words (JSON: `name`, `short_name`, `home_summary`, `intro`); the optional two sent as null or empty are removed |
+| `PUT /api/admin/themes/{slug}/contacts` | the contacts, in order (JSON: `people`, a list of addresses from the People list) |
+| `POST /api/admin/themes/{slug}/areas` | add a research area (JSON: `title`); it goes last |
+| `PATCH /api/admin/areas/{id}` | rename an area (JSON: `title`) |
+| `POST /api/admin/areas/{id}/move` | move an area one place (JSON: `direction`, `up` or `down`) |
+| `GET /api/admin/areas/{id}/delete-preview` | what removing the area takes with it: the number of topics and of involved people |
+| `DELETE /api/admin/areas/{id}?confirm=true` | remove an area with its topics and its involved people; without `confirm` it answers 409 `delete_needs_confirmation` with what would go |
+| `POST /api/admin/areas/{id}/topics` | add a topic (JSON: `text`); it goes last |
+| `PUT /api/admin/areas/{id}/people` | the involved people of the area, in order (JSON: `people`) |
+| `PATCH /api/admin/topics/{id}`, `POST /api/admin/topics/{id}/move`, `DELETE /api/admin/topics/{id}` | change a topic (JSON: `text`), move it one place, remove it |
+| `PUT /api/admin/themes/{slug}/highlights/{kind}` | write the highlight card `paper` or `project` (form data: `title`, `text`, `url`, `tags`, for a paper `authors_full`, `authors_short`, `venue`, for a project `subtitle`, and `image`, `image_alt`, `remove_image`) |
 | `PUT /api/admin/themes/{slug}/funded-blurb` | write the sentence of the theme's Funded projects card about its own projects (JSON: `text`) |
 | `DELETE /api/admin/people/{slug}?confirm=true` | delete a person added by mistake (grant `people_delete`, or the one who added the person for a day); without `confirm` it answers 409 `delete_needs_confirmation` with what would go |
 
 ### Still to build
 
 - The admin's own interface is a separate front-end application (`../admin`) that shows each user only the tasks their grants allow; its README lists the screens that exist and the ones still to build.
-- The routes and the admin's screens for the themes' content (the theme owner's part). The screens for the funded projects, the collaborators, the footer's numbers and the page paragraphs
-  are built (`../admin/README.md`).
 - A scheduled check of the links in the content. A link is reported only after several failures in a row, the checker may only fetch `http` and `https` addresses and never one on a
   private network, and each user sees the broken links of the content they keep: project links the projects owner, collaborator and people links the administrative staff, highlight
   links the theme owner.
@@ -309,9 +339,8 @@ All need a login, and the ones that change something also pass the cross-site ch
 - Rare edits outside the screens: a restricted expert mode for the administrative staff (the validation sits in the models and services, so it cannot be skipped there either); new fields
   and new themes stay developer work.
 - **New theme:** a developer builds its particle cloud, models and header artwork and redeploys the front end; the theme owner then adds the theme's own text in the admin and ticks `published`. The theme list becomes the code's templates (`src/themes.js`: slug, colour, artwork) joined by slug to the database's content. Nothing is copied from another theme, and no code or particle bundle is ever uploaded through the admin.
-- **Highlight cards** (paper and project): everything on them - title, authors, venue, keywords, text, link, picture - is entered by hand; nothing is read from IRIS.
-- **Fields the admin forms add for accessibility** (to be added with the forms, with a migration):
-  - `image_alt` on `highlights` (and on any picture the admin later takes): the picture's text alternative. Empty means the site writes one from the title, as it does today; a decorative picture can be marked so, and a screen reader then skips it.
+- **Fields the admin forms add for accessibility** (to be added with the forms, with a migration): `image_alt` on the highlight cards is done (a picture needs one; a card saved before has none, and
+  the site then writes one from the title). Still to come:
   - `language` on projects (and on any text that is not English, such as the Italian project names): an ISO code such as `it`, which the site writes as `lang="it"` on that text so a screen reader pronounces it right. Empty means English.
 - **Accessibility of the admin itself:** keyboard and screen-reader behaviour is to be tested; the login session must warn before it ends, so a form half filled is not lost.
 

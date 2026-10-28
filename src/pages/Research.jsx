@@ -45,7 +45,7 @@ function ResearchPage({ slug }) {
               eyebrow="Highlight paper"
               title={paper.title}
               image={highlightImage(paper.image_url)}
-              imageAlt={`Illustration for the paper "${paper.title}"`}
+              imageAlt={paper.image_alt ?? `Illustration for the paper "${paper.title}"`}
               meta={[
                 <>
                   <span className="max-md:hidden">{paper.authors_full}</span>

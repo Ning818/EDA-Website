@@ -33,6 +33,8 @@ class HighlightRead(BaseModel):
     venue: str | None
     tags: list[str]
     image_url: str | None
+    # what the picture shows, for those who cannot see it; none: the site writes one from the title
+    image_alt: str | None
     text: str
     url: str
 
@@ -121,6 +123,7 @@ def _highlight_read(h: Highlight) -> HighlightRead:
         venue=h.venue,
         tags=list(h.tags or []),
         image_url=media_url(h.image),
+        image_alt=h.image_alt,
         text=h.text,
         url=h.url,
     )

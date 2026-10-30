@@ -32,8 +32,9 @@ describe('the home page', () => {
     renderAdmin('/', { 'GET /api/auth/me': { body: me({ grants: PROJECTS_OWNER }) } })
     await screen.findByRole('heading', { level: 1, name: 'What would you like to do?' })
     const tasks = screen.getByRole('list', { name: 'Things you can do' })
-    expect(within(tasks).getAllByRole('listitem')).toHaveLength(1)
+    expect(within(tasks).getAllByRole('listitem')).toHaveLength(2)
     expect(screen.getByRole('link', { name: /Keep the funded projects/ })).toHaveAttribute('href', '/projects')
+    expect(screen.getByRole('link', { name: /See the broken links/ })).toHaveAttribute('href', '/links')
     expect(screen.queryByRole('heading', { name: 'Coming soon' })).not.toBeInTheDocument()
   })
 

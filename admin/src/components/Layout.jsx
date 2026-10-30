@@ -72,6 +72,13 @@ export default function Layout() {
                       </li>
                     </>
                   )}
+                  {(can('people_edit') || can('site') || can('projects') || can('theme')) && (
+                    <li>
+                      <NavLink to="/links" className="nav-link">
+                        Broken links
+                      </NavLink>
+                    </li>
+                  )}
                   {can('accounts') && (
                     <li>
                       <NavLink to="/accounts" className="nav-link">

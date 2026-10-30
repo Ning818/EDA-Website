@@ -1,7 +1,9 @@
 import { Link } from 'react-router-dom'
+import { api } from '../api/client'
 import { useAuth } from '../auth/useAuth'
 import FlashNotice from '../components/FlashNotice'
 import { Notice, PageHeading } from '../components/ui'
+import { useLoad } from '../useLoad'
 
 // What a user can do, by what they are allowed to: a task is offered if the user has any of its grants.
 const TASKS = [
@@ -12,17 +14,34 @@ const TASKS = [
   { id: 'projects', title: 'Keep the funded projects', text: 'Add a project, mark one as ended, correct one, and keep the Guided Introduction of each theme.', to: '/projects', areas: ['projects'] },
   { id: 'collaborations', title: 'Update the collaborations', text: 'The collaborators on the logo walls of the Collaborations page, and its joint projects.', to: '/collaborations', areas: ['site'] },
   { id: 'intros', title: 'Change a page introduction', text: 'The paragraph under the title of the People page or of the Collaborations page.', to: '/site/intros', areas: ['site'] },
+  { id: 'links', title: 'See the broken links', text: 'The websites linked from the content you keep that have stopped answering.', to: '/links', areas: ['people_edit', 'site', 'projects', 'theme'] },
   { id: 'footer', title: 'Change the footer numbers', text: 'The phone and fax numbers at the foot of every page.', to: '/site/footer', areas: ['site'] },
 ]
+
+/** Says how many links need looking at; says nothing when none do, or when the answer cannot be had (the Broken links page tells that). */
+function BrokenLinksNotice() {
+  const { status, data } = useLoad(() => api.get('/api/admin/links/problems'), [])
+  if (status !== 'ok' || data.problems.length === 0) return null
+  const count = data.problems.length
+  return (
+    <Notice kind="warn">
+      <p>
+        {count} {count === 1 ? 'link in the content you keep has' : 'links in the content you keep have'} stopped working. <Link to="/links">See the broken links</Link>
+      </p>
+    </Notice>
+  )
+}
 
 export default function Home() {
   const { user, can } = useAuth()
   const tasks = TASKS.filter((task) => task.areas.some(can))
+  const keepsLinks = ['people_edit', 'site', 'projects', 'theme'].some(can)
   return (
     <div className="page">
       <PageHeading title="Home">What would you like to do?</PageHeading>
       <FlashNotice />
       <p className="lead">Signed in as {user.name}.</p>
+      {keepsLinks && <BrokenLinksNotice />}
       {tasks.length > 0 && (
         <ul className="task-list" aria-label="Things you can do">
           {tasks.map((task) => (

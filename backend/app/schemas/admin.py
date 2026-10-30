@@ -315,6 +315,35 @@ class AreaImpactRead(BaseModel):
     people: int
 
 
+class LinkProblemRead(BaseModel):
+    """A link of the content that does not work, with where it is: `source_type` and `source_key` say which page of the admin changes it (a person's slug, an id, or "<theme>:<kind>")."""
+
+    id: int
+    source_type: str
+    source_key: str
+    field: str
+    label: str
+    url: str
+    detail: str | None
+    failures: int
+    first_failed_at: datetime | None
+    last_checked_at: datetime | None
+
+
+class LinkProblemsRead(BaseModel):
+    problems: list[LinkProblemRead]
+    # when the last check ran (none: there has been none), and how many failed checks in a row a link needs to be reported
+    last_check: datetime | None
+    threshold: int
+
+
+class LinkRecheckRead(BaseModel):
+    state: str
+    detail: str | None
+    # whether the link is still reported after this check
+    reported: bool
+
+
 class DeleteImpactRead(BaseModel):
     """What deleting a person takes with them: the contacts and the topic groups they are in."""
 

@@ -327,14 +327,29 @@ All need a login, and the ones that change something also pass the cross-site ch
 | `PATCH /api/admin/topics/{id}`, `POST /api/admin/topics/{id}/move`, `DELETE /api/admin/topics/{id}` | change a topic (JSON: `text`), move it one place, remove it |
 | `PUT /api/admin/themes/{slug}/highlights/{kind}` | write the highlight card `paper` or `project` (form data: `title`, `text`, `url`, `tags`, for a paper `authors_full`, `authors_short`, `venue`, for a project `subtitle`, and `image`, `image_alt`, `remove_image`) |
 | `PUT /api/admin/themes/{slug}/funded-blurb` | write the sentence of the theme's Funded projects card about its own projects (JSON: `text`) |
+| `GET /api/admin/links/problems` | the links in the content the user keeps that failed the threshold number of checks in a row, longest broken first, with the time of the last check and the threshold; none for a user who keeps nothing with links |
+| `POST /api/admin/links/problems/{id}/check` | check that one link again now: a good answer clears the report, a bad one counts as one more failure; 403 `not_allowed` for a link of content the user does not keep, 404 `link_not_found` when the address was changed or removed meanwhile |
 | `DELETE /api/admin/people/{slug}?confirm=true` | delete a person added by mistake (grant `people_delete`, or the one who added the person for a day); without `confirm` it answers 409 `delete_needs_confirmation` with what would go |
+
+### The check of the links in the content (`app/services/links.py`)
+
+`python -m app.manage check-links` visits every link kept in the content (the links of the people, the collaborators, the joint projects, the funded projects and the highlight cards) and
+prints how many work, how many failed this time, how many could not be checked, and how many are reported. It is meant to run from the host's scheduler once a day, for example
+`python -m app.manage check-links` from cron, or as a Windows Task Scheduler task; the application itself starts no background work.
+
+- **Reported only after several failures in a row** (`LINK_FAIL_THRESHOLD`, 3 by default): a site that is down for a night does not raise an alarm, and one good answer starts the count again.
+- **Sites that refuse programs** (answers 401, 403, 406, 429 and 999) are marked "blocked" and never reported: the check cannot tell whether a person would reach them.
+- **The checker is not a way into the private network.** It fetches `http` and `https` addresses only, asks for the address's name itself and refuses any that resolves to a private, loopback,
+  link-local or otherwise non-public address, connects to the address it checked (so the name cannot be changed between the check and the connection), follows at most 5 redirects and checks
+  each one the same way, reads only the status, and gives up after `LINK_TIMEOUT_SECONDS` (10).
+- **Each address is fetched once** even when several places use it; the answer is kept for all of them.
+- **Each user sees the links of the content they keep**: people's links the holders of `people_edit`, collaborators and joint projects the holders of `site`, funded projects the holders of
+  `projects`, highlight cards the holders of `theme` (for that theme). A link whose address was changed or removed after the check is not shown, and the next check starts it again.
+- The list is read-only; a user may check one link again (`POST .../check`), and the answer is the same as the scheduled check would give.
 
 ### Still to build
 
 - The admin's own interface is a separate front-end application (`../admin`) that shows each user only the tasks their grants allow; its README lists the screens that exist and the ones still to build.
-- A scheduled check of the links in the content. A link is reported only after several failures in a row, the checker may only fetch `http` and `https` addresses and never one on a
-  private network, and each user sees the broken links of the content they keep: project links the projects owner, collaborator and people links the administrative staff, highlight
-  links the theme owner.
 - A "I cannot find what I need" request, for edits that no screen covers.
 - Rare edits outside the screens: a restricted expert mode for the administrative staff (the validation sits in the models and services, so it cannot be skipped there either); new fields
   and new themes stay developer work.

@@ -2,6 +2,7 @@
 from app.models.audit import AuditLog  # noqa: F401
 from app.models.collaboration import Collaborator, JointProject  # noqa: F401
 from app.models.grant import Area, UserGrant  # noqa: F401
+from app.models.link import LinkCheck  # noqa: F401
 from app.models.page import PageText  # noqa: F401
 from app.models.person import Person  # noqa: F401
 from app.models.site import SiteContact  # noqa: F401

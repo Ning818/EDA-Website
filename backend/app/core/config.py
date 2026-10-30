@@ -34,6 +34,11 @@ class Settings(BaseSettings):
     login_max_failures: int = 5
     login_lock_minutes: int = 15
 
+    # the check of the links in the content (python -m app.manage check-links): a link is reported to the user who keeps it after `link_fail_threshold` failed checks in a row,
+    # and a check waits `link_timeout_seconds` for an answer
+    link_fail_threshold: int = 3
+    link_timeout_seconds: int = 10
+
     # files the API keeps and serves (people's photos): in this folder, under this address
     media_dir: Path = BACKEND_DIR / "media"
     media_url: str = "/media"

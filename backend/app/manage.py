@@ -6,6 +6,7 @@
     python -m app.manage set-password --email ada@example.org
     python -m app.manage deactivate --email ada@example.org      (activate: the other way)
     python -m app.manage list-users
+    python -m app.manage check-links [--workers 8]      (check every link of the content; run it on a schedule, see the README)
 
 A preset gives the grants of one of the three kinds of people who keep the site: administrative, theme-owner, projects-owner (app/services/grants.py). An account made without
 a preset can log in and may do nothing. The password is asked for on the terminal (not shown, not kept in the shell's history), never given as an argument.
@@ -58,6 +59,8 @@ def run(argv: list[str], prompt: Callable[[str], str] = getpass.getpass, out=pri
     for name, help_text in (("set-password", "give an account a new password (ends its logins)"), ("activate", "switch an account on"), ("deactivate", "switch an account off")):
         commands.add_parser(name, help=help_text).add_argument("--email", required=True)
     commands.add_parser("list-users", help="list the accounts")
+    check = commands.add_parser("check-links", help="check every address the content links to and record what was found")
+    check.add_argument("--workers", type=int, default=8, help="how many addresses to ask at once")
 
     args = parser.parse_args(argv)
     try:
@@ -66,6 +69,14 @@ def run(argv: list[str], prompt: Callable[[str], str] = getpass.getpass, out=pri
                 preset = Preset(args.preset) if args.preset else None
                 user = create_user(db, args.email, args.name, _ask_password(prompt), preset)
                 out(f"Made the account {user.email} with {_grants_text(user)}.")
+            elif args.command == "check-links":
+                from app.services import links
+
+                summary = links.check_all(db, fetcher=links.fetch, workers=args.workers)
+                out(
+                    f"Checked {summary.links} links ({summary.addresses} different addresses): {summary.ok} work, {summary.broken} failed this time, {summary.blocked} could not be checked "
+                    f"(the site refuses programs). {summary.reported} are reported to the people who keep them. New in the content: {summary.added}; gone: {summary.removed}."
+                )
             elif args.command == "list-users":
                 for user in db.scalars(select(User).order_by(User.id)):
                     out(f"{user.id}\t{user.email}\t{user.name}\t{_grants_text(user)}\t{'active' if user.is_active else 'switched off'}")

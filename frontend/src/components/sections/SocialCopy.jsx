@@ -1,6 +1,6 @@
 import ArrowLink from '../ui/ArrowLink'
 import StillCloud, { STILL_CENTERED_BOX } from './StillCloud'
-import { YOUTUBE_COPY, LINKEDIN_COPY } from './socialCopyText'
+import { useSocial } from '../../useSocial'
 import { STILL_CLOUDS } from './stillClouds'
 
 /**
@@ -39,13 +39,14 @@ function Block({ id, copy }) {
 }
 
 export default function SocialCopy() {
+  const social = useSocial()
   return (
     <div aria-live="polite" className="pointer-events-none fixed inset-0 z-10">
       {/* Phone: both blocks share one grid cell along the bottom, so their top edges line up (the taller one sets the
           height); desktop: `contents`, each block positions itself. */}
       <div data-social-copy-wrap className="max-xl:absolute max-xl:inset-x-8 md:max-xl:inset-x-16 lg:max-xl:inset-x-[120px] max-xl:bottom-14 max-xl:grid xl:contents">
-        <Block id="youtube" copy={YOUTUBE_COPY} />
-        <Block id="linkedin" copy={LINKEDIN_COPY} />
+        <Block id="youtube" copy={social.youtube} />
+        <Block id="linkedin" copy={social.linkedin} />
       </div>
     </div>
   )
@@ -58,12 +59,13 @@ export default function SocialCopy() {
  * other section - nothing fades them in.
  */
 export function SocialStill() {
+  const social = useSocial()
   return (
     // z-10 like <main>: the pictures go behind the text (see StillCloud) and need a stacking context of their own to do it in
     <div className="relative z-10">
       {[
-        [STILL_CLOUDS.youtube, YOUTUBE_COPY],
-        [STILL_CLOUDS.linkedin, LINKEDIN_COPY],
+        [STILL_CLOUDS.youtube, social.youtube],
+        [STILL_CLOUDS.linkedin, social.linkedin],
       ].map(([cloud, copy], i) => (
         <section key={copy.label} data-chapter={i === 0 ? 'social' : undefined} className="mx-auto max-w-[1440px] snap-start">
           <div className="flex h-svh min-h-[min-content] flex-col items-center justify-center gap-5 px-8 md:px-16 pb-8 pt-[4.5rem] md:h-screen md:justify-start xl:flex-row xl:justify-center xl:gap-10 lg:px-[120px] xl:py-[60px]">

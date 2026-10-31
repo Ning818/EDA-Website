@@ -45,17 +45,19 @@ describe('the broken links page', () => {
         problem(),
         problem({ id: 8, source_type: 'person', source_key: 'enrico-macii', label: 'Enrico Macii: Scholar' }),
         problem({ id: 9, source_type: 'joint_project', source_key: '3', label: 'DIMMER: record' }),
+        problem({ id: 12, source_type: 'social', source_key: 'youtube', label: 'Home page: YouTube block' }),
         problem({ id: 10, source_type: 'project', source_key: '1', label: 'GENEX: site' }),
         problem({ id: 11, source_type: 'highlight', source_key: 'smart-city:paper', label: 'Smart City: highlight paper' }),
       ]),
     )
-    await screen.findByRole('heading', { level: 2, name: '5 links to look at' })
+    await screen.findByRole('heading', { level: 2, name: '6 links to look at' })
     const href = (label) => screen.getByRole('link', { name: `Change it: ${label}` }).getAttribute('href')
     expect(href('Brown University: website')).toBe('/collaborators/5')
     expect(href('Enrico Macii: Scholar')).toBe('/people/enrico-macii')
     expect(href('DIMMER: record')).toBe('/joint-projects/3')
     expect(href('GENEX: site')).toBe('/projects/1')
     expect(href('Smart City: highlight paper')).toBe('/themes/smart-city/highlights/paper')
+    expect(href('Home page: YouTube block')).toBe('/site/social')
   })
 
   it('says so when no link is broken', async () => {

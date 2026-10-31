@@ -18,6 +18,8 @@ export function editPage(problem) {
       return `/joint-projects/${problem.source_key}`
     case 'project':
       return `/projects/${problem.source_key}`
+    case 'social':
+      return '/site/social'
     case 'highlight': {
       const [theme, kind] = problem.source_key.split(':')
       return `/themes/${theme}/highlights/${kind}`

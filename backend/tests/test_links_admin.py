@@ -84,7 +84,7 @@ def test_every_address_of_the_content_gets_a_row_with_the_area_of_whoever_keeps_
     kinds = {}
     for row in db.scalars(select(LinkCheck)):
         kinds.setdefault(row.source_type, set()).add(row.area)
-    assert kinds == {"person": {"people"}, "collaborator": {"site"}, "joint_project": {"site"}, "project": {"projects"}, "highlight": {"theme"}}
+    assert kinds == {"person": {"people"}, "collaborator": {"site"}, "joint_project": {"site"}, "project": {"projects"}, "highlight": {"theme"}, "social": {"site"}}
     person = db.scalars(select(LinkCheck).where(LinkCheck.source_type == "person")).first()
     assert person.label.startswith(db.scalar(select(Person.name).where(Person.slug == person.source_key)))
     card = db.scalars(select(LinkCheck).where(LinkCheck.source_type == "highlight")).first()

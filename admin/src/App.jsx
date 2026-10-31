@@ -28,6 +28,7 @@ import ProjectPage from './pages/ProjectPage'
 import Projects from './pages/Projects'
 import Requests from './pages/Requests'
 import Site from './pages/Site'
+import SocialMedia from './pages/SocialMedia'
 import System from './pages/System'
 import ThemeArea from './pages/ThemeArea'
 import ThemeAreas from './pages/ThemeAreas'
@@ -68,6 +69,7 @@ export default function App() {
             <Route path="site" element={<RequireGrant areas={SITE}><Site /></RequireGrant>} />
             <Route path="site/footer" element={<RequireGrant areas={SITE}><FooterNumbers /></RequireGrant>} />
             <Route path="site/intros" element={<RequireGrant areas={SITE}><PageIntros /></RequireGrant>} />
+            <Route path="site/social" element={<RequireGrant areas={SITE}><SocialMedia /></RequireGrant>} />
             <Route path="themes" element={<RequireGrant areas={THEME}><Themes /></RequireGrant>} />
             <Route path="themes/:slug" element={<RequireGrant areas={THEME}><ThemePage /></RequireGrant>} />
             <Route path="themes/:slug/words" element={<RequireGrant areas={THEME}><ThemeWords /></RequireGrant>} />

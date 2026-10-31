@@ -18,6 +18,7 @@ const TASKS = [
   { id: 'requests', title: 'Answer the requests', text: 'What people could not find or do with the screens, and your answers.', to: '/requests', areas: ['system'] },
   { id: 'audit', title: 'Read the activity log', text: 'Who changed what, and when.', to: '/audit', areas: ['system'] },
   { id: 'system', title: 'See how the system is doing', text: 'The check of the links, the database, the uploaded files and the accounts.', to: '/system', areas: ['system'] },
+  { id: 'social', title: 'Change the social media text', text: 'The YouTube and LinkedIn blocks of the home page: their words, their buttons and their addresses.', to: '/site/social', areas: ['site'] },
   { id: 'footer', title: 'Change the footer numbers', text: 'The phone and fax numbers at the foot of every page.', to: '/site/footer', areas: ['site'] },
 ]
 

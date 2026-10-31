@@ -10,6 +10,7 @@ import Teaching from './pages/Teaching'
 import NotFound from './pages/NotFound'
 import { ThemesProvider } from './ThemesProvider'
 import { SiteProvider } from './SiteProvider'
+import { SocialProvider } from './SocialProvider'
 import { useThemes } from './useThemes'
 
 // Every navigation (nav bar, in-page links, same-page links, hash links) lands at the top of the page. Keyed on
@@ -105,6 +106,7 @@ export default function App() {
   return (
     <ThemesProvider>
     <SiteProvider>
+    <SocialProvider>
     <div className="min-h-screen bg-mint text-navy">
       <SkipLink />
       <ScrollToTop />
@@ -124,6 +126,7 @@ export default function App() {
       </Routes>
       <Footer />
     </div>
+    </SocialProvider>
     </SiteProvider>
     </ThemesProvider>
   )

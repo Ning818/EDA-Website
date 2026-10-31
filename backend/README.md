@@ -61,6 +61,7 @@ Check: `GET /api/health` (the API is up) and `GET /api/health/db` (it reaches th
 | `GET /api/themes/{slug}` | everything a theme's Research page and Funded Projects page show: its words (intro, funded-projects line, highlight paper and project), research areas with their topics and people, ongoing and ended projects, the figures, and the people to refer to |
 | `GET /api/collaborations` | the Collaborations page: the paragraph under its title, the logo walls of universities, institutes and companies, and the joint projects |
 | `GET /api/site` | the footer's phone number (with the digits that dial it) and fax number |
+| `GET /api/site/social` | the two social media blocks of the home page, YouTube then LinkedIn: `label`, `text`, `cta` (the words of the button) and `url` (where the button and the footer's icon lead) |
 | `GET /api/pages/{slug}` | the fixed paragraph under the title of a page that is not a theme's: `people` (the Collaborations page's comes with `/api/collaborations`) |
 | `POST /api/auth/login`, `POST /api/auth/logout`, `GET /api/auth/me` | log in with an email and a password, log out, who is logged in (see "Accounts and login") |
 | `GET /media/...` | the files: people's photos (`/media/people/`), the collaborators' logos (`/media/collaborators/`) and the highlight cards' pictures (`/media/highlights/`) |
@@ -95,7 +96,7 @@ Adding or changing a person for now means editing `seed/people.json` (and puttin
 
 ### The footer (`seed/site.json`)
 
-Only the phone and fax numbers are in the database; the rest of the footer (the names, the address, the "Visit" links, the LinkedIn and YouTube icons) is written in the code (`frontend/src/components/layout/Footer.jsx`). The footer is on every page and never waits for the API: the code keeps the same numbers as defaults (`src/site.js`), and the visitor's last answer is kept in the browser. A number that is empty leaves its line out of the footer. The "Department website" link in the code (www.dauin.polito.it/en/) did not answer when this was checked.
+Only the phone and fax numbers are in the database (and where the LinkedIn and YouTube icons lead, which is the address of the home page's two social media blocks, `social_links`, seeded from the `social` part of this file); the rest of the footer (the names, the address, the "Visit" links, the icons themselves) is written in the code (`frontend/src/components/layout/Footer.jsx`). The footer is on every page and never waits for the API: the code keeps the same numbers as defaults (`src/site.js`), and the visitor's last answer is kept in the browser. A number that is empty leaves its line out of the footer. The "Department website" link in the code (www.dauin.polito.it/en/) did not answer when this was checked.
 
 ### Collaborations (`seed/collaborations.json`)
 
@@ -309,6 +310,7 @@ All need a login, and the ones that change something also pass the cross-site ch
 | `DELETE /api/admin/joint-projects/{id}` | remove a joint project |
 | `PATCH /api/admin/site/contact` | change the footer's numbers (JSON: `phone`, `fax`; only what is sent changes, null or empty removes one); the answer is what `GET /api/site` gives |
 | `PUT /api/admin/site/pages/{slug}` | write the paragraph under the title of the `people` or `collaborations` page (JSON: `intro`) |
+| `PUT /api/admin/site/social/{slug}` | write one social media block of the home page, `youtube` or `linkedin`, whole (JSON: `label`, `text`, `cta`, `url`; grant `site`); 404 `social_not_found` for any other |
 | `GET /api/admin/projects` | every project of every theme with its theme, in the order of the site (grant `projects`) |
 | `GET /api/admin/projects/{id}` | one project |
 | `POST /api/admin/projects` | add a project (JSON: `theme` as a slug, `description`, and if wanted `status`, `code`, `url`); it goes last in its list |

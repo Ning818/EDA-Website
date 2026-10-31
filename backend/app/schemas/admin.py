@@ -169,6 +169,17 @@ class SiteContactPatch(BaseModel):
     fax: str | None = None
 
 
+class SocialIn(BaseModel):
+    """The words of one social media block, all of them: what is sent replaces what was there."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    label: str = Field(max_length=500)
+    text: str = Field(max_length=5000)
+    cta: str = Field(max_length=500)
+    url: str = Field(max_length=2000)
+
+
 class PageIntroIn(BaseModel):
     model_config = ConfigDict(extra="forbid")
 

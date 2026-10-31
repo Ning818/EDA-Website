@@ -1,4 +1,4 @@
-import { screen, waitFor } from '@testing-library/react'
+import { screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it } from 'vitest'
 import { THEME_OWNER, expectNoAxeViolations, me, renderAdmin } from './helpers'
@@ -13,6 +13,17 @@ describe('the site text', () => {
     expect(screen.getByRole('link', { name: /Footer numbers/ })).toHaveAttribute('href', '/site/footer')
     expect(screen.getByRole('link', { name: /Page introductions/ })).toHaveAttribute('href', '/site/intros')
     await expectNoAxeViolations(container)
+  })
+
+  it('lists its tasks with the footer numbers last, on this page and on the home page', async () => {
+    const { unmount } = renderAdmin('/site', staff())
+    const hub = await screen.findByRole('list', { name: 'Site text you can change' })
+    expect(within(hub).getAllByRole('link').map((link) => link.querySelector('.task-title').textContent)).toEqual(['Page introductions', 'Social media', 'Footer numbers'])
+    unmount()
+    renderAdmin('/', staff())
+    const tasks = await screen.findByRole('list', { name: 'Things you can do' })
+    const titles = within(tasks).getAllByRole('link').map((link) => link.querySelector('.task-title').textContent)
+    expect(titles.at(-1)).toBe('Change the footer numbers')
   })
 
   it('is open to the administrative staff and shown in their navigation, and to no one else', async () => {

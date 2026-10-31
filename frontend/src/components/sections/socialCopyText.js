@@ -1,5 +1,5 @@
-// The YouTube / LinkedIn copy: shown beside the social1 / social2 particle clouds (SocialCopy.jsx), and
-// still the text of the standalone YoutubeSpotlight / LinkedInSection sections.
+// The YouTube / LinkedIn copy the site starts with: the DEFAULTS (social.js) shown beside the social1 / social2 particle clouds (SocialCopy.jsx) and behind the footer's icons until the
+// database's words arrive (SocialProvider.jsx), and still the text of the standalone YoutubeSpotlight / LinkedInSection sections. The staff change the real ones in the admin.
 export const YOUTUBE_COPY = {
   label: 'YouTube',
   text:

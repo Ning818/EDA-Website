@@ -2,9 +2,8 @@ import edaLogoText from '../../assets/images/eda-logo-text.png'
 import politoLogo from '../../assets/images/polito-logo.svg'
 import linkedinIcon from '../../assets/images/linkedin-icon.svg'
 import youtubeIcon from '../../assets/images/youtube-icon.svg'
-// the group's real channel / page, the same links the home page's social stage uses
-import { LINKEDIN_COPY, YOUTUBE_COPY } from '../sections/socialCopyText'
 import { useSite } from '../../useSite'
+import { useSocial } from '../../useSocial'
 
 // Recolored to a single-accent, line-drawn footer (deep navy - the same color the nav bar's own
 // text/underline uses - for both the rule lines and all the text). Image/text layout below is
@@ -22,6 +21,8 @@ import { useSite } from '../../useSite'
 // particle canvas. On every other (non-Home) page there's no canvas to begin with, so this has no
 // visible effect there beyond the fill itself.
 export default function Footer() {
+  // the group's channel and page: the same addresses the home page's social blocks lead to
+  const social = useSocial()
   // the phone and fax numbers are the database's (GET /api/site; the defaults are in site.js); the rest of the footer is written here
   const { phone, phone_dial: phoneDial, fax } = useSite()
   return (
@@ -88,7 +89,7 @@ export default function Footer() {
                   keep the row where it was: its left edge lines up with the text above and it takes no more height. */}
                 <div className="-mb-2.5 -ml-2.5 flex items-center gap-2">
                   <a
-                    href={LINKEDIN_COPY.url}
+                    href={social.linkedin.url}
                     target="_blank"
                     rel="noreferrer"
                     aria-label="LinkedIn"
@@ -97,7 +98,7 @@ export default function Footer() {
                     <img src={linkedinIcon} alt="" className="size-6" />
                   </a>
                   <a
-                    href={YOUTUBE_COPY.url}
+                    href={social.youtube.url}
                     target="_blank"
                     rel="noreferrer"
                     aria-label="YouTube"

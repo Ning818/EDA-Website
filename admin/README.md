@@ -46,7 +46,7 @@ npm run build    # the files to serve, in dist/
 | Requests | `system` (the developer) | the requests that wait for an answer and the ones answered; a dialog to answer one and mark it as answered; the Home page counts the waiting ones |
 | Activity log | `system` | who changed what and when, newest first, 50 entries at a time with a button for older ones; narrowed to one kind of action or one user; the values before and after open under each entry; nothing here can be changed |
 | System status | `system` | the check of the links (last run, counts, a warning when it has not run for 3 days or never, and a table of the four kinds of link with who keeps each, how many failed and how many are reported, and a mark where no active account keeps them), the database and its version, the uploaded files, the accounts and the size of the content; the Home page warns when the check has stopped, and says how many requests wait (the requests have their own page) |
-| Site text, Footer numbers, Page introductions | `site` | the footer's phone and fax numbers, checked for being phone numbers and showing what the phone link dials; the paragraph under the title of the People page and of the Collaborations page, each saved on its own, with its length |
+| Site text, Footer numbers, Page introductions | `site` | the footer's phone and fax numbers, checked for being phone numbers and showing what the phone link dials; the paragraph under the title of the People page and of the Collaborations page, each saved on its own, with its length; the two social media blocks of the home page (YouTube, LinkedIn): heading, text with its length, words of the button and address, each block saved on its own |
 
 The warning before a login ends and the request for what no screen covers are built (see below).
 
@@ -59,7 +59,7 @@ and what each may do is a set of grants (`../backend/README.md`, "Who may do wha
 
 | User | Preset | May |
 |---|---|---|
-| Administrative staff | `administrative` | add, correct and delete people (`people_add`, `people_edit`, `people_delete`); the collaborators, the joint projects, the footer numbers and the page introductions (`site`); make and change accounts (`accounts`) |
+| Administrative staff | `administrative` | add, correct and delete people (`people_add`, `people_edit`, `people_delete`); the collaborators, the joint projects, the footer numbers, the page introductions and the social media blocks (`site`); make and change accounts (`accounts`) |
 | Theme content owner (one person, all themes) | `theme-owner` | add people (`people_add`); edit the theme pages (`theme`) |
 | Funded-projects owner (one person) | `projects-owner` | keep the funded projects (`projects`) |
 | Developer | `developer` | answer the requests, read the activity log and see how the system is doing (`system`); all of it only reads and answers, nothing of the content can be changed with it |
@@ -80,6 +80,7 @@ come from the group.
 | A4 A collaboration changes | A collaboration starts or ends | Add, change or remove collaborators (kind, name, address, and a logo, which is required) and joint projects (code, name, funding, years, coordinator, other partners, link) | The logo has to be fit for use and the right size; links go stale, and the check of the links (X3) lists the ones that have stopped working | The Collaborations page shows the right logo wall and project list | Built |
 | A5 The footer numbers change | The phone or fax number changes | Change the two numbers; either may be left empty | A wrong number is dialled by visitors | The footer shows the right numbers and the link dials | Built |
 | A6 An introduction changes | The wording should change | Change the paragraph under the title of the People or Collaborations page | No HTML; a long text breaks the layout | The page shows the new text | Built |
+| A7 A social media block changes | The group's channel or page moves, or its words should change | Change one of the two blocks of the home page (YouTube, LinkedIn): its heading, its text (at most 450 characters), the words of its button and its address | The address must be `https`/`http`; it is also where the icon in the footer leads; a long text breaks the layout of the animated home page; the address is checked with the other links (X3) | The home page's block and the footer's icon say and lead where the staff wrote | Built |
 
 **B. Theme content owner**
 

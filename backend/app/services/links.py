@@ -29,6 +29,7 @@ from app.models.collaboration import Collaborator, JointProject
 from app.models.grant import Area
 from app.models.link import LinkCheck
 from app.models.person import Person
+from app.models.site import SocialLink
 from app.models.theme import Highlight, Project, Theme
 from app.models.user import User
 from app.services.grants import NotAllowed, has_grant
@@ -99,6 +100,8 @@ def current_targets(db: Session) -> list[Target]:
     for card in db.scalars(select(Highlight).order_by(Highlight.id)):
         theme = themes[card.theme_id]
         found.append(Target("highlight", f"{theme.slug}:{card.kind}", "url", f"{theme.name}: highlight {card.kind}", card.url, "theme", theme.id))
+    for link in db.scalars(select(SocialLink).order_by(SocialLink.slug)):
+        found.append(Target("social", link.slug, "url", f"Home page: {link.label} block", link.url, "site"))
     return found
 
 

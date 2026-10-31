@@ -1,6 +1,6 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
-from app.models.site import SiteContact
+from app.models.site import SiteContact, SocialLink
 
 
 def dialable(phone: str | None) -> str | None:
@@ -24,3 +24,19 @@ class SiteRead(BaseModel):
     @classmethod
     def from_model(cls, contact: SiteContact) -> "SiteRead":
         return cls(phone=contact.phone, phone_dial=dialable(contact.phone), fax=contact.fax)
+
+
+class SocialRead(BaseModel):
+    """One of the home page's social media blocks: its words, its button and where it leads (which is also where the footer's icon leads)."""
+
+    model_config = ConfigDict(from_attributes=True)
+
+    slug: str
+    label: str
+    text: str
+    cta: str
+    url: str
+
+
+def social_read(link: SocialLink) -> SocialRead:
+    return SocialRead.model_validate(link)

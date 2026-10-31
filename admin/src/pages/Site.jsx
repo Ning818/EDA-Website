@@ -3,6 +3,7 @@ import { PageHeading } from '../components/ui'
 
 const TASKS = [
   { to: '/site/intros', title: 'Page introductions', text: 'The paragraph under the title of the People page and of the Collaborations page.' },
+  { to: '/site/social', title: 'Social media', text: 'The YouTube and LinkedIn blocks of the home page, and where the icons in the footer lead.' },
   { to: '/site/footer', title: 'Footer numbers', text: 'The phone and fax numbers at the foot of every page.' },
 ]
 

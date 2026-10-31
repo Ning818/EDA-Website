@@ -7,20 +7,27 @@ Rules kept here, so that no way in can skip them:
   footer then leaves that line out.
 - A paragraph is plain text (no HTML) of at most 1000 characters, so that it cannot break the page, and is never empty. Only the pages that have a paragraph can be written; none is
   made here.
+- The words of the home page's two social media blocks (`social_links`: YouTube and LinkedIn) are written whole, each on its own: a label, a text, the words of a button and an address,
+  all required; the address is an http(s) one, since it is where a visitor is sent and where the footer's icon leads. There are exactly these two blocks: none is added or taken away,
+  because the home page's animation has a stage for each.
 - A change that changes nothing writes no audit row.
 """
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from app.core.validation import clean_phone, clean_text
+from app.core.validation import InvalidInput, clean_phone, clean_text, clean_url
 from app.models.grant import Area
 from app.models.page import PageText
-from app.models.site import SiteContact
+from app.models.site import SiteContact, SocialLink
 from app.models.user import User
 from app.services import audit
 from app.services.grants import require
 
 INTRO_MAX = 1000
+SOCIAL_SLUGS = ("youtube", "linkedin")
+SOCIAL_LABEL_MAX = 30
+SOCIAL_TEXT_MAX = 450
+SOCIAL_CTA_MAX = 60
 
 
 class PageNotFound(LookupError):
@@ -62,3 +69,35 @@ def set_page_intro(db: Session, actor: User, slug: str, text: str | None) -> Pag
     audit.record(db, actor, "page.intro", "page", slug, before={"intro": before}, after={"intro": clean})
     db.commit()
     return page
+
+
+class SocialNotFound(LookupError):
+    pass
+
+
+def social_snapshot(link: SocialLink) -> dict:
+    return {"label": link.label, "text": link.text, "cta": link.cta, "url": link.url}
+
+
+def update_social(db: Session, actor: User, slug: str, fields: dict) -> SocialLink:
+    """Write one social media block whole (`label`, `text`, `cta`, `url`)."""
+    require(db, actor, Area.SITE)
+    link = db.get(SocialLink, slug) if slug in SOCIAL_SLUGS else None
+    if link is None:
+        raise SocialNotFound(slug)
+    clean = {
+        "label": clean_text(fields.get("label"), "label", label="The heading", max_length=SOCIAL_LABEL_MAX, required=True),
+        "text": clean_text(fields.get("text"), "text", label="The text", max_length=SOCIAL_TEXT_MAX, required=True),
+        "cta": clean_text(fields.get("cta"), "cta", label="The words of the button", max_length=SOCIAL_CTA_MAX, required=True),
+        "url": clean_url(fields.get("url"), "url", label="The address"),
+    }
+    if clean["url"] is None:
+        raise InvalidInput("url", "The address is required.")
+    before = social_snapshot(link)
+    if clean == before:
+        return link
+    for key, value in clean.items():
+        setattr(link, key, value)
+    audit.record(db, actor, "social.update", "social", slug, before=before, after=clean)
+    db.commit()
+    return link

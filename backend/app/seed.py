@@ -17,7 +17,7 @@ from app.db.session import SessionLocal
 from app.models.collaboration import Collaborator, CollaboratorKind, JointProject
 from app.models.page import PageText
 from app.models.person import Person, Title
-from app.models.site import SiteContact
+from app.models.site import SiteContact, SocialLink
 from app.models.theme import Highlight, Project, Theme, ThemeContact, Topic, TopicGroup, TopicGroupPerson
 from app.schemas.person import LINK_KEYS
 
@@ -114,11 +114,15 @@ def seed_pages(db: Session) -> int:
 
 
 def seed_site(db: Session) -> None:
-    """The footer's phone and fax numbers (one row)."""
+    """The footer's phone and fax numbers (one row), and the two social media blocks of the home page."""
     data = json.loads((SEED_DIR / "site.json").read_text(encoding="utf-8"))
     contact = db.get(SiteContact, 1) or SiteContact(id=1)
     contact.phone, contact.fax = data["phone"], data["fax"]
     db.add(contact)
+    for slug, words in data["social"].items():
+        link = db.get(SocialLink, slug) or SocialLink(slug=slug)
+        link.label, link.text, link.cta, link.url = words["label"], words["text"], words["cta"], words["url"]
+        db.add(link)
 
 
 def seed_collaborations(db: Session) -> tuple[int, int]:

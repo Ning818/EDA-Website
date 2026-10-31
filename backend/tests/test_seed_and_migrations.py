@@ -12,7 +12,7 @@ from app.db.session import engine
 from tests.conftest import alembic_config, seed_everything
 from tests.seed_data import COLLABORATIONS, PAGES, PEOPLE, PEOPLE_BY_SLUG, SEED_DIR, SITE, THEMES
 
-TABLES = ["people", "themes", "highlights", "topic_groups", "topics", "topic_group_people", "projects", "theme_contacts", "collaborators", "joint_projects", "pages", "site_contact"]
+TABLES = ["people", "themes", "highlights", "topic_groups", "topics", "topic_group_people", "projects", "theme_contacts", "collaborators", "joint_projects", "pages", "site_contact", "social_links"]
 CHINESE = re.compile(r"[\u4e00-\u9fff\u3000-\u303f\uff00-\uffef]")  # Chinese characters and CJK punctuation
 
 
@@ -39,6 +39,7 @@ def test_the_seed_filled_every_table():
     assert found["joint_projects"] == len(COLLABORATIONS["joint_projects"])
     assert found["pages"] == len(PAGES)
     assert found["site_contact"] == 1
+    assert found["social_links"] == 2
     assert found["projects"] == sum(len(t["projects"]["ongoing"]) + len(t["projects"]["ended"]) for t in THEMES)
 
 

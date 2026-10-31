@@ -6,8 +6,8 @@ from sqlalchemy.orm import Session
 from app.core.validation import InvalidInput
 from app.dependencies import check_origin, get_db, require_ready_user
 from app.models.user import User
-from app.schemas.admin import PageIntroIn, PageIntroRead, SiteContactPatch
-from app.schemas.site import SiteRead
+from app.schemas.admin import PageIntroIn, PageIntroRead, SiteContactPatch, SocialIn
+from app.schemas.site import SiteRead, SocialRead, social_read
 from app.services import site as service
 from app.services.grants import NotAllowed
 
@@ -21,10 +21,12 @@ def _http(error: Exception) -> HTTPException:
         return HTTPException(422, {"code": "invalid_input", "field": error.field, "message": error.message})
     if isinstance(error, service.PageNotFound):
         return HTTPException(404, {"code": "page_not_found", "message": "Page not found."})
+    if isinstance(error, service.SocialNotFound):
+        return HTTPException(404, {"code": "social_not_found", "message": "That social media block does not exist."})
     raise error
 
 
-_REFUSALS = (NotAllowed, InvalidInput, service.PageNotFound)
+_REFUSALS = (NotAllowed, InvalidInput, service.PageNotFound, service.SocialNotFound)
 
 
 @router.patch("/contact", response_model=SiteRead)
@@ -42,5 +44,14 @@ def set_page_intro(slug: str, body: PageIntroIn, user: User = Depends(require_re
     try:
         page = service.set_page_intro(db, user, slug, body.intro)
         return PageIntroRead(slug=page.slug, intro=page.intro)
+    except _REFUSALS as error:
+        raise _http(error) from None
+
+
+@router.put("/social/{slug}", response_model=SocialRead)
+def set_social(slug: str, body: SocialIn, user: User = Depends(require_ready_user), db: Session = Depends(get_db)):
+    """Write one of the home page's two social media blocks (`youtube` or `linkedin`): its heading, its text, the words of its button and its address, all at once."""
+    try:
+        return social_read(service.update_social(db, user, slug, body.model_dump()))
     except _REFUSALS as error:
         raise _http(error) from None

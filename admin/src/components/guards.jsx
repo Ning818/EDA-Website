@@ -20,7 +20,8 @@ export function RequireAuth() {
       </main>
     )
   }
-  if (auth.status !== 'ready') return <Navigate to="/login" replace state={{ from: location, expired: auth.status === 'expired' }} />
+  // where to go back to after the login: nowhere after the user chose to log out, and only for the same person when the login ended by itself
+  if (auth.status !== 'ready') return <Navigate to="/login" replace state={{ from: auth.loggedOut ? null : location, expired: auth.status === 'expired', userId: auth.lastUserId }} />
   if (auth.user.must_change_password && location.pathname !== '/change-password') return <Navigate to="/change-password" replace />
   return <Outlet />
 }

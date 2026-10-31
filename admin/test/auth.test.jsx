@@ -7,7 +7,7 @@ describe('the login', () => {
   it('sends someone who is not logged in to the login page, which has no accessibility violations', async () => {
     const { container } = renderAdmin('/people', { 'GET /api/auth/me': unauthorized })
     expect(await screen.findByRole('heading', { level: 1, name: 'Log in' })).toBeInTheDocument()
-    expect(document.title).toBe('Log in - EDA Group admin')
+    await waitFor(() => expect(document.title).toBe('Log in - EDA Group admin'))
     expect(screen.getByRole('link', { name: 'Skip to main content' })).toBeInTheDocument()
     expect(screen.getByLabelText(/Email address/)).toHaveAttribute('autocomplete', 'username')
     expect(screen.getByLabelText(/Password/)).toHaveAttribute('autocomplete', 'current-password')
@@ -149,3 +149,68 @@ describe('the temporary password', () => {
     await waitFor(() => expect(screen.getByRole('link', { name: 'People' })).toBeInTheDocument())
   })
 })
+
+describe('where a login leads', () => {
+  const ADA = me()
+  const DEV = me({ id: 9, email: 'dev@example.org', name: 'Dev Eloper', grants: [{ area: 'system', theme: null }] })
+
+  /** The admin as `first` has it, with the next login being `next`; `routes` are added. */
+  const open = (path, first, next, routes = {}) =>
+    renderAdmin(path, {
+      'GET /api/auth/me': first ? { body: first } : unauthorized,
+      'POST /api/auth/login': { body: next },
+      'POST /api/auth/logout': { status: 204 },
+      ...routes,
+    })
+
+  async function logIn(user) {
+    await user.type(await screen.findByLabelText(/Email address/), 'someone@example.org')
+    await user.type(screen.getByLabelText(/Password/), 'a long enough passphrase')
+    await user.click(screen.getByRole('button', { name: 'Log in' }))
+  }
+
+  it('starts another person at the home page after the first one logged out in the middle of their work', async () => {
+    const user = userEvent.setup()
+    open('/site', ADA, DEV)
+    expect(await screen.findByRole('heading', { level: 1, name: 'Site text' })).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'Log out' }))
+    await logIn(user)
+    expect(await screen.findByRole('heading', { level: 1, name: 'What would you like to do?' })).toBeInTheDocument()
+    expect(screen.queryByRole('heading', { name: 'You do not have access to this page' })).not.toBeInTheDocument()
+  })
+
+  it('starts the same person at the home page too after they chose to log out', async () => {
+    const user = userEvent.setup()
+    open('/site', ADA, ADA)
+    await screen.findByRole('heading', { level: 1, name: 'Site text' })
+    await user.click(screen.getByRole('button', { name: 'Log out' }))
+    await logIn(user)
+    expect(await screen.findByRole('heading', { level: 1, name: 'What would you like to do?' })).toBeInTheDocument()
+  })
+
+  it('takes the same person back to their page when the login ended by itself', async () => {
+    const user = userEvent.setup()
+    let asked = 0 // the first answer says the login has ended; once the person is logged in again the page gets its numbers
+    open('/site/footer', ADA, ADA, { 'GET /api/site': () => (asked++ === 0 ? unauthorized : { body: { phone: '+39 011 090 7042', phone_dial: '+390110907042', fax: null } }) })
+    expect(await screen.findByText('Your login has ended. Log in again to go on.')).toBeInTheDocument()
+    await logIn(user)
+    expect(await screen.findByLabelText('Phone number')).toHaveValue('+39 011 090 7042')
+    expect(screen.getByRole('heading', { level: 1, name: 'Footer numbers' })).toBeInTheDocument()
+  })
+
+  it('starts another person at the home page when the login of the first ended by itself', async () => {
+    const user = userEvent.setup()
+    open('/site/footer', ADA, DEV, { 'GET /api/site': unauthorized })
+    expect(await screen.findByText('Your login has ended. Log in again to go on.')).toBeInTheDocument()
+    await logIn(user)
+    expect(await screen.findByRole('heading', { level: 1, name: 'What would you like to do?' })).toBeInTheDocument()
+  })
+
+  it('takes someone who followed a link while nobody was logged in to that page', async () => {
+    const user = userEvent.setup()
+    open('/site', null, ADA)
+    await logIn(user)
+    expect(await screen.findByRole('heading', { level: 1, name: 'Site text' })).toBeInTheDocument()
+  })
+})
+

@@ -5,7 +5,7 @@ import AuthFrame from '../components/AuthFrame'
 import { Button, ErrorSummary, Notice, TextField } from '../components/ui'
 
 export default function Login() {
-  const { status, login } = useAuth()
+  const { status, user, login } = useAuth()
   const { state } = useLocation()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -14,8 +14,12 @@ export default function Login() {
   const [version, setVersion] = useState(0)
   const [busy, setBusy] = useState(false)
 
-  // already logged in (or just now): on to where the user was going; a user on a temporary password is sent on from there to change it
-  if (status === 'ready') return <Navigate to={state?.from?.pathname ?? '/'} replace />
+  // already logged in (or just now): on to where the user was going; a user on a temporary password is sent on from there to change it. A different person than the one whose login
+  // ended starts at the home page: the page the last one was on is theirs, not this one's.
+  if (status === 'ready') {
+    const sameOrNew = state?.userId == null || state.userId === user.id
+    return <Navigate to={sameOrNew ? (state?.from?.pathname ?? '/') : '/'} replace />
+  }
 
   async function submit(event) {
     event.preventDefault()

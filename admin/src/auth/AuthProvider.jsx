@@ -6,17 +6,19 @@ import { AuthContext } from './authContext'
 const sessionOf = (user) => (user.session ? { idleMs: user.session.idle_seconds * 1000, maxEndsAt: Date.now() + user.session.max_seconds_left * 1000 } : null)
 
 // Who is logged in. `status`: 'loading' (asking), 'anonymous' (nobody), 'expired' (the login ended while the admin was open), 'ready' (a user), 'error' (the API cannot be reached).
+// `loggedOut`: the user chose to log out, so whoever logs in next starts at the home page, not at the page the last one was on. `lastUserId`: whose login ended (`expired`), so that only
+// the same person is taken back to the page they were on.
 export function AuthProvider({ children }) {
-  const [state, setState] = useState({ status: 'loading', user: null, session: null, error: null })
+  const [state, setState] = useState({ status: 'loading', user: null, session: null, error: null, loggedOut: false, lastUserId: null })
 
   const refresh = useCallback(async () => {
     try {
       const user = await api.get('/api/auth/me', { quiet401: true })
-      setState({ status: 'ready', user, session: sessionOf(user), error: null })
+      setState({ status: 'ready', user, session: sessionOf(user), error: null, loggedOut: false, lastUserId: null })
       return user
     } catch (error) {
-      if (error.status === 401) setState({ status: 'anonymous', user: null, session: null, error: null })
-      else setState({ status: 'error', user: null, session: null, error })
+      if (error.status === 401) setState({ status: 'anonymous', user: null, session: null, error: null, loggedOut: false, lastUserId: null })
+      else setState({ status: 'error', user: null, session: null, error, loggedOut: false, lastUserId: null })
       return null
     }
   }, [])
@@ -29,13 +31,13 @@ export function AuthProvider({ children }) {
 
   // a request that needs a login and is refused: the login has ended
   useEffect(() => {
-    setUnauthorizedHandler(() => setState((now) => (now.status === 'ready' ? { status: 'expired', user: null, session: null, error: null } : now)))
+    setUnauthorizedHandler(() => setState((now) => (now.status === 'ready' ? { status: 'expired', user: null, session: null, error: null, loggedOut: false, lastUserId: now.user?.id ?? null } : now)))
     return () => setUnauthorizedHandler(null)
   }, [])
 
   const login = useCallback(async (email, password) => {
     const user = await api.post('/api/auth/login', { email, password }, { quiet401: true })
-    setState({ status: 'ready', user, session: sessionOf(user), error: null })
+    setState({ status: 'ready', user, session: sessionOf(user), error: null, loggedOut: false, lastUserId: null })
     return user
   }, [])
 
@@ -43,13 +45,13 @@ export function AuthProvider({ children }) {
     try {
       await api.post('/api/auth/logout')
     } finally {
-      setState({ status: 'anonymous', user: null, session: null, error: null })
+      setState({ status: 'anonymous', user: null, session: null, error: null, loggedOut: true, lastUserId: null })
     }
   }, [])
 
   const changePassword = useCallback(async (currentPassword, newPassword) => {
     const user = await api.post('/api/auth/change-password', { current_password: currentPassword, new_password: newPassword })
-    setState({ status: 'ready', user, session: sessionOf(user), error: null })
+    setState({ status: 'ready', user, session: sessionOf(user), error: null, loggedOut: false, lastUserId: null })
     return user
   }, [])
 

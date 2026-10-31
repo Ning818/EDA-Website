@@ -27,7 +27,7 @@ describe('the site text', () => {
     const navigation = screen.getByRole('navigation', { name: 'Main' })
     expect(navigation).toHaveTextContent('Collaborations')
     expect(navigation).toHaveTextContent('Site text')
-    expect(navigation).not.toHaveTextContent('Projects')
+    expect(navigation).not.toHaveTextContent('Funded projects')
   })
 })
 

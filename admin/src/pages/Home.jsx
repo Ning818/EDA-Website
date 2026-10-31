@@ -11,7 +11,7 @@ const TASKS = [
   { id: 'add-person', title: 'Add a new person', text: 'Add a new member to the People list, with a photo and links if you have them.', to: '/people/new', areas: ['people_add'] },
   { id: 'people', title: 'Find or update a person', text: "Change a member's title, photo or links, or delete a person who was added by mistake.", to: '/people', areas: ['people_add', 'people_edit', 'people_delete'] },
   { id: 'themes', title: 'Edit the theme pages', text: 'The words, research areas, contacts and highlight cards of each research theme.', to: '/themes', areas: ['theme'] },
-  { id: 'projects', title: 'Keep the funded projects', text: 'Add a project, mark one as ended, correct one, and keep the Guided Introduction of each theme.', to: '/projects', areas: ['projects'] },
+  { id: 'projects', title: 'Update the funded projects', text: 'Add a project, mark one as ended, correct one, and keep the Guided Introduction of each theme.', to: '/projects', areas: ['projects'] },
   { id: 'collaborations', title: 'Update the collaborations', text: 'The collaborators on the logo walls of the Collaborations page, and its joint projects.', to: '/collaborations', areas: ['site'] },
   { id: 'intros', title: 'Change a page introduction', text: 'The paragraph under the title of the People page or of the Collaborations page.', to: '/site/intros', areas: ['site'] },
   { id: 'links', title: 'Check the broken links', text: 'The websites linked from the content you keep that have stopped answering.', to: '/links', areas: ['people_edit', 'site', 'projects', 'theme'] },

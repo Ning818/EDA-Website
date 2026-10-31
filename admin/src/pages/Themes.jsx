@@ -9,7 +9,7 @@ export default function Themes() {
   const { status, data, error, reload } = useLoad(() => api.get('/api/admin/themes'), [])
   return (
     <div className="page">
-      <PageHeading>Theme pages</PageHeading>
+      <PageHeading>Themes</PageHeading>
       <p className="lead">Choose the theme whose page you want to keep: its words, its research areas, its contacts and its highlight cards.</p>
       <FlashNotice />
       {status === 'loading' && <Loading>Loading the themes…</Loading>}

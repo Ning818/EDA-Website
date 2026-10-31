@@ -52,7 +52,7 @@ describe('making an account', () => {
     const user = userEvent.setup()
     renderAdmin('/accounts/new', base())
     await user.selectOptions(await screen.findByLabelText(/What this person may do/), 'projects-owner')
-    expect(screen.getByLabelText(/What this person may do/)).toHaveAccessibleDescription('Keeps the funded projects.')
+    expect(screen.getByLabelText(/What this person may do/)).toHaveAccessibleDescription('Updates the funded projects.')
   })
 
   it('shows the temporary password once, with how to pass it on, after the account is made', async () => {
@@ -105,7 +105,7 @@ describe('changing an account', () => {
   it('has no accessibility violations and shows what the account may do now', async () => {
     const { container } = renderAdmin('/accounts/2', base())
     expect(await screen.findByRole('heading', { level: 1, name: 'Tom Rossi' })).toBeInTheDocument()
-    expect(screen.getByText(/Now:/)).toHaveTextContent('Now: Theme owner (Add people, Theme pages).')
+    expect(screen.getByText(/Now:/)).toHaveTextContent('Now: Theme owner (Add people, Theme-related changes).')
     await expectNoAxeViolations(container)
   })
 

@@ -1,9 +1,9 @@
 // The words the admin uses for what the API calls by code. All of the admin's text is English.
 
 export const PRESETS = [
-  { value: 'administrative', label: 'Administrative staff', description: 'Adds and changes people, keeps the site pages, and manages accounts.' },
-  { value: 'theme-owner', label: 'Theme owner', description: 'Adds people and keeps the content of every theme.' },
-  { value: 'projects-owner', label: 'Projects owner', description: 'Keeps the funded projects.' },
+  { value: 'administrative', label: 'Administrative staff', description: 'Adds and changes people, updates the site pages, and manages accounts.' },
+  { value: 'theme-owner', label: 'Theme owner', description: 'Adds people and updates the content of every theme.' },
+  { value: 'projects-owner', label: 'Projects owner', description: 'Updates the funded projects.' },
   { value: 'developer', label: 'Developer', description: 'Answers the requests of people who cannot find what they need, reads the activity log and checks how the system is doing.' },
 ]
 
@@ -18,7 +18,7 @@ export const AREA_LABELS = {
   people_delete: 'Delete people',
   site: 'Site pages',
   projects: 'Funded projects',
-  theme: 'Theme pages',
+  theme: 'Theme-related changes',
   accounts: 'Accounts',
   system: 'System',
 }

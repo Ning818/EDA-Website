@@ -9,7 +9,7 @@ const withTheme = (extra = {}, body = theme()) => ({ ...owner(), 'GET /api/admin
 describe('the theme pages', () => {
   it('lists the themes the user may keep, and has no accessibility violations', async () => {
     const { container } = renderAdmin('/themes', { ...owner(), 'GET /api/admin/themes': { body: THEMES } })
-    expect(await screen.findByRole('heading', { level: 1, name: 'Theme pages' })).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { level: 1, name: 'Themes' })).toBeInTheDocument()
     expect(await screen.findByRole('link', { name: /Bioinformatics/ })).toHaveAttribute('href', '/themes/bioinformatics')
     expect(screen.getByRole('link', { name: /Smart City/ })).toHaveAttribute('href', '/themes/smart-city')
     await expectNoAxeViolations(container)
@@ -17,7 +17,7 @@ describe('the theme pages', () => {
 
   it('is in the navigation of the theme owner only', async () => {
     renderAdmin('/themes', { ...owner(), 'GET /api/admin/themes': { body: THEMES } })
-    await screen.findByRole('heading', { level: 1, name: 'Theme pages' })
+    await screen.findByRole('heading', { level: 1, name: 'Themes' })
     expect(within(screen.getByRole('navigation', { name: 'Main' })).getByRole('link', { name: 'Themes' })).toBeInTheDocument()
   })
 

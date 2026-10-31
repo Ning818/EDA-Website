@@ -15,7 +15,7 @@ describe('the home page', () => {
     expect(screen.getByRole('link', { name: /Update the collaborations/ })).toHaveAttribute('href', '/collaborations')
     expect(screen.getByRole('link', { name: /Change the footer numbers/ })).toHaveAttribute('href', '/site/footer')
     expect(screen.getByRole('link', { name: /Change a page introduction/ })).toHaveAttribute('href', '/site/intros')
-    expect(screen.queryByRole('link', { name: /Keep the funded projects/ })).not.toBeInTheDocument() // the administrative staff do not keep them
+    expect(screen.queryByRole('link', { name: /Update the funded projects/ })).not.toBeInTheDocument() // the administrative staff do not keep them
     await expectNoAxeViolations(container)
   })
 
@@ -33,7 +33,7 @@ describe('the home page', () => {
     await screen.findByRole('heading', { level: 1, name: 'What would you like to do?' })
     const tasks = screen.getByRole('list', { name: 'Things you can do' })
     expect(within(tasks).getAllByRole('listitem')).toHaveLength(2)
-    expect(screen.getByRole('link', { name: /Keep the funded projects/ })).toHaveAttribute('href', '/projects')
+    expect(screen.getByRole('link', { name: /Update the funded projects/ })).toHaveAttribute('href', '/projects')
     expect(screen.getByRole('link', { name: /Check the broken links/ })).toHaveAttribute('href', '/links')
     expect(screen.queryByRole('heading', { name: 'Coming soon' })).not.toBeInTheDocument()
   })

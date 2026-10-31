@@ -79,7 +79,7 @@ describe('the funded projects', () => {
   it('is not open to the administrative staff, who keep no projects', async () => {
     renderAdmin('/projects', { 'GET /api/auth/me': { body: me() } })
     expect(await screen.findByRole('heading', { level: 1, name: 'You do not have access to this page' })).toBeInTheDocument()
-    expect(screen.queryByRole('link', { name: 'Projects' })).not.toBeInTheDocument() // and the navigation does not offer it
+    expect(screen.queryByRole('link', { name: 'Funded projects' })).not.toBeInTheDocument() // and the navigation does not offer it
   })
 })
 

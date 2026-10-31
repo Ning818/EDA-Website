@@ -39,6 +39,13 @@ export default function Layout() {
                       Home
                     </NavLink>
                   </li>
+                  {can('accounts') && (
+                    <li>
+                      <NavLink to="/accounts" className="nav-link">
+                        Accounts
+                      </NavLink>
+                    </li>
+                  )}
                   {(can('people_add') || can('people_edit') || can('people_delete')) && (
                     <li>
                       <NavLink to="/people" className="nav-link">
@@ -56,7 +63,7 @@ export default function Layout() {
                   {can('projects') && (
                     <li>
                       <NavLink to="/projects" className="nav-link">
-                        Projects
+                        Funded projects
                       </NavLink>
                     </li>
                   )}
@@ -95,17 +102,10 @@ export default function Layout() {
                       </li>
                       <li>
                         <NavLink to="/system" className="nav-link">
-                          System
+                          System status
                         </NavLink>
                       </li>
                     </>
-                  )}
-                  {can('accounts') && (
-                    <li>
-                      <NavLink to="/accounts" className="nav-link">
-                        Accounts
-                      </NavLink>
-                    </li>
                   )}
                 </>
               )}

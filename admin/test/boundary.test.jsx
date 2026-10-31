@@ -34,7 +34,7 @@ describe('a page that breaks', () => {
     expect(alert).toHaveTextContent('Reload it')
     expect(screen.getByRole('link', { name: 'Back to the home page' })).toHaveAttribute('href', '/')
     // the frame is still there: the navigation and the log out button work
-    expect(within(screen.getByRole('navigation', { name: 'Main' })).getByRole('link', { name: 'System' })).toBeInTheDocument()
+    expect(within(screen.getByRole('navigation', { name: 'Main' })).getByRole('link', { name: 'System status' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Log out' })).toBeInTheDocument()
     await expectNoAxeViolations(container)
   })

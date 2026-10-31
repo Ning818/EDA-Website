@@ -15,6 +15,9 @@ const TASKS = [
   { id: 'collaborations', title: 'Update the collaborations', text: 'The collaborators on the logo walls of the Collaborations page, and its joint projects.', to: '/collaborations', areas: ['site'] },
   { id: 'intros', title: 'Change a page introduction', text: 'The paragraph under the title of the People page or of the Collaborations page.', to: '/site/intros', areas: ['site'] },
   { id: 'links', title: 'Check the broken links', text: 'The websites linked from the content you keep that have stopped answering.', to: '/links', areas: ['people_edit', 'site', 'projects', 'theme'] },
+  { id: 'requests', title: 'Answer the requests', text: 'What people could not find or do with the screens, and your answers.', to: '/requests', areas: ['system'] },
+  { id: 'audit', title: 'Read the activity log', text: 'Who changed what, and when.', to: '/audit', areas: ['system'] },
+  { id: 'system', title: 'See how the system is doing', text: 'The check of the links, the database, the uploaded files and the accounts.', to: '/system', areas: ['system'] },
   { id: 'footer', title: 'Change the footer numbers', text: 'The phone and fax numbers at the foot of every page.', to: '/site/footer', areas: ['site'] },
 ]
 
@@ -32,6 +35,31 @@ function BrokenLinksNotice() {
   )
 }
 
+/** For the developer: says how many requests wait, and when the check of the links has stopped running; says nothing when all is well, or when the answer cannot be had. */
+function SystemNotice() {
+  const { status, data } = useLoad(() => api.get('/api/admin/system'), [])
+  if (status !== 'ok') return null
+  const waiting = data.requests_open
+  return (
+    <>
+      {waiting > 0 && (
+        <Notice kind="warn">
+          <p>
+            {waiting} {waiting === 1 ? 'request is' : 'requests are'} waiting for an answer. <Link to="/requests">See the requests</Link>
+          </p>
+        </Notice>
+      )}
+      {(data.links.stale || !data.database.ok) && (
+        <Notice kind="warn">
+          <p>
+            {!data.database.ok ? 'The database does not answer.' : data.links.last_check ? 'The check of the links has stopped running.' : 'The check of the links has never run.'} <Link to="/system">See the system status</Link>
+          </p>
+        </Notice>
+      )}
+    </>
+  )
+}
+
 export default function Home() {
   const { user, can } = useAuth()
   const tasks = TASKS.filter((task) => task.areas.some(can))
@@ -42,6 +70,7 @@ export default function Home() {
       <FlashNotice />
       <p className="lead">Signed in as {user.name}.</p>
       {keepsLinks && <BrokenLinksNotice />}
+      {can('system') && <SystemNotice />}
       {tasks.length > 0 && (
         <ul className="task-list" aria-label="Things you can do">
           {tasks.map((task) => (

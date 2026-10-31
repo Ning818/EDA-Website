@@ -248,6 +248,8 @@ h1[tabindex='-1']:focus, main[tabindex='-1']:focus { outline: none; }
   gap: 1.5rem;
 }
 .page-narrow { max-width: 40rem; }
+pre.log-json { @apply type-meta; margin: 0 0 0.5rem; padding: 0.5rem 0.75rem; background: var(--color-mint-deep); border-radius: 0.5rem; white-space: pre-wrap; overflow-wrap: anywhere; max-width: 36rem; }
+details > summary { cursor: pointer; }
 .app-footer { max-width: 60rem; margin: 0 auto; padding: 0 1rem 2rem; }
 /* On a desktop screen the content of every page after the login, forms included, keeps 240px from the sides of the screen, so that its left edge lines up with the first link of the
    navigation (the header's 40px, the brand's width and the gap after it come to about 238px); both are multiples of 8. The login page stays narrow and centred. */

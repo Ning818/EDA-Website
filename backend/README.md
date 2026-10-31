@@ -333,6 +333,8 @@ All need a login, and the ones that change something also pass the cross-site ch
 | `GET /api/admin/requests/mine` | the user's own requests with their answers, newest first |
 | `GET /api/admin/requests` | every request, the waiting ones first (grant `system`, the developer's) |
 | `POST /api/admin/requests/{id}/close` | mark one as answered, with an answer if wanted (JSON: `answer`; grant `system`); 409 `already_done` the second time |
+| `GET /api/admin/audit` | the activity log, newest first, a page at a time (`limit` up to 200, `before` the id of the last entry seen, `action` the start of an action such as `person.`, `user` part of an email); each entry has who, when, the action, what it was done to and the values before and after; the answer also lists every action the log holds (grant `system`) |
+| `GET /api/admin/system` | how the system is doing: the database and its migration version, the link check (last run, counts, whether it is stale), the uploaded files, the accounts, the requests waiting and the size of the content (grant `system`) |
 | `DELETE /api/admin/people/{slug}?confirm=true` | delete a person added by mistake (grant `people_delete`, or the one who added the person for a day); without `confirm` it answers 409 `delete_needs_confirmation` with what would go |
 
 ### The check of the links in the content (`app/services/links.py`)
@@ -358,6 +360,17 @@ holder of the grant `system` (the preset `developer`, which has nothing else) re
 written from (a path only, never an address of another site), and at most 5 of one user wait at once. Asking and closing write audit rows (`request.create`, `request.close`); a
 closed request cannot be answered again, and a request stays readable after its account is gone. Nothing is sent by email: the developer sees the waiting ones on their Home page. The first developer account is made from the command line:
 `python -m app.manage create-user --email ... --name ... --preset developer`.
+
+### What the developer sees (`app/services/system.py`)
+
+The preset `developer` has one grant, `system`, and it only reads and answers: the requests (above), the activity log and the status of the system. None of them changes content.
+
+- **The activity log** is the `audit_log` table, which every change of the admin writes in the same transaction as the change, so that nothing changed is missing from it and nothing is in it that was
+  rolled back. It is read newest first, a page at a time by the id of the last row seen (a row written meanwhile cannot move the next page). A filter on the start of an action or on part of an
+  email is never read as a pattern. It never holds a password or its hash (a test reads a whole log after accounts were made and reset).
+- **The status** reports the database (and says so when it does not answer, instead of failing), the version of the tables, the link check, the size of the uploaded files, the accounts and the
+  requests waiting. The link check is called **stale** when it has not run for `LINK_CHECK_STALE_DAYS` days (3 by default) or never: it is run by the host's scheduler, and nothing else would
+  notice that the scheduler stopped. The developer's Home page shows that, and the requests waiting.
 
 ### Still to build
 

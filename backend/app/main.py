@@ -17,6 +17,7 @@ from app.internal import projects as admin_projects
 from app.internal import requests as admin_requests
 from app.internal import research_areas as admin_research_areas
 from app.internal import site as admin_site
+from app.internal import system as admin_system
 from app.internal import themes as admin_themes
 from app.routers import auth, collaborations, health, pages, people, site, themes
 
@@ -71,6 +72,7 @@ app.include_router(admin_joint_projects.router, prefix="/api")
 app.include_router(admin_site.router, prefix="/api")
 app.include_router(admin_links.router, prefix="/api")
 app.include_router(admin_requests.router, prefix="/api")
+app.include_router(admin_system.router, prefix="/api")
 
 # the files under the media folder (people's photos) are served as they are
 settings.media_dir.mkdir(parents=True, exist_ok=True)

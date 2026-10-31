@@ -38,6 +38,8 @@ class Settings(BaseSettings):
     # and a check waits `link_timeout_seconds` for an answer
     link_fail_threshold: int = 3
     link_timeout_seconds: int = 10
+    # the developer's status page calls the check stale when it has not run for this many days (the host's scheduler may have stopped)
+    link_check_stale_days: int = 3
 
     # files the API keeps and serves (people's photos): in this folder, under this address
     media_dir: Path = BACKEND_DIR / "media"

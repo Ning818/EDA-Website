@@ -4,6 +4,7 @@ import Layout from './components/Layout'
 import { RequireAuth, RequireGrant } from './components/guards'
 import AccountEdit from './pages/AccountEdit'
 import AccountNew from './pages/AccountNew'
+import AuditLog from './pages/AuditLog'
 import BrokenLinks from './pages/BrokenLinks'
 import Accounts from './pages/Accounts'
 import ChangePassword from './pages/ChangePassword'
@@ -27,6 +28,7 @@ import ProjectPage from './pages/ProjectPage'
 import Projects from './pages/Projects'
 import Requests from './pages/Requests'
 import Site from './pages/Site'
+import System from './pages/System'
 import ThemeArea from './pages/ThemeArea'
 import ThemeAreas from './pages/ThemeAreas'
 import ThemeContacts from './pages/ThemeContacts'
@@ -75,6 +77,8 @@ export default function App() {
             <Route path="themes/:slug/highlights/:kind" element={<RequireGrant areas={THEME}><ThemeHighlight /></RequireGrant>} />
             <Route path="links" element={<RequireGrant areas={LINKS}><BrokenLinks /></RequireGrant>} />
             <Route path="help" element={<RequireGrant areas={ANY}><Help /></RequireGrant>} />
+            <Route path="audit" element={<RequireGrant areas={['system']}><AuditLog /></RequireGrant>} />
+            <Route path="system" element={<RequireGrant areas={['system']}><System /></RequireGrant>} />
             <Route path="requests" element={<RequireGrant areas={['system']}><Requests /></RequireGrant>} />
             <Route path="accounts" element={<RequireGrant areas={['accounts']}><Accounts /></RequireGrant>} />
             <Route path="accounts/new" element={<RequireGrant areas={['accounts']}><AccountNew /></RequireGrant>} />

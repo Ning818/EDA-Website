@@ -446,3 +446,72 @@ class RequestsRead(BaseModel):
     open: int
 
 
+class AuditEntryRead(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    at: datetime
+    user_email: str
+    action: str
+    entity_type: str
+    entity_key: str
+    before: dict | None
+    after: dict | None
+
+
+class AuditPageRead(BaseModel):
+    entries: list[AuditEntryRead]
+    # the id to ask for the next, older page with; none on the last page
+    next_before: int | None
+    # every action the log holds
+    actions: list[str]
+
+
+class DatabaseStatusRead(BaseModel):
+    ok: bool
+    # the version of the tables (the Alembic revision)
+    migration: str | None
+
+
+class LinkStatusRead(BaseModel):
+    last_check: datetime | None
+    # the check has not run for `stale_after_days` days, or never: the host's scheduler may have stopped
+    stale: bool
+    stale_after_days: int
+    total: int
+    ok: int
+    broken: int
+    blocked: int
+    unchecked: int
+    # the broken links that have failed `threshold` checks in a row, which the people who keep them are shown
+    reported: int
+    threshold: int
+
+
+class MediaStatusRead(BaseModel):
+    files: int
+    bytes: int
+
+
+class AccountsStatusRead(BaseModel):
+    total: int
+    active: int
+    on_temporary_password: int
+
+
+class ContentStatusRead(BaseModel):
+    people: int
+    themes: int
+    projects: int
+    collaborators: int
+    joint_projects: int
+
+
+class SystemStatusRead(BaseModel):
+    server_time: datetime
+    database: DatabaseStatusRead
+    links: LinkStatusRead
+    media: MediaStatusRead
+    accounts: AccountsStatusRead
+    requests_open: int
+    content: ContentStatusRead

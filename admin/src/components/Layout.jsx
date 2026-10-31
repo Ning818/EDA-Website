@@ -87,6 +87,16 @@ export default function Layout() {
                           Requests
                         </NavLink>
                       </li>
+                      <li>
+                        <NavLink to="/audit" className="nav-link">
+                          Activity log
+                        </NavLink>
+                      </li>
+                      <li>
+                        <NavLink to="/system" className="nav-link">
+                          System
+                        </NavLink>
+                      </li>
                     </>
                   )}
                   {can('accounts') && (

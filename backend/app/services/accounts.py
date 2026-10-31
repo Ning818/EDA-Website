@@ -71,8 +71,10 @@ def get_account(db: Session, actor: User, user_id: int) -> User:
 
 
 def create_account(db: Session, actor: User, email: str, name: str, preset: Preset | None) -> tuple[User, str]:
-    """Make an account with a temporary password, which is returned (once: only its hash is kept)."""
+    """Make an account with a temporary password, which is returned (once: only its hash is kept). It always has a preset: an account that may do nothing has no use."""
     require(db, actor, Area.ACCOUNTS)
+    if preset is None:
+        raise AccountError("preset_required", "Choose what this person may do.")
     temporary = new_temporary_password()
     user = create_user(db, email, name, temporary, preset, actor, must_change_password=True)
     return user, temporary
@@ -84,7 +86,7 @@ def _state(user: User) -> dict:
 
 
 def update_account(db: Session, actor: User, user_id: int, changes: dict) -> User:
-    """Change what is in `changes`: `name`, `preset` (a Preset, or None for no grants) and `is_active`."""
+    """Change what is in `changes`: `name`, `preset` (a Preset; it cannot be taken away, a person who is no longer needed is switched off) and `is_active`."""
     user = get_account(db, actor, user_id)
     before = _state(user)
     mine = user.id == actor.id
@@ -93,11 +95,13 @@ def update_account(db: Session, actor: User, user_id: int, changes: dict) -> Use
     if "name" in changes:
         user.name = clean_text(changes["name"], "name", label="The name", max_length=150, required=True)
     if "preset" in changes:
-        preset = Preset(changes["preset"]) if changes["preset"] is not None else None
+        if changes["preset"] is None:
+            raise AccountError("preset_required", "Choose what this person may do; to stop an account, switch it off.")
+        preset = Preset(changes["preset"])
         if preset != preset_of(user):
             if mine:
                 raise AccountError("not_on_yourself", "You cannot change the grants of your own account.")
-            keeps_managing = preset is not None and Area.ACCOUNTS in PRESET_AREAS[preset]
+            keeps_managing = Area.ACCOUNTS in PRESET_AREAS[preset]
             if is_manager and user.is_active and not keeps_managing and _other_managers(db, user) == 0:
                 raise AccountError("last_account_manager", "At least one active account must be able to manage accounts.")
             replace_with_preset(db, user, preset)

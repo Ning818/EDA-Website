@@ -74,18 +74,20 @@ describe('making an account', () => {
     expect(await navigator.clipboard.readText()).toBe('k7mq-x3ah-p9tw')
   })
 
-  it('sends "No access" as no preset', async () => {
+  it('does not offer an account with no access', async () => {
+    renderAdmin('/accounts/new', base())
+    const select = await screen.findByLabelText(/What this person may do/)
+    expect(within(select).getAllByRole('option').map((o) => o.textContent)).toEqual(['Choose…', 'Administrative staff', 'Theme owner', 'Projects owner', 'Developer'])
+  })
+
+  it('asks to choose what the person may do', async () => {
     const user = userEvent.setup()
-    const { calls } = renderAdmin(
-      '/accounts/new',
-      base({ 'POST /api/admin/accounts': { status: 201, body: { account: account({ preset: null, grants: [] }), temporary_password: 'k7mq-x3ah-p9tw' } } }),
-    )
+    const { calls } = renderAdmin('/accounts/new', base())
     await user.type(await screen.findByLabelText(/Email address/), 'new@example.org')
     await user.type(screen.getByLabelText(/Full name/), 'New Person')
-    await user.selectOptions(screen.getByLabelText(/What this person may do/), 'none')
     await user.click(screen.getByRole('button', { name: 'Make the account' }))
-    await screen.findByText('k7mq-x3ah-p9tw')
-    expect(JSON.parse(calls.find((c) => c.method === 'POST').body).preset).toBeNull()
+    expect(screen.getByLabelText(/What this person may do/)).toHaveAccessibleDescription(/Choose what this person may do\./)
+    expect(calls.filter((c) => c.method === 'POST')).toHaveLength(0)
   })
 
   it('puts a taken email at its field', async () => {

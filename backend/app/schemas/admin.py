@@ -1,7 +1,7 @@
 """What the admin routes (app/internal) send, beyond what the public routes already do."""
 from datetime import datetime
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from app.core.media import media_url
 from app.models.collaboration import Collaborator, JointProject
@@ -392,16 +392,23 @@ class AccountRead(BaseModel):
 class AccountCreateIn(BaseModel):
     email: str = Field(max_length=254)
     name: str = Field(max_length=150)
-    # none: the account may do nothing
-    preset: Preset | None = None
+    # what the account may do: every account has one of the presets, none is made that may do nothing
+    preset: Preset
 
 
 class AccountPatchIn(BaseModel):
-    """What may change; only what is sent does (a `preset` sent as null takes every grant away)."""
+    """What may change; only what is sent does. A `preset` cannot be taken away (null is refused): an account that is no longer needed is switched off."""
 
     name: str | None = Field(default=None, max_length=150)
     preset: Preset | None = None
     is_active: bool | None = None
+
+    @field_validator("preset", mode="before")
+    @classmethod
+    def _preset_is_not_taken_away(cls, value):
+        if value is None:
+            raise ValueError("Choose what the account may do; to stop an account, switch it off.")
+        return value
 
 
 class TemporaryPasswordRead(BaseModel):

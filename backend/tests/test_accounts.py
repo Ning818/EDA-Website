@@ -83,7 +83,7 @@ def test_only_those_with_the_accounts_grant_may_keep_accounts(staff, preset):
     other = browser_for("other@example.org")
     target = make_account(staff)["account"]["id"]
     assert other.get(URL).status_code == 403
-    assert other.post(URL, json={"email": "x@example.org", "name": "X"}).status_code == 403
+    assert other.post(URL, json={"email": "x@example.org", "name": "X", "preset": "theme-owner"}).status_code == 403
     assert other.patch(f"{URL}/{target}", json={"name": "Hacked"}).status_code == 403
     assert other.post(f"{URL}/{target}/reset-password").status_code == 403
     assert get_user("tom@example.org").name == "Tom"
@@ -124,17 +124,23 @@ def test_the_staff_make_an_account_with_a_temporary_password_that_is_shown_once(
     assert all(temporary not in str(r.after) and temporary not in str(r.before) for r in audit_rows())
 
 
-def test_an_account_may_be_made_without_a_preset(staff):
-    assert make_account(staff, preset=None)["account"]["grants"] == []
+def test_an_account_cannot_be_made_without_a_preset(staff, db):
+    for body in ({"email": "tom@example.org", "name": "Tom"}, {"email": "tom@example.org", "name": "Tom", "preset": None}):
+        assert staff.post(URL, json=body).status_code == 422
+    ada = get_by_email(db, "ada@example.org")
+    with pytest.raises(service.AccountError) as refused:
+        service.create_account(db, ada, "tom@example.org", "Tom", None)
+    assert refused.value.code == "preset_required"
+    assert get_by_email(db, "tom@example.org") is None
 
 
 def test_a_bad_email_a_taken_one_and_an_unknown_preset_are_refused(staff):
-    assert staff.post(URL, json={"email": "not-an-email", "name": "X"}).status_code == 422
-    assert detail(staff.post(URL, json={"email": "not-an-email", "name": "X"}))["code"] == "invalid_account"
+    assert staff.post(URL, json={"email": "not-an-email", "name": "X", "preset": "theme-owner"}).status_code == 422
+    assert detail(staff.post(URL, json={"email": "not-an-email", "name": "X", "preset": "theme-owner"}))["code"] == "invalid_account"
     assert staff.post(URL, json={"email": "tom@example.org", "name": "Tom", "preset": "owner"}).status_code == 422
-    assert staff.post(URL, json={"email": "tom@example.org", "name": "  "}).status_code == 422
+    assert staff.post(URL, json={"email": "tom@example.org", "name": "  ", "preset": "theme-owner"}).status_code == 422
     make_account(staff)
-    again = staff.post(URL, json={"email": "TOM@example.org", "name": "Other Tom"})
+    again = staff.post(URL, json={"email": "TOM@example.org", "name": "Other Tom", "preset": "theme-owner"})
     assert again.status_code == 409 and detail(again)["code"] == "email_taken"
 
 
@@ -215,10 +221,10 @@ def test_a_name_and_the_grants_are_changed_and_recorded(staff):
     changed = staff.patch(f"{URL}/{account['id']}", json={"preset": "projects-owner"})
     assert changed.json()["preset"] == "projects-owner" and changed.json()["grants"] == [{"area": "projects", "theme": None}]
     stripped = staff.patch(f"{URL}/{account['id']}", json={"preset": None})
-    assert stripped.json()["preset"] is None and stripped.json()["grants"] == []
+    assert stripped.status_code == 422  # a person is never left with nothing to do: an account that is not needed is switched off
 
     rows = audit_rows("user.update")
-    assert [r.after["preset"] for r in rows] == ["theme-owner", "projects-owner", None]
+    assert [r.after["preset"] for r in rows] == ["theme-owner", "projects-owner"]
     assert rows[1].before["grants"] == ["people_add", "theme"] and rows[1].after["grants"] == ["projects"]
 
 
@@ -254,7 +260,7 @@ def test_the_last_account_that_can_manage_accounts_is_never_switched_off_or_down
     db.execute(text("UPDATE users SET is_active = false WHERE email = 'ada@example.org'"))
     db.commit()
     db.refresh(ada)
-    for changes in ({"is_active": False}, {"preset": Preset.THEME_OWNER}, {"preset": None}):
+    for changes in ({"is_active": False}, {"preset": Preset.THEME_OWNER}):
         with pytest.raises(service.AccountError) as refused:
             service.update_account(db, ada, bea.id, changes)
         assert refused.value.code == "last_account_manager", changes

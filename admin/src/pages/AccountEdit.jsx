@@ -7,7 +7,6 @@ import { Button, ConfirmDialog, ErrorSummary, Loading, LoadError, Notice, PageHe
 import { AREA_LABELS, PRESETS, presetLabel } from '../labels'
 import { useLoad } from '../useLoad'
 
-const NONE = 'none'
 
 export default function AccountEdit() {
   const { id } = useParams()
@@ -50,7 +49,7 @@ export default function AccountEdit() {
 
 function AccountForm({ account, mine, onChanged, flash, setFlash }) {
   const [name, setName] = useState(account.name)
-  const [access, setAccess] = useState(account.preset ?? (account.grants.length ? '' : NONE))
+  const [access, setAccess] = useState(account.preset ?? '')
   const [errors, setErrors] = useState({})
   const [version, setVersion] = useState(0)
   const [failure, setFailure] = useState(null)
@@ -95,12 +94,12 @@ function AccountForm({ account, mine, onChanged, flash, setFlash }) {
   function saveAccess(event) {
     event.preventDefault()
     if (!access) {
-      setErrors({ 'acc-access': 'Choose what this person may do, or "No access".' })
+      setErrors({ 'acc-access': 'Choose what this person may do.' })
       setVersion((n) => n + 1)
       return
     }
     setErrors({})
-    patch({ preset: access === NONE ? null : access }, 'What the person may do was changed.')
+    patch({ preset: access }, 'What the person may do was changed.')
   }
 
   async function doReset() {
@@ -177,7 +176,7 @@ function AccountForm({ account, mine, onChanged, flash, setFlash }) {
               value={access}
               onChange={(e) => setAccess(e.target.value)}
               error={errors['acc-access']}
-              hint={chosen ? chosen.description : access === NONE ? 'The person can log in but may not do anything.' : undefined}
+              hint={chosen ? chosen.description : undefined}
             >
               <option value="">Choose…</option>
               {PRESETS.map((preset) => (
@@ -185,7 +184,6 @@ function AccountForm({ account, mine, onChanged, flash, setFlash }) {
                   {preset.label}
                 </option>
               ))}
-              <option value={NONE}>No access</option>
             </SelectField>
             <div>
               <Button type="submit" busy={busy}>

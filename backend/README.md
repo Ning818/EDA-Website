@@ -202,7 +202,7 @@ Three kinds of people keep the site, and an account made with a preset gets that
 | `theme-owner` | the one person who keeps every theme page | `people_add`, `theme` (every theme) |
 | `projects-owner` | the one person who keeps the funded projects | `projects` |
 
-An account made without a preset can log in and may do nothing.
+The admin always gives an account one of these and never takes it away (an account that is not needed is switched off). Only the command line can make an account without a preset, which can log in and may do nothing.
 
 ### Rules kept in the services (`app/services/people.py`), so that no way in can skip them
 
@@ -289,7 +289,7 @@ All need a login, and the ones that change something also pass the cross-site ch
 | `POST /api/auth/change-password` | the user's own new password (`current_password`, `new_password`) |
 | `GET /api/admin/accounts` | the accounts, with their grants, preset and state (grant `accounts`) |
 | `POST /api/admin/accounts` | make an account (`email`, `name`, `preset`); the answer holds the temporary password |
-| `PATCH /api/admin/accounts/{id}` | change the name, the preset (null: no grants) or `is_active` |
+| `PATCH /api/admin/accounts/{id}` | change the name, the preset (it cannot be taken away; an account that is not needed is switched off) or `is_active` |
 | `POST /api/admin/accounts/{id}/reset-password` | a new temporary password, in the answer once |
 | `GET /api/admin/research-areas` | the research areas of the themes the user holds the grant `theme` for (`id`, `title`, `theme_slug`, `theme_name`), in the order of the site; none for a user without it |
 | `GET /api/admin/people/{slug}` | a person, and whether this user may change them (`can_edit`, `editable_until`) |

@@ -5,7 +5,6 @@ import TemporaryPassword from '../components/TemporaryPassword'
 import { Button, ErrorSummary, LinkButton, Notice, PageHeading, SelectField, TextField } from '../components/ui'
 import { PRESETS } from '../labels'
 
-const NONE = 'none'
 
 export default function AccountNew() {
   const [email, setEmail] = useState('')
@@ -27,7 +26,7 @@ export default function AccountNew() {
     if (!email.trim()) found['acc-email'] = 'Enter the email address.'
     else if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email.trim())) found['acc-email'] = 'That is not an email address.'
     if (!name.trim()) found['acc-name'] = 'Enter the name.'
-    if (!access) found['acc-access'] = 'Choose what this person may do, or "No access".'
+    if (!access) found['acc-access'] = 'Choose what this person may do.'
     setErrors(found)
     if (Object.keys(found).length) {
       setVersion((n) => n + 1)
@@ -35,7 +34,7 @@ export default function AccountNew() {
     }
     setBusy(true)
     try {
-      const answer = await api.post('/api/admin/accounts', { email: email.trim(), name: name.trim(), preset: access === NONE ? null : access })
+      const answer = await api.post('/api/admin/accounts', { email: email.trim(), name: name.trim(), preset: access })
       setMade(answer)
     } catch (error) {
       if (error.code === 'email_taken' || error.code === 'invalid_account') setErrors({ 'acc-email': error.message })
@@ -89,7 +88,7 @@ export default function AccountNew() {
           value={access}
           onChange={(e) => setAccess(e.target.value)}
           error={errors['acc-access']}
-          hint={chosen ? chosen.description : access === NONE ? 'The person can log in but may not do anything until you give them access.' : 'Each choice is a set of things the person is allowed to do in the admin.'}
+          hint={chosen ? chosen.description : 'Each choice is a set of things the person is allowed to do in the admin.'}
         >
           <option value="">Choose…</option>
           {PRESETS.map((preset) => (
@@ -97,7 +96,6 @@ export default function AccountNew() {
               {preset.label}
             </option>
           ))}
-          <option value={NONE}>No access</option>
         </SelectField>
         <div>
           <Button type="submit" variant="primary" busy={busy}>

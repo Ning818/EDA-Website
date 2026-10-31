@@ -387,9 +387,11 @@ theme: no admin screen does, because a theme also needs code (see the root READM
 - Rare edits outside the screens: a restricted expert mode for the administrative staff (the validation sits in the models and services, so it cannot be skipped there either); new fields
   and new themes stay developer work.
 - **New theme:** made by the developer with `python -m app.manage create-theme`, written in the admin by the staff, and shown on the website only when its template is added to the front end's code (`frontend/src/themes.js`); the steps are in the [root README](../README.md#adding-a-research-theme). The code's templates (slug, colour, artwork) are joined by slug to the database's content; a theme in the database that has no template is not shown. Nothing is copied from another theme, and no code or particle bundle is ever uploaded through the admin, and the switch is `themes.on_site`, which the developer sets together with releasing the template.
-- **Fields the admin forms add for accessibility** (to be added with the forms, with a migration): `image_alt` on the highlight cards is done (a picture needs one; a card saved before has none, and
-  the site then writes one from the title). Still to come:
-  - `language` on projects (and on any text that is not English, such as the Italian project names): an ISO code such as `it`, which the site writes as `lang="it"` on that text so a screen reader pronounces it right. Empty means English.
+- **Fields the admin forms add for accessibility** (both done, each with a migration): `image_alt` on the highlight cards (a picture needs one; a card saved before has none, and the site then
+  writes one from the title), and `language` on projects: the ISO 639-1 code of the description (`it`; none means English), which the site writes as `lang="it"` on that text so a screen reader
+  pronounces it right. The languages on offer are `LANGUAGES` in `app/services/projects.py` (Italian, French, German, Spanish; a code that is not in it is refused, English is sent as null or `en`),
+  and the admin's list in `admin/src/labels.js` is kept the same. The ten projects whose description the group's pages give in Italian are marked in the seed and by the migration. Only the
+  description has a language: a code is an acronym, and the other texts are English.
 - **Accessibility of the admin itself:** keyboard and screen-reader behaviour is still to be tested by hand.
 
 ## Migrations

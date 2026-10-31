@@ -1,7 +1,8 @@
 // Every item takes the same room: one line for the code and two for the description, however short the description is (or
 // when the project has no code or no description), so the items of the two columns stand in rows. A longer description grows.
+// `language` ("it") is the language of a description that is not in English: it is written as `lang` so that a screen reader pronounces the words right.
 // With a `url` the item is a link to the project's website (opens in a new tab): its code is underlined on hover and followed by a small arrow.
-function ListItem({ code, description, url }) {
+function ListItem({ code, description, language, url }) {
   const Tag = url ? 'a' : 'div'
   const linkProps = url ? { href: url, target: '_blank', rel: 'noopener noreferrer' } : {}
   return (
@@ -14,7 +15,7 @@ function ListItem({ code, description, url }) {
           </svg>
         )}
       </p>
-      <p className="min-h-[2lh] type-compact text-[#185a7d]">{description}</p>
+      <p lang={language ?? undefined} className="min-h-[2lh] type-compact text-[#185a7d]">{description}</p>
     </Tag>
   )
 }

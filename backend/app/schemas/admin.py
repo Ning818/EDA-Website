@@ -50,6 +50,8 @@ class AdminProjectRead(BaseModel):
     status: str
     code: str | None
     description: str
+    # the language of the description ("it"); none means English
+    language: str | None
     url: str | None
 
     @classmethod
@@ -61,6 +63,7 @@ class AdminProjectRead(BaseModel):
             status=project.status,
             code=project.code,
             description=project.description,
+            language=project.language,
             url=project.url,
         )
 
@@ -74,11 +77,12 @@ class ProjectIn(BaseModel):
     description: str
     status: str = "ongoing"
     code: str | None = None
+    language: str | None = None
     url: str | None = None
 
 
 class ProjectPatch(BaseModel):
-    """What to change in a project: only the fields sent. A `code` or `url` sent as null or empty is removed."""
+    """What to change in a project: only the fields sent. A `code` or `url` sent as null or empty is removed, and a `language` sent as null or empty means English."""
 
     model_config = ConfigDict(extra="forbid")
 
@@ -86,6 +90,7 @@ class ProjectPatch(BaseModel):
     status: str | None = None
     description: str | None = None
     code: str | None = None
+    language: str | None = None
     url: str | None = None
 
 

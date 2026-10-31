@@ -7,7 +7,7 @@
 // card is a link to the project's website (opens in a new tab) and a small arrow after the code says so.
 // Below `xl` the cards are a grid that fills the content width - as many columns as fit at 320px or more, the cards sharing the row equally, so the outer edges of a row
 // stand at the edges of the page's content like the title's; from `xl` they are 384px cards from the left (three of them make the full 1200px of the widest page).
-function ProjectCard({ code, description, status, url }) {
+function ProjectCard({ code, description, language, status, url }) {
   const [funding, state] = status.split('·').map((part) => part.trim())
   const label = state ?? status
   const active = /active|ongoing/i.test(label)
@@ -38,7 +38,7 @@ function ProjectCard({ code, description, status, url }) {
 
       {(description || (funding && state)) && (
         <div className="flex items-end justify-between gap-4">
-          {description && <p className="min-w-0 type-compact text-navy">{description}</p>}
+          {description && <p lang={language ?? undefined} className="min-w-0 type-compact text-navy">{description}</p>}
           {funding && state && (
             <div className="shrink-0 text-right">
               <p className="type-meta text-[#5f7370]">Funding</p>

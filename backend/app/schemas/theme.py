@@ -9,6 +9,8 @@ from app.schemas.person import PersonRead
 class ProjectRead(BaseModel):
     code: str | None
     description: str
+    # the language of the description ("it"), for the page's `lang`; none means English
+    language: str | None = None
     url: str | None
 
 
@@ -111,7 +113,7 @@ def _group_read(group: TopicGroup) -> TopicGroupRead:
 
 
 def _project_read(project: Project) -> ProjectRead:
-    return ProjectRead(code=project.code, description=project.description, url=project.url)
+    return ProjectRead(code=project.code, description=project.description, language=project.language, url=project.url)
 
 
 def _highlight_read(h: Highlight) -> HighlightRead:

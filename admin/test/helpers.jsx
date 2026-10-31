@@ -49,6 +49,7 @@ export const project = (over = {}) => ({
   status: 'ongoing',
   code: 'GENEX',
   description: 'GENE EXPRESSION AND MODELING',
+  language: null,
   url: 'https://genex.example.eu/',
   ...over,
 })

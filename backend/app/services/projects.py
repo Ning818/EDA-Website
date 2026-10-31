@@ -6,6 +6,7 @@ Rules kept here, so that no way in can skip them:
 - A project is never deleted: when it is over it is marked ended, and it stays in the ended list. A wrong entry is corrected.
 - A project is in one theme, and is ongoing or ended; both can be corrected, and the project then goes last in the list it joins (the pages keep each list in the order of `position`).
 - The words are plain text and the address an http(s) one (app/core/validation.py).
+- A description that is not in English says so (`language`, one of LANGUAGES), so that the site can mark it and a screen reader pronounces it right; English is no language at all.
 - The sentence of a theme page about its projects (`themes.funded_blurb`) is written by hand, by this owner; nothing writes it from the projects.
 """
 from sqlalchemy import func, select
@@ -19,6 +20,8 @@ from app.services import audit
 from app.services.grants import require
 
 CODE_MAX = 50
+# the languages a description can be in besides English (which is no code at all): the ISO 639-1 code and its name. A language the group needs is added here and in the admin's labels.
+LANGUAGES = {"it": "Italian", "fr": "French", "de": "German", "es": "Spanish"}
 DESCRIPTION_MAX = 300
 BLURB_MAX = 600
 
@@ -40,7 +43,7 @@ def _theme_by_slug(db: Session, slug: str | None, field: str = "theme") -> Theme
 
 def snapshot(project: Project) -> dict:
     """What the audit log keeps of a project."""
-    return {"theme": project.theme.slug, "status": project.status, "code": project.code, "description": project.description, "url": project.url}
+    return {"theme": project.theme.slug, "status": project.status, "code": project.code, "description": project.description, "language": project.language, "url": project.url}
 
 
 # --- reading ----------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -81,6 +84,16 @@ def _end_of_list(db: Session, theme_id: int, status: str) -> int:
     return 0 if last is None else last + 1
 
 
+def _language(value: str | None) -> str | None:
+    """English (none, empty or "en") is stored as none; any other language has to be one that is offered."""
+    code = (value or "").strip().lower()
+    if code in ("", "en"):
+        return None
+    if code not in LANGUAGES:
+        raise InvalidInput("language", "Choose one of the languages in the list, or English.")
+    return code
+
+
 def _clean(fields: dict, partial: bool) -> dict:
     """The fields that were given, checked and ready to put on a project. `partial`: only the ones present are looked at. An empty code or address clears it."""
     clean: dict = {}
@@ -94,6 +107,8 @@ def _clean(fields: dict, partial: bool) -> dict:
         clean["description"] = clean_text(fields.get("description"), "description", label="The description", max_length=DESCRIPTION_MAX, required=True)
     if "url" in fields:
         clean["url"] = clean_url(fields["url"], "url", label="The address")
+    if "language" in fields:
+        clean["language"] = _language(fields["language"])
     return clean
 
 

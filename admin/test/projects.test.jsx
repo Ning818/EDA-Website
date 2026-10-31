@@ -99,6 +99,29 @@ describe('adding a project', () => {
     expect(calls.filter((c) => c.method === 'POST')).toHaveLength(0)
   })
 
+  it('offers the languages a description can be in, English first and chosen', async () => {
+    renderAdmin('/projects/new', routes())
+    const language = await screen.findByLabelText('Language of the description')
+    expect(language).toHaveValue('')
+    expect(within(language).getAllByRole('option').map((o) => o.textContent)).toEqual(['English', 'Italian', 'French', 'German', 'Spanish'])
+    expect(language).toHaveAccessibleDescription(/so that a screen reader reads it in that language/)
+  })
+
+  it('adds a project with the language of its description', async () => {
+    const user = userEvent.setup()
+    const added = project({ id: 9, code: 'NEWP', description: 'UN NUOVO PROGETTO', language: 'it', theme_slug: 'smart-city', theme_name: 'Smart City' })
+    const { calls } = renderAdmin(
+      '/projects/new',
+      routes({ 'POST /api/admin/projects': { status: 201, body: added }, 'GET /api/themes/smart-city': { body: themeDetail({ slug: 'smart-city', name: 'Smart City' }) } }),
+    )
+    await user.selectOptions(await screen.findByLabelText(/Theme/), 'Smart City')
+    await user.type(screen.getByLabelText(/Description/), 'UN NUOVO PROGETTO')
+    await user.selectOptions(screen.getByLabelText('Language of the description'), 'Italian')
+    await user.click(screen.getByRole('button', { name: 'Add project' }))
+    await waitFor(() => expect(calls.filter((c) => c.method === 'POST')).toHaveLength(1))
+    expect(JSON.parse(calls.find((c) => c.method === 'POST').body)).toEqual({ theme: 'smart-city', status: 'ongoing', description: 'UN NUOVO PROGETTO', language: 'it' })
+  })
+
   it('refuses a website that is not a web address before asking the server', async () => {
     const user = userEvent.setup()
     renderAdmin('/projects/new', routes())
@@ -152,6 +175,44 @@ describe('a project', () => {
     expect(screen.getByText(/in Bioinformatics/)).toBeInTheDocument()
     expect(await screen.findByLabelText(/Description/)).toHaveValue('GENE EXPRESSION AND MODELING')
     await expectNoAxeViolations(container)
+  })
+
+  it('shows the language of the description, and English where there is none', async () => {
+    const { unmount } = open(project({ language: 'it' }))
+    expect(await screen.findByLabelText('Language of the description')).toHaveValue('it')
+    unmount()
+    open(project())
+    expect(await screen.findByLabelText('Language of the description')).toHaveValue('')
+  })
+
+  it('changes only the language without asking about the Guided Introduction', async () => {
+    const user = userEvent.setup()
+    const { calls } = open(project(), { 'PATCH /api/admin/projects/1': { body: project({ language: 'fr' }) } })
+    await user.selectOptions(await screen.findByLabelText('Language of the description'), 'French')
+    await user.click(screen.getByRole('button', { name: 'Save changes' }))
+    expect(await screen.findByText('The language was saved.')).toBeInTheDocument()
+    expect(JSON.parse(calls.find((c) => c.method === 'PATCH').body)).toEqual({ language: 'fr' })
+    expect(screen.queryByRole('heading', { name: /Guided Introduction/ })).not.toBeInTheDocument()
+  })
+
+  it('takes a language away by choosing English, which is sent as null', async () => {
+    const user = userEvent.setup()
+    const { calls } = open(project({ language: 'it' }), { 'PATCH /api/admin/projects/1': { body: project() } })
+    await user.selectOptions(await screen.findByLabelText('Language of the description'), 'English')
+    await user.click(screen.getByRole('button', { name: 'Save changes' }))
+    await waitFor(() => expect(calls.filter((c) => c.method === 'PATCH')).toHaveLength(1))
+    expect(JSON.parse(calls.find((c) => c.method === 'PATCH').body)).toEqual({ language: null })
+  })
+
+  it('does not send the language when it was not changed', async () => {
+    const user = userEvent.setup()
+    const { calls } = open(project({ language: 'it' }), { 'PATCH /api/admin/projects/1': { body: project({ language: 'it', code: 'NEWCODE' }) }, 'GET /api/themes/bioinformatics': { body: themeDetail() } })
+    const code = await screen.findByLabelText(/Code/)
+    await user.clear(code)
+    await user.type(code, 'NEWCODE')
+    await user.click(screen.getByRole('button', { name: 'Save changes' }))
+    await waitFor(() => expect(calls.filter((c) => c.method === 'PATCH')).toHaveLength(1))
+    expect(JSON.parse(calls.find((c) => c.method === 'PATCH').body)).toEqual({ code: 'NEWCODE' })
   })
 
   it('marks an ongoing project as ended, and then asks about the Guided Introduction', async () => {

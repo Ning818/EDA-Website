@@ -48,7 +48,8 @@ def test_projects_and_figures(client, slug):
     seeded = next(t for t in THEMES if t["slug"] == slug)
     theme = client.get(f"/api/themes/{slug}").json()
     for status in ("ongoing", "ended"):
-        assert theme["projects"][status] == seeded["projects"][status]
+        # what the seed says, and the language of the description, which is none (English) unless the seed says one
+        assert theme["projects"][status] == [{"language": None, **p} for p in seeded["projects"][status]]
     ongoing, ended = len(seeded["projects"]["ongoing"]), len(seeded["projects"]["ended"])
     assert theme["stats"] == {"ongoing": ongoing, "ended": ended, "total": ongoing + ended}
 

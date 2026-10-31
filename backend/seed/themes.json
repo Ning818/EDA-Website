@@ -141,6 +141,7 @@
         {
           "code": "THOR",
           "description": "TORINO-PIEMONTE. TECNOLOGIE E SISTEMI AMBIENTALI PER LA MOBILITA' ELETTRICA",
+          "language": "it",
           "url": null
         },
         {
@@ -206,6 +207,7 @@
         {
           "code": "SCORE",
           "description": "SUPERVISIONE, CONTROLLO E OTTIMIZZAZIONE DELLA PRODUZIONE DI ENERGIA RINNOVABILE",
+          "language": "it",
           "url": null
         },
         {
@@ -221,6 +223,7 @@
         {
           "code": "SIMEBUS",
           "description": "SISTEMI MECCATRONICI PER L'EFFICIENZA ENERGETICA NEI BUS",
+          "language": "it",
           "url": null
         },
         {
@@ -246,6 +249,7 @@
         {
           "code": null,
           "description": "METODI E STRUMENTI CAD PER LA PROGETTAZIONE DELLA GERARCHIA DI MEMORIA IN SISTEMI MULTIPROCESSORE REALIZZATI SU SINGOLO CHIP",
+          "language": "it",
           "url": null
         },
         {
@@ -256,11 +260,13 @@
         {
           "code": null,
           "description": "TECNICHE DI PROGETTO DI SINTESI INTEGRATI SU SINGOLO CHIP PER APPLICAZIONI MULTIMEDIALI SU RETI WIRELESS",
+          "language": "it",
           "url": null
         },
         {
           "code": null,
           "description": "ALGORITMI E ARCHITETTURE HARDWARE PER LA RIDUZIONE DEL CONSUMO ENERGETICO NEI SISTEMI EMBEDDED BASATI SULLA COMPRESSIONE DELLE INFORMAZIONI",
+          "language": "it",
           "url": null
         },
         {
@@ -407,6 +413,7 @@
         {
           "code": null,
           "description": "RICERCA CORRENTE 2012 (Ministero della Salute)",
+          "language": "it",
           "url": null
         }
       ],
@@ -520,6 +527,7 @@
         {
           "code": "EEB",
           "description": "EDIFICI A ZERO CONSUMO ENERGETICO IN DISTRETTI URBANI INTELLIGENTI",
+          "language": "it",
           "url": null
         },
         {
@@ -530,6 +538,7 @@
         {
           "code": "S[m2]ART",
           "description": "SMART METRO QUADRO: GUARDANDO LA CITTA' METRO PER METRO",
+          "language": "it",
           "url": null
         }
       ],
@@ -672,6 +681,7 @@
         {
           "code": "STAMP",
           "description": "Sviluppo Tecnologico dell'Additive Manufacturing in Piemonte",
+          "language": "it",
           "url": null
         },
         {

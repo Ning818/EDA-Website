@@ -154,7 +154,7 @@ def test_a_new_project_goes_last_in_the_ongoing_list_and_the_numbers_count_it(pi
 
     (row,) = audit_rows("project.add")
     assert row.user_email == "pia@example.org" and row.entity_key == str(body["id"])
-    assert row.after == {"theme": slug, "status": "ongoing", "code": "NEWP", "description": "A NEW PROJECT FOR TESTING", "url": "https://example.org/newp"}
+    assert row.after == {"theme": slug, "status": "ongoing", "code": "NEWP", "description": "A NEW PROJECT FOR TESTING", "language": None, "url": "https://example.org/newp"}
 
 
 def test_a_project_can_be_added_as_one_that_has_ended_with_no_code_and_no_address(pia, visitor):
@@ -299,3 +299,80 @@ def test_a_sentence_that_is_not_acceptable_is_refused(pia, visitor, text):
 def test_the_sentence_of_a_theme_that_does_not_exist_is_not_found(pia):
     answer = pia.put("/api/admin/themes/no-such-theme/funded-blurb", json={"text": "x"})
     assert answer.status_code == 404 and detail(answer)["code"] == "theme_not_found"
+
+
+# --- the language of a description ------------------------------------------------------------------------------------------------------------------------------------
+
+
+def test_the_seed_marks_the_italian_descriptions_and_the_public_pages_say_so(visitor):
+    with SessionLocal() as db:
+        italian = {p.code or p.description[:20] for p in db.scalars(select(Project).where(Project.language == "it"))}
+        assert len(italian) == 10 and "THOR" in italian and "SCORE" in italian and "EEB" in italian and "STAMP" in italian
+        assert db.scalar(select(func.count()).select_from(Project).where(Project.code == "HBP", Project.language.is_(None))) == 1
+    projects = {p["code"]: p for t in themes() for status in ("ongoing", "ended") for p in public_theme(visitor, t[1])["projects"][status] if p["code"]}
+    assert projects["THOR"]["language"] == "it" and projects["EEB"]["language"] == "it"
+    assert projects["HBP"]["language"] is None and projects["CONTREX"]["language"] is None
+
+
+def test_a_project_is_added_with_the_language_of_its_description(pia, visitor):
+    answer = pia.post(URL, json=new(language="it", description="UN PROGETTO DI PROVA"))
+    assert answer.status_code == 201 and answer.json()["language"] == "it"
+    project_id = answer.json()["id"]
+    assert pia.get(f"{URL}/{project_id}").json()["language"] == "it"
+    shown = [p for p in public_theme(visitor, slug_of(0))["projects"]["ongoing"] if p["description"] == "UN PROGETTO DI PROVA"]
+    assert shown and shown[0]["language"] == "it"
+    assert audit_rows("project.add")[-1].after["language"] == "it"
+
+
+@pytest.mark.parametrize("given", [None, "", "  ", "en", "EN"])
+def test_english_is_no_language_at_all(pia, given):
+    answer = pia.post(URL, json=new(language=given))
+    assert answer.status_code == 201 and answer.json()["language"] is None
+
+
+def test_a_project_without_a_language_is_in_english(pia):
+    assert pia.post(URL, json=new()).json()["language"] is None
+
+
+def test_a_language_is_read_whatever_its_case_and_spaces(pia):
+    assert pia.post(URL, json=new(language=" IT ")).json()["language"] == "it"
+
+
+@pytest.mark.parametrize("given", ["xx", "italian", "ita", "it-IT", "<b>", "zh"])
+def test_a_language_that_is_not_offered_is_refused(pia, given):
+    before = count_projects()
+    answer = pia.post(URL, json=new(language=given))
+    assert answer.status_code == 422 and detail(answer)["field"] == "language"
+    assert count_projects() == before
+
+
+def test_the_language_of_a_description_is_corrected_and_recorded(pia, visitor):
+    project_id = any_project()
+    changed = pia.patch(f"{URL}/{project_id}", json={"language": "fr"})
+    assert changed.status_code == 200 and changed.json()["language"] == "fr"
+    row = audit_rows("project.update")[-1]
+    assert row.before["language"] is None and row.after["language"] == "fr"
+    back = pia.patch(f"{URL}/{project_id}", json={"language": None})
+    assert back.json()["language"] is None
+    assert audit_rows("project.update")[-1].before["language"] == "fr"
+
+
+def test_saying_the_language_that_it_is_already_changes_nothing_and_writes_no_row(pia):
+    project_id = any_project()
+    pia.patch(f"{URL}/{project_id}", json={"language": "de"})
+    rows = len(audit_rows())
+    assert pia.patch(f"{URL}/{project_id}", json={"language": "de"}).status_code == 200
+    assert pia.patch(f"{URL}/{project_id}", json={"description": pia.get(f"{URL}/{project_id}").json()["description"]}).status_code == 200
+    assert len(audit_rows()) == rows
+
+
+def test_a_change_that_leaves_the_language_out_keeps_it(pia):
+    project_id = any_project()
+    pia.patch(f"{URL}/{project_id}", json={"language": "es"})
+    assert pia.patch(f"{URL}/{project_id}", json={"code": "KEEPS"}).json()["language"] == "es"
+
+
+def test_the_list_says_the_language_of_every_project(pia):
+    listed = pia.get(URL).json()
+    assert {"it", None} <= {p["language"] for p in listed}
+    assert all("language" in p for p in listed)

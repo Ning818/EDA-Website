@@ -63,7 +63,7 @@ export default function ProjectPage() {
       navigate(`/projects/sentence/${updated.theme_slug}`, { state: { notice: `The project ${updated.code ?? updated.description} was changed.`, ask: true } })
       return
     }
-    setNotice('The address was saved.')
+    setNotice('language' in body && !('url' in body) ? 'The language was saved.' : 'language' in body ? 'The language and the address were saved.' : 'The address was saved.')
     setSaved((n) => n + 1)
   }
 

@@ -1,9 +1,9 @@
 import { useState } from 'react'
-import { PROJECT_STATUSES } from '../labels'
+import { LANGUAGES, PROJECT_STATUSES } from '../labels'
 import { isWebAddress, useForm } from '../useForm'
 import { Button, ErrorSummary, Notice, SelectField, TextAreaField, TextField } from './ui'
 
-const FIELDS = ['theme', 'status', 'code', 'description', 'url']
+const FIELDS = ['theme', 'status', 'code', 'description', 'language', 'url']
 
 /**
  * The form for a funded project, to add one (`project` empty) or to correct one. `themes` are the themes to choose from, as the API gives them. `onSave(body)` sends what the API takes
@@ -16,6 +16,7 @@ export default function ProjectForm({ project = null, themes, onSave, submitLabe
     status: project?.status ?? 'ongoing',
     code: project?.code ?? '',
     description: project?.description ?? '',
+    language: project?.language ?? '',
     url: project?.url ?? '',
   }
   const form = useForm(initial)
@@ -45,6 +46,8 @@ export default function ProjectForm({ project = null, themes, onSave, submitLabe
   const body = (v) => {
     const send = {}
     for (const key of ['theme', 'status', 'description']) if (!editing || v[key].trim() !== initial[key]) send[key] = v[key].trim()
+    // English is no language: it is sent as null, which is also what takes a language away
+    if (editing ? v.language !== initial.language : v.language) send.language = v.language || null
     for (const key of ['code', 'url']) {
       const value = v[key].trim()
       if (editing ? value !== initial[key] : value) send[key] = value || null
@@ -117,6 +120,19 @@ export default function ProjectForm({ project = null, themes, onSave, submitLabe
             error={form.errors['proj-description']}
           />
         </div>
+        <SelectField
+          id="proj-language"
+          label="Language of the description"
+          hint="Choose a language when the description is not in English, so that a screen reader reads it in that language."
+          {...bind('language')}
+          error={form.errors['proj-language']}
+        >
+          {LANGUAGES.map((language) => (
+            <option key={language.value} value={language.value}>
+              {language.label}
+            </option>
+          ))}
+        </SelectField>
       </div>
       <div>
         <Button type="submit" variant="primary" busy={form.busy}>

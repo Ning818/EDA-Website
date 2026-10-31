@@ -31,6 +31,15 @@ export const GROUPS = [
   { value: 'alumni', label: 'Former members' },
 ]
 
+// the languages a project's description can be in; English is no code at all (empty). The same list as the API's (backend/app/services/projects.py)
+export const LANGUAGES = [
+  { value: '', label: 'English' },
+  { value: 'it', label: 'Italian' },
+  { value: 'fr', label: 'French' },
+  { value: 'de', label: 'German' },
+  { value: 'es', label: 'Spanish' },
+]
+
 // a funded project is ongoing or ended; it is never deleted
 export const PROJECT_STATUSES = [
   { value: 'ongoing', label: 'Ongoing' },

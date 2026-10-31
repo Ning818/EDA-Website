@@ -119,6 +119,8 @@ class Project(Base):
     status: Mapped[str] = mapped_column(String(20))
     code: Mapped[str | None] = mapped_column(String(50))
     description: Mapped[str] = mapped_column(Text)
+    # the language of the description as an ISO 639-1 code ("it"); none means English. The site writes it as `lang` on the description so that a screen reader pronounces it right
+    language: Mapped[str | None] = mapped_column(String(5))
     url: Mapped[str | None] = mapped_column(String(500))
     position: Mapped[int] = mapped_column(Integer, default=0)
 

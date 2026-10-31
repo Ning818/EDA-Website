@@ -15,7 +15,7 @@ describe('the site text', () => {
     await expectNoAxeViolations(container)
   })
 
-  it('lists its tasks with the footer numbers last, on this page and on the home page', async () => {
+  it('lists its tasks with the footer numbers last, on this page, and before the broken links on the home page', async () => {
     const { unmount } = renderAdmin('/site', staff())
     const hub = await screen.findByRole('list', { name: 'Site text you can change' })
     expect(within(hub).getAllByRole('link').map((link) => link.querySelector('.task-title').textContent)).toEqual(['Page introductions', 'Social media', 'Footer numbers'])
@@ -23,7 +23,7 @@ describe('the site text', () => {
     renderAdmin('/', staff())
     const tasks = await screen.findByRole('list', { name: 'Things you can do' })
     const titles = within(tasks).getAllByRole('link').map((link) => link.querySelector('.task-title').textContent)
-    expect(titles.at(-1)).toBe('Change the footer numbers')
+    expect(titles.slice(-2)).toEqual(['Change the footer numbers', 'Check the broken links'])
   })
 
   it('is open to the administrative staff and shown in their navigation, and to no one else', async () => {

@@ -4,6 +4,18 @@ import { useAuth } from '../auth/useAuth'
 import ErrorBoundary from './ErrorBoundary'
 import SessionWarning from './SessionWarning'
 
+/** A link of the navigation. It marks the page it leads to as the current one, and also the pages that lie under it without having its address (a collaborator is on the Collaborations page). */
+function NavItem({ to, also = [], end = false, children }) {
+  const { pathname } = useLocation()
+  const under = (base) => pathname === base || pathname.startsWith(`${base}/`)
+  const active = end ? pathname === to : [to, ...also].some(under)
+  return (
+    <Link to={to} className="nav-link" aria-current={active ? 'page' : undefined}>
+      {children}
+    </Link>
+  )
+}
+
 /** The frame of every page after the login: a skip link, the header with the navigation, and the main area. */
 export default function Layout() {
   const { user, can, logout } = useAuth()
@@ -35,75 +47,75 @@ export default function Layout() {
               {!forced && (
                 <>
                   <li>
-                    <NavLink to="/" end className="nav-link">
+                    <NavItem to="/" end>
                       Home
-                    </NavLink>
+                    </NavItem>
                   </li>
                   {can('accounts') && (
                     <li>
-                      <NavLink to="/accounts" className="nav-link">
+                      <NavItem to="/accounts">
                         Accounts
-                      </NavLink>
+                      </NavItem>
                     </li>
                   )}
                   {(can('people_add') || can('people_edit') || can('people_delete')) && (
                     <li>
-                      <NavLink to="/people" className="nav-link">
+                      <NavItem to="/people">
                         People
-                      </NavLink>
+                      </NavItem>
                     </li>
                   )}
                   {can('theme') && (
                     <li>
-                      <NavLink to="/themes" className="nav-link">
+                      <NavItem to="/themes">
                         Themes
-                      </NavLink>
+                      </NavItem>
                     </li>
                   )}
                   {can('projects') && (
                     <li>
-                      <NavLink to="/projects" className="nav-link">
+                      <NavItem to="/projects">
                         Funded projects
-                      </NavLink>
+                      </NavItem>
                     </li>
                   )}
                   {can('site') && (
                     <>
                       <li>
-                        <NavLink to="/collaborations" className="nav-link">
+                        <NavItem to="/collaborations" also={['/collaborators', '/joint-projects']}>
                           Collaborations
-                        </NavLink>
+                        </NavItem>
                       </li>
                       <li>
-                        <NavLink to="/site" className="nav-link">
+                        <NavItem to="/site">
                           Site text
-                        </NavLink>
+                        </NavItem>
                       </li>
                     </>
                   )}
                   {(can('people_edit') || can('site') || can('projects') || can('theme')) && (
                     <li>
-                      <NavLink to="/links" className="nav-link">
+                      <NavItem to="/links">
                         Broken links
-                      </NavLink>
+                      </NavItem>
                     </li>
                   )}
                   {can('system') && (
                     <>
                       <li>
-                        <NavLink to="/requests" className="nav-link">
+                        <NavItem to="/requests">
                           Requests
-                        </NavLink>
+                        </NavItem>
                       </li>
                       <li>
-                        <NavLink to="/audit" className="nav-link">
+                        <NavItem to="/audit">
                           Activity log
-                        </NavLink>
+                        </NavItem>
                       </li>
                       <li>
-                        <NavLink to="/system" className="nav-link">
+                        <NavItem to="/system">
                           System status
-                        </NavLink>
+                        </NavItem>
                       </li>
                     </>
                   )}
@@ -116,9 +128,9 @@ export default function Layout() {
               Signed in as <strong>{user.name}</strong>
             </span>
             {!forced && (
-              <NavLink to="/change-password" className="nav-link">
+              <NavItem to="/change-password">
                 Change password
-              </NavLink>
+              </NavItem>
             )}
             <button type="button" className="btn-link" onClick={logout}>
               Log out

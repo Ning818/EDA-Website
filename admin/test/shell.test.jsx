@@ -23,7 +23,7 @@ describe('the home page', () => {
     renderAdmin('/', { 'GET /api/auth/me': { body: me({ grants: THEME_OWNER }) } })
     await screen.findByRole('heading', { level: 1, name: 'What would you like to do?' })
     expect(screen.getByRole('link', { name: /Add a new person/ })).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: /Edit the theme pages/ })).toHaveAttribute('href', '/themes')
+    expect(screen.getByRole('link', { name: /Edit the theme-related content/ })).toHaveAttribute('href', '/themes')
     expect(screen.queryByRole('link', { name: /Manage accounts/ })).not.toBeInTheDocument()
     expect(screen.queryByRole('heading', { name: 'Coming soon' })).not.toBeInTheDocument()
   })
@@ -61,6 +61,21 @@ describe('moving around', () => {
     await screen.findByRole('heading', { level: 1, name: 'People' })
     expect(screen.getByRole('link', { name: 'People' })).toHaveAttribute('aria-current', 'page')
     expect(screen.getByRole('link', { name: 'Home' })).not.toHaveAttribute('aria-current')
+  })
+
+  it.each([
+    ['/collaborators/new', 'Collaborations'],
+    ['/joint-projects/new', 'Collaborations'],
+    ['/people/new', 'People'],
+    ['/site/social', 'Site text'],
+    ['/site/footer', 'Site text'],
+    ['/accounts/new', 'Accounts'],
+  ])('keeps the navigation mark on %s, a page that lies under another one', async (path, name) => {
+    renderAdmin(path, { 'GET /api/auth/me': { body: me() } })
+    await screen.findByRole('heading', { level: 1 })
+    const nav = screen.getByRole('navigation', { name: 'Main' })
+    await waitFor(() => expect(within(nav).getByRole('link', { name })).toHaveAttribute('aria-current', 'page'))
+    expect(within(nav).getAllByRole('link').filter((link) => link.hasAttribute('aria-current'))).toHaveLength(1)
   })
 
   it('has a main landmark, a labelled navigation and a banner on every page', async () => {

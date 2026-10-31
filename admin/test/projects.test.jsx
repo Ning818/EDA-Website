@@ -104,7 +104,7 @@ describe('adding a project', () => {
     const language = await screen.findByLabelText('Language of the description')
     expect(language).toHaveValue('')
     expect(within(language).getAllByRole('option').map((o) => o.textContent)).toEqual(['English', 'Italian', 'French', 'German', 'Spanish'])
-    expect(language).toHaveAccessibleDescription(/so that a screen reader reads it in that language/)
+    expect(language).toHaveAccessibleDescription(/A screen reader then reads it in that language/)
   })
 
   it('adds a project with the language of its description', async () => {

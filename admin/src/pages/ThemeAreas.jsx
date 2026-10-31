@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { api } from '../api/client'
 import FlashNotice from '../components/FlashNotice'
-import { Button, ErrorSummary, Loading, LoadError, Notice, PageHeading, TextField } from '../components/ui'
+import { Button, ErrorSummary, Lead, LoadError, Loading, Notice, PageHeading, TextField } from '../components/ui'
 import { useForm } from '../useForm'
 import { useLoad } from '../useLoad'
 
@@ -66,7 +66,7 @@ export default function ThemeAreas() {
         Back to the theme
       </Link>
       <PageHeading>Research areas</PageHeading>
-      <p className="lead">The research areas of the theme's Research page, in the order the page shows them. Each has its topics and its involved people.</p>
+      <Lead>The research areas of the theme's Research page. Each has its topics and its involved people.</Lead>
       <FlashNotice />
       {failure && <Notice kind="error">{failure}</Notice>}
       {status === 'loading' && !theme && <Loading>Loading the theme…</Loading>}

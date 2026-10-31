@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom'
 import { api } from '../api/client'
 import { useAuth } from '../auth/useAuth'
 import FlashNotice from '../components/FlashNotice'
-import { Notice, PageHeading } from '../components/ui'
+import { Lead, Notice, PageHeading } from '../components/ui'
 import { useLoad } from '../useLoad'
 
 // What a user can do, by what they are allowed to: a task is offered if the user has any of its grants.
@@ -69,7 +69,7 @@ export default function Home() {
     <div className="page">
       <PageHeading title="Home">What would you like to do?</PageHeading>
       <FlashNotice />
-      <p className="lead">Signed in as {user.name}.</p>
+      <Lead>Signed in as {user.name}.</Lead>
       {keepsLinks && <BrokenLinksNotice />}
       {can('system') && <SystemNotice />}
       {tasks.length > 0 && (

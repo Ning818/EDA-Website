@@ -99,10 +99,10 @@ describe('adding a person', () => {
   it('tells the one who only adds people that the entry can be changed for a day, and the administrative staff that it can at any time', async () => {
     const { unmount } = renderAdmin('/people/new', routes())
     expect(await screen.findByText(/for 24 hours; after that only the administrative staff can/)).toBeInTheDocument()
-    expect(screen.getByText(/listed under the research area you choose/)).toBeInTheDocument()
+    expect(screen.getByText(/one of the "Involved people" of the area you choose/)).toBeInTheDocument()
     unmount()
     const { calls } = renderAdmin('/people/new', { 'GET /api/auth/me': { body: me() } })
-    expect(await screen.findByText(/You can correct or delete the entry at any time\./)).toBeInTheDocument()
+    expect(await screen.findByText(/You can correct or delete it at any time\./)).toBeInTheDocument()
     expect(screen.queryByText(/24 hours/)).not.toBeInTheDocument()
     expect(screen.queryByLabelText(/Research area/)).not.toBeInTheDocument() // the administrative staff keep no theme page, so there is no area to choose
     expect(calls.filter((c) => c.url === '/api/admin/research-areas')).toHaveLength(0)

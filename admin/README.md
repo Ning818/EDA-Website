@@ -157,7 +157,7 @@ The target is WCAG 2.2 level AA. What the code does about it:
 - messages are announced (`role="alert"` for errors, `role="status"` for the rest); a message that has to be read first takes the focus;
 - a question about something hard to undo is the browser's own modal dialog: focus goes in and stays in, Escape cancels, focus returns to what opened it, and it starts on the safe answer;
 - colour is never the only signal (badges and errors have words and a sign), text is at least 4.5:1 and the borders of controls and the focus ring at least 3:1 (the values are in
-  `src/index.css`), targets are at least 44 px high, links are underlined, nothing moves, and `prefers-reduced-motion` is respected;
+  `src/index.css`), targets are at least 44 px high (the padding is part of the link or the button: the navigation, the back links, the "Show" of the activity log), a line of explaining text on the page itself (under a title, a note, a notice) is about 70 characters at most however wide the window is, while everything inside a card or a form is as wide as the card (`.page :is(.lead, …)` in `src/index.css`; a note about the whole page, such as the one on the Broken links page, is as wide as the content under it), links are underlined, nothing moves, and `prefers-reduced-motion` is respected;
 - a table has a caption, header cells with a scope, and links that say whose row they belong to ("Change the account of Tom Rossi");
 - the layout reflows down to 320 px wide without scrolling the page sideways (only a table may scroll, inside a labelled region).
 

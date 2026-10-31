@@ -1,5 +1,5 @@
 import { api } from '../api/client'
-import { Button, Loading, LoadError, Notice, PageHeading } from '../components/ui'
+import { Button, Lead, LoadError, Loading, Notice, PageHeading } from '../components/ui'
 import { useLoad } from '../useLoad'
 
 const moment = (iso) => new Intl.DateTimeFormat('en-GB', { dateStyle: 'long', timeStyle: 'short' }).format(new Date(iso))
@@ -49,7 +49,7 @@ export default function System() {
         <PageHeading>System status</PageHeading>
         {status === 'ok' && <Button onClick={reload}>Look again</Button>}
       </div>
-      <p className="lead">How the system is doing: the database, the check of the links, the uploaded files, the accounts and the content.</p>
+      <Lead>How the system is doing. It covers the database, links, files, accounts and content.</Lead>
       {status === 'loading' && <Loading>Loading the status…</Loading>}
       {status === 'error' && <LoadError error={error} onRetry={reload} />}
       {status === 'ok' && <Status data={data} />}

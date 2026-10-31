@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { api } from '../api/client'
-import { Button, Loading, LoadError, Notice, PageHeading } from '../components/ui'
+import { Button, Lead, LoadError, Loading, Notice, PageHeading, Sentences } from '../components/ui'
 import { useLoad } from '../useLoad'
 
 const day = (iso) => new Intl.DateTimeFormat('en-GB', { dateStyle: 'long' }).format(new Date(iso))
@@ -92,7 +92,7 @@ export default function BrokenLinks() {
   return (
     <div className="page">
       <PageHeading>Broken links</PageHeading>
-      <p className="lead">The websites that people, collaborators, projects and highlight cards link to, and that have stopped answering.</p>
+      <Lead>Links from people, collaborators, projects and highlight cards.</Lead>
 
       <p role="status" className="visually-hidden">
         {message}
@@ -107,9 +107,11 @@ export default function BrokenLinks() {
       {status === 'error' && <LoadError error={error} onRetry={reload} />}
       {status === 'ok' && (
         <>
-          <p className="muted">
-            {data.last_check ? `All links were last checked on ${moment(data.last_check)}.` : 'No check has been run yet, so there is nothing to report.'} A link is reported here only after it has failed {data.threshold} checks in a row, so a
-            website that is down for a day does not raise an alarm.
+          <p className="muted wide">
+            <Sentences>
+              {data.last_check ? `All links were last checked on ${moment(data.last_check)}.` : 'No check has been run yet, so there is nothing to report.'} A link is reported here only after it has failed {data.threshold} checks in a row, so a
+              website that is down for a day does not raise an alarm.
+            </Sentences>
           </p>
           {shown.length === 0 ? (
             <Notice kind="ok">{data.last_check ? 'No link that you keep is broken.' : 'Nothing to show yet.'}</Notice>

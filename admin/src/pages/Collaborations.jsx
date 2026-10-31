@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom'
 import { api } from '../api/client'
 import FlashNotice from '../components/FlashNotice'
-import { LinkButton, Loading, LoadError, PageHeading } from '../components/ui'
+import { Lead, LinkButton, LoadError, Loading, PageHeading } from '../components/ui'
 import { KINDS } from '../labels'
 import { useLoad } from '../useLoad'
 
@@ -87,7 +87,7 @@ export default function Collaborations() {
   return (
     <div className="page">
       <PageHeading>Collaborations</PageHeading>
-      <p className="lead">The collaborators on the logo walls of the Collaborations page, and the joint projects below them.</p>
+      <Lead>The collaborators on the logo walls of the Collaborations page. Below them are its joint projects.</Lead>
       <FlashNotice />
       <Collaborators />
       <JointProjects />

@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { api } from '../api/client'
-import { Button, ErrorSummary, Loading, LoadError, Notice, PageHeading, TextAreaField } from '../components/ui'
+import { Button, ErrorSummary, Lead, LoadError, Loading, Notice, PageHeading, TextAreaField } from '../components/ui'
 import { INTRO_PAGES } from '../labels'
 import { useForm } from '../useForm'
 import { useLoad } from '../useLoad'
@@ -81,7 +81,7 @@ export default function PageIntros() {
         Back to the site text
       </Link>
       <PageHeading>Page introductions</PageHeading>
-      <p className="lead">The paragraph under the title of the People page and of the Collaborations page. Each page is saved on its own.</p>
+      <Lead>The text under the title of the People and Collaborations pages. Each page is saved on its own.</Lead>
       {INTRO_PAGES.map((page) => (
         <IntroSection key={page.slug} page={page} />
       ))}

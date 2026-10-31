@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { api } from '../api/client'
 import PeoplePicker from '../components/PeoplePicker'
-import { Button, Loading, LoadError, Notice, PageHeading } from '../components/ui'
+import { Button, Lead, LoadError, Loading, Notice, PageHeading } from '../components/ui'
 import { useLoad } from '../useLoad'
 
 const MAX = 12
@@ -59,7 +59,7 @@ export default function ThemeContacts() {
         Back to the theme
       </Link>
       <PageHeading>Change the contacts</PageHeading>
-      <p className="lead">The people to turn to about the theme's projects, shown as the "Refer to" cards. They are chosen from the People list. The page shows them by rank first, and within a rank in this order.</p>
+      <Lead>They are shown as the "Refer to" cards, chosen from the People list.</Lead>
       {!ready && !failed && <Loading>Loading…</Loading>}
       {failed && (
         <LoadError

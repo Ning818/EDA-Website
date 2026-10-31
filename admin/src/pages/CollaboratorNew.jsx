@@ -1,7 +1,7 @@
 import { Link, useNavigate } from 'react-router-dom'
 import { api } from '../api/client'
 import CollaboratorForm from '../components/CollaboratorForm'
-import { PageHeading } from '../components/ui'
+import { Lead, PageHeading } from '../components/ui'
 import { KINDS } from '../labels'
 
 export default function CollaboratorNew() {
@@ -19,7 +19,7 @@ export default function CollaboratorNew() {
         Back to the collaborations
       </Link>
       <PageHeading>Add a collaborator</PageHeading>
-      <p className="lead">The collaborator shows on the Collaborations page as soon as you save, at the end of its wall.</p>
+      <Lead>The collaborator shows on the Collaborations page once you save. It is added at the end of its wall.</Lead>
       <div className="card">
         <CollaboratorForm onSave={save} submitLabel="Add collaborator" />
       </div>

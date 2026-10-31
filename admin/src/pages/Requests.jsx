@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { api } from '../api/client'
-import { Button, ConfirmDialog, Loading, LoadError, Notice, PageHeading, TextAreaField } from '../components/ui'
+import { Button, ConfirmDialog, Lead, LoadError, Loading, Notice, PageHeading, TextAreaField } from '../components/ui'
 import { useLoad } from '../useLoad'
 
 const ANSWER_MAX = 1000
@@ -74,7 +74,7 @@ export default function Requests() {
   return (
     <div className="page">
       <PageHeading>Requests</PageHeading>
-      <p className="lead">What people could not find or do with the screens. Do what they ask, or say why it cannot be done, then mark the request as answered; the person reads your answer on the page where they asked.</p>
+      <Lead>What people could not find or do with the screens. Answer the request, then mark it as answered.</Lead>
       {message && <Notice kind="ok">{message}</Notice>}
       {status === 'loading' && <Loading>Loading the requests…</Loading>}
       {status === 'error' && <LoadError error={error} onRetry={reload} />}

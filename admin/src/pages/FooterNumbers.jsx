@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { api } from '../api/client'
-import { Button, ErrorSummary, Loading, LoadError, Notice, PageHeading, TextField } from '../components/ui'
+import { Button, ErrorSummary, Lead, LoadError, Loading, Notice, PageHeading, TextField } from '../components/ui'
 import { useForm } from '../useForm'
 import { useLoad } from '../useLoad'
 
@@ -113,7 +113,7 @@ export default function FooterNumbers() {
         Back to the site text
       </Link>
       <PageHeading>Footer numbers</PageHeading>
-      <p className="lead">The phone and fax numbers in the footer of every page. A visitor on a phone can tap the phone number to dial it, so check each digit.</p>
+      <Lead>The phone and fax numbers in the footer of every page. On a phone, a visitor can tap the number to dial it. Check each digit.</Lead>
       {notice && <Notice kind="ok">{notice}</Notice>}
       {site.status === 'loading' && <Loading>Loading the numbers…</Loading>}
       {site.status === 'error' && <LoadError error={site.error} onRetry={site.reload} />}

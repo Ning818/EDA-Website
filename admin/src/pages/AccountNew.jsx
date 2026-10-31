@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { api } from '../api/client'
 import TemporaryPassword from '../components/TemporaryPassword'
-import { Button, ErrorSummary, LinkButton, Notice, PageHeading, SelectField, TextField } from '../components/ui'
+import { Button, ErrorSummary, Lead, LinkButton, Notice, PageHeading, SelectField, TextField } from '../components/ui'
 import { PRESETS } from '../labels'
 
 
@@ -71,7 +71,7 @@ export default function AccountNew() {
         Back to the accounts
       </Link>
       <PageHeading>Make a new account</PageHeading>
-      <p className="lead">The account gets a temporary password, shown once on the next screen. The person has to choose a password of their own the first time they log in.</p>
+      <Lead>The next screen shows the temporary password once. The person must choose their own password at the first login.</Lead>
       <form onSubmit={submit} noValidate className="card stack">
         <ErrorSummary errors={errors} version={version} />
         {failure && (
@@ -88,7 +88,7 @@ export default function AccountNew() {
           value={access}
           onChange={(e) => setAccess(e.target.value)}
           error={errors['acc-access']}
-          hint={chosen ? chosen.description : 'Each choice is a set of things the person is allowed to do in the admin.'}
+          hint={chosen ? chosen.description : 'Each choice is a set of things the person may do in the admin.'}
         >
           <option value="">Choose…</option>
           {PRESETS.map((preset) => (

@@ -1,7 +1,7 @@
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom'
 import { api } from '../api/client'
 import FlashNotice from '../components/FlashNotice'
-import { Button, ErrorSummary, Loading, LoadError, Notice, PageHeading, TextAreaField } from '../components/ui'
+import { Button, ErrorSummary, Lead, LoadError, Loading, Notice, PageHeading, Sentences, TextAreaField } from '../components/ui'
 import { byCode } from '../sorting'
 import { useForm } from '../useForm'
 import { useLoad } from '../useLoad'
@@ -51,7 +51,7 @@ function SentenceForm({ theme }) {
       <TextAreaField
         id="sentence-text"
         label="The Guided Introduction in the research page"
-        hint="Plain text, at most 600 characters. For example: Ongoing projects include R2POWER300 and R3POWERUP, which work on …"
+        hint="Plain text, at most 600 characters. For example: Ongoing projects include R2POWER300 and R3POWERUP …"
         rows={5}
         required
         {...form.bind('text')}
@@ -103,10 +103,17 @@ export default function FundedSentence() {
       </Link>
       <PageHeading title={`The Guided Introduction of ${t.name}`}>The Guided Introduction of {t.name}</PageHeading>
       <FlashNotice key={state?.notice} />
-      <p className="lead">
-        {state?.ask ? 'The projects of this theme have changed. ' : ''}This Guided Introduction is in the Funded projects card of the {t.name} Research page. It is written by hand and never changes by
-        itself, so check whether it still fits the projects below.
-      </p>
+      <Lead wide>
+        {state?.ask && (
+          <>
+            <Sentences>The projects of this theme have changed.</Sentences>
+            <br />
+          </>
+        )}
+        <Sentences>It is in the Funded projects card of {t.name} research page.</Sentences>
+        <br />
+        <Sentences>It is written by hand. Check if it still fits the projects below.</Sentences>
+      </Lead>
       <section aria-labelledby="sentence-heading" className="card stack">
         <h2 id="sentence-heading">Does the Guided Introduction still fit?</h2>
         <SentenceForm theme={t} />

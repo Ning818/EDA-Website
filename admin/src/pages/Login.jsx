@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Navigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../auth/useAuth'
 import AuthFrame from '../components/AuthFrame'
-import { Button, ErrorSummary, Notice, TextField } from '../components/ui'
+import { Button, ErrorSummary, Lead, Notice, TextField } from '../components/ui'
 import { forgetEmails, rememberEmail, savedEmails } from '../savedEmails'
 
 export default function Login() {
@@ -50,7 +50,7 @@ export default function Login() {
   return (
     <AuthFrame title="Log in">
       {state?.expired && <Notice kind="warn">Your login has ended. Log in again to go on.</Notice>}
-      <p className="lead">For the staff who keep the EDA Group website up to date.</p>
+      <Lead>For the staff who keep the EDA Group website up to date.</Lead>
       <form onSubmit={submit} noValidate className="card stack">
         <ErrorSummary errors={errors} version={version} />
         {failure && (

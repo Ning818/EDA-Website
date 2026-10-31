@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom'
 import { api } from '../api/client'
 import FlashNotice from '../components/FlashNotice'
-import { Loading, LoadError, PageHeading } from '../components/ui'
+import { Lead, LoadError, Loading, PageHeading } from '../components/ui'
 import { useLoad } from '../useLoad'
 
 /** The themes the user may keep: one card for each, which opens its page. */
@@ -10,7 +10,7 @@ export default function Themes() {
   return (
     <div className="page">
       <PageHeading>Themes</PageHeading>
-      <p className="lead">Choose the theme whose page you want to keep: its words, its research areas, its contacts and its highlight cards.</p>
+      <Lead>Choose the theme whose page you want to update. You can change its words, areas, contacts and highlight cards.</Lead>
       <FlashNotice />
       {status === 'loading' && <Loading>Loading the themes…</Loading>}
       {status === 'error' && <LoadError error={error} onRetry={reload} />}

@@ -1,8 +1,44 @@
-import { useEffect, useId, useRef } from 'react'
+import { Children, Fragment, useEffect, useId, useRef } from 'react'
 import { Link } from 'react-router-dom'
 
 // The small parts every page is made of. They carry the accessibility: a label for every control, an error tied to its field, messages that are announced, a dialog that traps and
 // returns focus, a heading that takes the focus when the page changes.
+
+// A line of text that would break a sentence in two is broken before the sentence instead: each sentence is a block that goes whole to the next line when it does not fit (a sentence longer
+// than a line still wraps inside itself). The words and the spaces are the same, so a screen reader reads the same text.
+const ABBREVIATION = /(?:\b(?:e\.g|i\.e|vs|etc|Prof|Dr|No)\.)$/
+
+export function sentencesOf(text) {
+  const parts = []
+  for (const part of text.split(/(?<=[.!?\u2026]["\u201d]?)\s+(?=[A-Z"\u201c(])/)) {
+    if (parts.length && ABBREVIATION.test(parts[parts.length - 1])) parts[parts.length - 1] += ' ' + part
+    else parts.push(part)
+  }
+  return parts
+}
+
+/** Plain text, in sentences that are not broken across lines. Anything that is not plain text (a link, a name in bold) is left as it is: a sentence is not cut at it. */
+export function Sentences({ children }) {
+  const items = Children.toArray(children)
+  if (!items.length || !items.every((item) => typeof item === 'string' || typeof item === 'number')) return <>{children}</>
+  const sentences = sentencesOf(items.join(''))
+  if (sentences.length < 2) return <>{items}</>
+  return sentences.map((sentence, i) => (
+    <Fragment key={i}>
+      {i > 0 && ' '}
+      <span className="sentence">{sentence}</span>
+    </Fragment>
+  ))
+}
+
+/** The sentence or two under the title of a page. `wide` lets it be as wide as the page's content instead of about 70 characters (for a sentence that cannot be short). `stacked` puts each sentence on a line of its own, even where the next one would fit after it. */
+export function Lead({ children, wide = false, stacked = false }) {
+  return (
+    <p className={['lead', wide && 'wide', stacked && 'stacked'].filter(Boolean).join(' ')}>
+      <Sentences>{children}</Sentences>
+    </p>
+  )
+}
 
 /** The page's one h1. It sets the title of the tab (what a screen reader reads first on a new page) and can be given the focus by the program after a page change. */
 export function PageHeading({ children, title }) {
@@ -74,7 +110,7 @@ function Field({ id, label, hint, error, required, labelClass = '', children }) 
       </label>
       {hint && (
         <p id={`${id}-hint`} className="field-hint">
-          {hint}
+          <Sentences>{hint}</Sentences>
         </p>
       )}
       {children}
@@ -146,7 +182,7 @@ export function CheckboxField({ id: given, label, hint, error, required, ...inpu
       </div>
       {hint && (
         <p id={`${id}-hint`} className="field-hint">
-          {hint}
+          <Sentences>{hint}</Sentences>
         </p>
       )}
       {error && (

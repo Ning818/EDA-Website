@@ -1,7 +1,7 @@
 import { Link, useNavigate } from 'react-router-dom'
 import { api } from '../api/client'
 import JointProjectForm from '../components/JointProjectForm'
-import { PageHeading } from '../components/ui'
+import { Lead, PageHeading } from '../components/ui'
 
 export default function JointProjectNew() {
   const navigate = useNavigate()
@@ -17,7 +17,7 @@ export default function JointProjectNew() {
         Back to the collaborations
       </Link>
       <PageHeading>Add a joint project</PageHeading>
-      <p className="lead">A project the group took part in with other partners, as its record on CORDIS gives it. It shows on the Collaborations page as soon as you save, at the end of the list.</p>
+      <Lead>A project the group took part in with other partners. Enter it as its record on CORDIS. It shows on the page once you save.</Lead>
       <div className="card">
         <JointProjectForm onSave={save} submitLabel="Add joint project" />
       </div>

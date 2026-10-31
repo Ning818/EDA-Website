@@ -2,12 +2,12 @@ import { Link, useNavigate } from 'react-router-dom'
 import { api } from '../api/client'
 import { useAuth } from '../auth/useAuth'
 import PersonForm from '../components/PersonForm'
-import { Loading, LoadError, PageHeading } from '../components/ui'
+import { Lead, LoadError, Loading, PageHeading } from '../components/ui'
 import { useLoad } from '../useLoad'
 
 // What the user may do with the entry afterwards. Those who hold the grants may at any time; whoever only adds people may for the day after they added the person.
 function afterwards(canEdit, canDelete) {
-  if (canEdit && canDelete) return 'You can correct or delete the entry at any time.'
+  if (canEdit && canDelete) return 'You can correct or delete it at any time.'
   if (canEdit) return 'You can correct the entry at any time and delete it for 24 hours.'
   if (canDelete) return 'You can delete the entry at any time and correct it for 24 hours.'
   return 'You can correct or delete what you enter here for 24 hours; after that only the administrative staff can.'
@@ -38,12 +38,12 @@ export default function PersonNew() {
       {loaded.status === 'error' && <LoadError error={loaded.error} onRetry={loaded.reload} />}
       {loaded.status === 'ok' && (
         <>
-          <p className="lead">
+          <Lead wide stacked>
             {areas
-              ? 'The person is listed under the research area you choose, as one of its "Involved people", and shows on the People page as soon as you save. '
+              ? 'The person is one of the "Involved people" of the area you choose. It also shows on the People page as soon as you save. '
               : 'The person shows on the People page as soon as you save. '}
             {afterwards(can('people_edit'), can('people_delete'))}
-          </p>
+          </Lead>
           <div className="card">
             <PersonForm onSave={save} submitLabel="Add person" areas={areas} />
           </div>

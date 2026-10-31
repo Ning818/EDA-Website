@@ -189,7 +189,7 @@ export default function PersonForm({ person = null, onSave, submitLabel, areas =
               <SelectField
                 id="person-area"
                 label="Research area"
-                hint={'The person is listed under "Involved people" of this research area on the theme page, and on the People page.'}
+                hint={'The theme page lists the person under "Involved people". The People page shows the person too.'}
                 required
                 value={values.area}
                 onChange={set('area')}
@@ -215,7 +215,7 @@ export default function PersonForm({ person = null, onSave, submitLabel, areas =
             <TextField
               id="person-card_name"
               label="Name on the small cards (optional)"
-              hint="Only if it is written differently there, for example with a middle name shortened to its initial. Leave it empty to use the full name."
+              hint="Only if it is written differently there. For example, a middle name shortened to its initial. Leave it empty to use the full name."
               value={values.card_name}
               onChange={set('card_name')}
               error={errors['person-card_name']}

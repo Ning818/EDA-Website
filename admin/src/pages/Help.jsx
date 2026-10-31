@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { api } from '../api/client'
-import { Button, ErrorSummary, Loading, LoadError, Notice, PageHeading, TextAreaField } from '../components/ui'
+import { Button, ErrorSummary, Lead, LoadError, Loading, Notice, PageHeading, TextAreaField } from '../components/ui'
 import { useForm } from '../useForm'
 import { useLoad } from '../useLoad'
 
@@ -93,7 +93,7 @@ export default function Help() {
   return (
     <div className="page page-narrow">
       <PageHeading title="I can't find what I need">I can&apos;t find what I need</PageHeading>
-      <p className="lead">If something you want to change has no screen, or you cannot find it, say so here. The developer will answer, and the answer appears on this page.</p>
+      <Lead>If you cannot find where to change something, report it here. The developer will answer, and the answer appears on this page.</Lead>
       {notice && <Notice kind="ok">Your request was sent. The answer will appear under Your requests.</Notice>}
       <Ask
         key={sent}

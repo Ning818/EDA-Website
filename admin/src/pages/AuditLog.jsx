@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { api } from '../api/client'
-import { Button, Loading, LoadError, PageHeading, SelectField, TextField } from '../components/ui'
+import { Button, Lead, LoadError, Loading, PageHeading, SelectField, TextField } from '../components/ui'
 import { useLoad } from '../useLoad'
 
 const PAGE = 50
@@ -162,7 +162,7 @@ export default function AuditLog() {
   return (
     <div className="page">
       <PageHeading>Activity log</PageHeading>
-      <p className="lead">Who changed what, and when. Every change made in the admin is written here at the moment it is made, and nothing here can be changed.</p>
+      <Lead>Who changed what, and when. Every change made in the admin is written here at once.</Lead>
       <Filters key={`filters|${filters.action}|${filters.user}`} filters={filters} actions={actions} onApply={show} onClear={() => show({ action: '', user: '' })} />
       <Entries key={`entries|${filters.action}|${filters.user}`} filters={filters} onActions={setActions} />
     </div>

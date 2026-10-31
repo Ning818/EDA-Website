@@ -123,7 +123,7 @@ export default function ProjectForm({ project = null, themes, onSave, submitLabe
         <SelectField
           id="proj-language"
           label="Language of the description"
-          hint="Choose a language when the description is not in English, so that a screen reader reads it in that language."
+          hint="Choose a language if the description is not in English. A screen reader then reads it in that language."
           {...bind('language')}
           error={form.errors['proj-language']}
         >

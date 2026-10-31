@@ -202,6 +202,10 @@ h1[tabindex='-1']:focus, main[tabindex='-1']:focus { outline: none; }
 .brand {
   @apply type-brand;
   text-decoration: none;
+  /* a target of at least 44px high: the padding is part of the link */
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
 }
 .brand:hover { text-decoration: underline; }
 .nav-list {
@@ -214,8 +218,10 @@ h1[tabindex='-1']:focus, main[tabindex='-1']:focus { outline: none; }
   flex: 1 1 auto;
 }
 .nav-link {
-  display: inline-block;
-  padding: 0.5rem 0.25rem;
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem; /* at least 44px high, the 3px underline included */
+  padding: 0 0.5rem;
   @apply type-action;
   text-decoration: none;
   border-bottom: 3px solid transparent;
@@ -232,7 +238,7 @@ h1[tabindex='-1']:focus, main[tabindex='-1']:focus { outline: none; }
   background: none;
   border: 2px solid #fff;
   border-radius: 0.5rem;
-  min-height: 2.5rem;
+  min-height: 2.75rem;
   padding: 0 0.875rem;
   @apply type-action;
   cursor: pointer;
@@ -248,8 +254,13 @@ h1[tabindex='-1']:focus, main[tabindex='-1']:focus { outline: none; }
   gap: 1.5rem;
 }
 .page-narrow { max-width: 40rem; }
+/* a line of explaining text on the page itself (under a title, a note, a notice) is about 70 characters at most, whatever the width of the window; the page is as wide as the tables and the forms need, and everything inside a card or a form (what it shows, what explains its fields) is as wide as the card */
+.page :is(.lead, .field-hint, p.muted, p.meta, .notice p):not(.wide, :is(.card, form, dialog) *) { max-width: 36em; }
+.page p.wide { max-width: none; } /* a note about the whole page, as wide as the notice or the form under it */
+.sentence { display: inline-block; max-width: 100%; }
+.stacked .sentence { display: block; }
 pre.log-json { @apply type-meta; margin: 0 0 0.5rem; padding: 0.5rem 0.75rem; background: var(--color-mint-deep); border-radius: 0.5rem; white-space: pre-wrap; overflow-wrap: anywhere; max-width: 36rem; }
-details > summary { cursor: pointer; }
+details > summary { cursor: pointer; display: inline-flex; align-items: center; min-height: 2.75rem; padding: 0 0.25rem; }
 .app-footer { max-width: 60rem; margin: 0 auto; padding: 0 1rem 2rem; }
 /* On a desktop screen the content of every page after the login, forms included, keeps 240px from the sides of the screen, so that its left edge lines up with the first link of the
    navigation (the header's 40px, the brand's width and the gap after it come to about 238px); both are multiples of 8. The login page stays narrow and centred. */
@@ -266,7 +277,7 @@ details > summary { cursor: pointer; }
   gap: 0.75rem 1.5rem;
 }
 .lead { @apply type-lead; color: var(--color-ink-soft); } /* as wide as the form under it */
-.back-link { align-self: flex-start; }
+.back-link { align-self: flex-start; display: inline-flex; align-items: center; min-height: 2.75rem; }
 
 /* --- panels --------------------------------------------------------------------------------------------------------------------------------------------------- */
 .card {

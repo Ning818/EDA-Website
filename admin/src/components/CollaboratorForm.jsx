@@ -81,7 +81,7 @@ export default function CollaboratorForm({ collaborator = null, onSave, submitLa
       )}
       {nothing && <Notice kind="info">Nothing was changed.</Notice>}
       <div className="form-grid form-grid-2">
-        <SelectField id="coll-kind" label="Wall" required {...bind('kind')} error={form.errors['coll-kind']} hint="The Collaborations page shows universities, institutes and companies on three walls.">
+        <SelectField id="coll-kind" label="Wall" required {...bind('kind')} error={form.errors['coll-kind']} hint="Universities, institutes and companies are on three walls.">
           <option value="">Choose a wall</option>
           {KINDS.map((kind) => (
             <option key={kind.value} value={kind.value}>
@@ -94,7 +94,7 @@ export default function CollaboratorForm({ collaborator = null, onSave, submitLa
           <TextField
             id="coll-url"
             label="Website"
-            hint="The organisation's own website, for example https://www.example.edu/en. For a company use its Italian or English site rather than the bare domain. Leave it empty if there is none."
+            hint="Its own website, for example https://www.example.edu/en. Use a company's Italian or English site, not its bare domain. Leave it empty if there is none."
             type="url"
             inputMode="url"
             autoComplete="off"
@@ -113,7 +113,7 @@ export default function CollaboratorForm({ collaborator = null, onSave, submitLa
             id="coll-logo"
             label={editing && collaborator.logo_url ? 'Choose a new logo' : 'Choose a logo'}
             required={!editing}
-            hint={`A JPEG, PNG or WebP image of up to 5 MB, ideally with a transparent background. It is made smaller and stripped of everything but the picture. Use the organisation's own logo.${
+            hint={`A JPEG, PNG or WebP image of up to 5 MB. A transparent background is best. It is made smaller and stripped of everything but the picture. Use the organisation's own logo.${
               editing && collaborator.logo_url ? ' Every collaborator has a logo: to change it, choose a new one.' : ''
             }`}
             accept={LOGO_TYPES.join(',')}

@@ -3,7 +3,7 @@ import { Link, useParams } from 'react-router-dom'
 import { api } from '../api/client'
 import { useAuth } from '../auth/useAuth'
 import TemporaryPassword from '../components/TemporaryPassword'
-import { Button, ConfirmDialog, ErrorSummary, Loading, LoadError, Notice, PageHeading, SelectField, TextField } from '../components/ui'
+import { Button, ConfirmDialog, ErrorSummary, Lead, LoadError, Loading, Notice, PageHeading, SelectField, TextField } from '../components/ui'
 import { AREA_LABELS, PRESETS, presetLabel } from '../labels'
 import { useLoad } from '../useLoad'
 
@@ -126,7 +126,7 @@ function AccountForm({ account, mine, onChanged, flash, setFlash }) {
         Back to the accounts
       </Link>
       <PageHeading title={account.name}>{account.name}</PageHeading>
-      <p className="lead">
+      <Lead>
         {account.email} ·{' '}
         <span className={`badge ${account.is_active ? 'badge-ok' : 'badge-off'}`}>{account.is_active ? 'Active' : 'Switched off'}</span>
         {account.must_change_password && (
@@ -135,7 +135,7 @@ function AccountForm({ account, mine, onChanged, flash, setFlash }) {
             <span className="badge badge-warn">Temporary password</span>
           </>
         )}
-      </p>
+      </Lead>
 
       {flash.notice && <Notice kind="ok">{flash.notice}</Notice>}
       {failure && (

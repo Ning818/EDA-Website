@@ -1,7 +1,7 @@
 import { Link, useNavigate } from 'react-router-dom'
 import { api } from '../api/client'
 import ProjectForm from '../components/ProjectForm'
-import { Loading, LoadError, PageHeading } from '../components/ui'
+import { Lead, LoadError, Loading, PageHeading } from '../components/ui'
 import { useLoad } from '../useLoad'
 
 export default function ProjectNew() {
@@ -20,7 +20,7 @@ export default function ProjectNew() {
         Back to the funded projects
       </Link>
       <PageHeading>Add a project</PageHeading>
-      <p className="lead">The project shows on the Funded projects page of its theme as soon as you save, and the numbers at the top of the page count it. Afterwards you are asked whether the Guided Introduction of the theme still fits.</p>
+      <Lead>The project shows on its theme's Funded projects page instantly. You need to check if the Guided Introduction still fits.</Lead>
       {themes.status === 'loading' && <Loading>Loading the themes…</Loading>}
       {themes.status === 'error' && <LoadError error={themes.error} onRetry={themes.reload} />}
       {themes.status === 'ok' && (

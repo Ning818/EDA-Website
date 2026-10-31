@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { api } from '../api/client'
-import { Button, CheckboxField, ErrorSummary, FileField, Loading, LoadError, Notice, PageHeading, TextAreaField, TextField } from '../components/ui'
+import { Button, CheckboxField, ErrorSummary, FileField, Lead, LoadError, Loading, Notice, PageHeading, TextAreaField, TextField } from '../components/ui'
 import { isWebAddress, useForm } from '../useForm'
 import { useLoad } from '../useLoad'
 
@@ -140,7 +140,7 @@ function CardForm({ theme, kind, card }) {
               label="What the picture shows"
               required
               rows={2}
-              hint="A few words for people who cannot see it, for example: A plot of the leakage power of SRAM cells."
+              hint="A few words for people who cannot see it. For example: A plot of the leakage power of SRAM cells."
               {...form.bind('image_alt')}
               error={form.errors['card-image_alt']}
             />
@@ -174,9 +174,9 @@ export default function ThemeHighlight() {
       {known && theme.status === 'error' && <LoadError error={theme.error} onRetry={theme.reload} />}
       {known && theme.status === 'ok' && (
         <>
-          <p className="lead">
+          <Lead>
             {kind === 'paper' ? "The paper shown on the theme's Research page." : "The project shown on the theme's Funded Projects page."} Everything on it is typed here, by hand.
-          </p>
+          </Lead>
           <CardForm theme={theme.data} kind={kind} card={card} />
         </>
       )}

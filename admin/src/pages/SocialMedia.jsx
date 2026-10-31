@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { api } from '../api/client'
-import { Button, ErrorSummary, Loading, LoadError, Notice, PageHeading, TextAreaField, TextField } from '../components/ui'
+import { Button, ErrorSummary, Lead, LoadError, Loading, Notice, PageHeading, TextAreaField, TextField } from '../components/ui'
 import { isWebAddress, useForm } from '../useForm'
 import { useLoad } from '../useLoad'
 
@@ -115,7 +115,7 @@ export default function SocialMedia() {
         Back to the site text
       </Link>
       <PageHeading>Social media</PageHeading>
-      <p className="lead">The YouTube and the LinkedIn blocks of the home page, and where the icons in the footer lead. Each block is saved on its own.</p>
+      <Lead>The YouTube and LinkedIn blocks of the home page. They also say where the icons in the footer lead. Each block is saved on its own.</Lead>
       {status === 'loading' && <Loading>Loading the social media blocks…</Loading>}
       {status === 'error' && <LoadError error={error} onRetry={reload} />}
       {status === 'ok' &&

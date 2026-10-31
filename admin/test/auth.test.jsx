@@ -1,6 +1,6 @@
 import { screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { expectNoAxeViolations, me, renderAdmin, unauthorized } from './helpers'
 
 describe('the login', () => {
@@ -211,6 +211,109 @@ describe('where a login leads', () => {
     open('/site', null, ADA)
     await logIn(user)
     expect(await screen.findByRole('heading', { level: 1, name: 'Site text' })).toBeInTheDocument()
+  })
+})
+
+describe('the email addresses saved on this computer', () => {
+  const KEY = 'eda-admin-emails'
+  const saved = () => JSON.parse(localStorage.getItem(KEY) ?? '[]')
+  const loginRoutes = (post = { body: me() }) => ({ 'GET /api/auth/me': unauthorized, 'POST /api/auth/login': post })
+
+  beforeEach(() => localStorage.clear())
+  afterEach(() => {
+    vi.restoreAllMocks()
+    localStorage.clear()
+  })
+
+  async function logIn(user, address = 'ada@example.org') {
+    await user.type(await screen.findByLabelText(/Email address/), address)
+    await user.type(screen.getByLabelText(/Password/), 'a long enough passphrase')
+    await user.click(screen.getByRole('button', { name: 'Log in' }))
+  }
+
+  it('lists the saved addresses for the email field, which the browser shows when it is clicked, and has no accessibility violations', async () => {
+    localStorage.setItem(KEY, JSON.stringify(['ada@example.org', 'tom@example.org']))
+    const { container } = renderAdmin('/login', loginRoutes())
+    const field = await screen.findByLabelText(/Email address/)
+    const list = container.querySelector(`datalist#${field.getAttribute('list')}`)
+    expect(list).not.toBeNull()
+    expect([...list.querySelectorAll('option')].map((o) => o.value)).toEqual(['ada@example.org', 'tom@example.org'])
+    expect(field).toHaveAttribute('autocomplete', 'username') // the browser's own saved logins still work
+    await expectNoAxeViolations(container)
+  })
+
+  it('offers nothing, and no button to forget, when nothing is saved', async () => {
+    const { container } = renderAdmin('/login', loginRoutes())
+    await screen.findByLabelText(/Email address/)
+    expect(container.querySelectorAll('datalist option')).toHaveLength(0)
+    expect(screen.queryByRole('button', { name: /Forget the email addresses/ })).not.toBeInTheDocument()
+  })
+
+  it('saves an address that logged in, in lower case, and never the password', async () => {
+    const user = userEvent.setup()
+    renderAdmin('/login', loginRoutes())
+    await logIn(user, 'Ada@Example.org')
+    await screen.findByRole('heading', { level: 1, name: 'What would you like to do?' })
+    expect(saved()).toEqual(['ada@example.org'])
+    expect(JSON.stringify({ ...localStorage })).not.toContain('a long enough passphrase')
+  })
+
+  it('does not save an address whose login failed', async () => {
+    const user = userEvent.setup()
+    renderAdmin('/login', loginRoutes({ status: 401, body: { detail: 'Incorrect email or password' } }))
+    await logIn(user)
+    expect(await screen.findByText('The email or the password is not right.')).toBeInTheDocument()
+    expect(saved()).toEqual([])
+  })
+
+  it('keeps the five latest, the newest first, and each address once', async () => {
+    const user = userEvent.setup()
+    localStorage.setItem(KEY, JSON.stringify(['e@example.org', 'd@example.org', 'c@example.org', 'b@example.org', 'a@example.org']))
+    const { unmount } = renderAdmin('/login', loginRoutes())
+    await logIn(user, 'f@example.org')
+    await screen.findByRole('heading', { level: 1, name: 'What would you like to do?' })
+    expect(saved()).toEqual(['f@example.org', 'e@example.org', 'd@example.org', 'c@example.org', 'b@example.org']) // the oldest is gone
+    unmount()
+    renderAdmin('/login', loginRoutes())
+    await logIn(user, 'D@example.org') // one that is in the list already moves to the front
+    await screen.findByRole('heading', { level: 1, name: 'What would you like to do?' })
+    expect(saved()).toEqual(['d@example.org', 'f@example.org', 'e@example.org', 'c@example.org', 'b@example.org'])
+  })
+
+  it('forgets every saved address when asked, and says so', async () => {
+    const user = userEvent.setup()
+    localStorage.setItem(KEY, JSON.stringify(['ada@example.org']))
+    const { container } = renderAdmin('/login', loginRoutes())
+    await user.click(await screen.findByRole('button', { name: 'Forget the email addresses saved on this computer' }))
+    expect(await screen.findByText('The saved email addresses were removed.')).toBeInTheDocument()
+    expect(localStorage.getItem(KEY)).toBeNull()
+    expect(container.querySelectorAll('datalist option')).toHaveLength(0)
+    expect(screen.queryByRole('button', { name: /Forget the email addresses/ })).not.toBeInTheDocument()
+  })
+
+  it('ignores what is in the storage if it is not a list of addresses', async () => {
+    localStorage.setItem(KEY, '{"not": "a list"}')
+    const { container, unmount } = renderAdmin('/login', loginRoutes())
+    await screen.findByLabelText(/Email address/)
+    expect(container.querySelectorAll('datalist option')).toHaveLength(0)
+    unmount()
+    localStorage.setItem(KEY, 'not json at all')
+    const again = renderAdmin('/login', loginRoutes())
+    await screen.findByLabelText(/Email address/)
+    expect(again.container.querySelectorAll('datalist option')).toHaveLength(0)
+  })
+
+  it('still logs in when the browser keeps nothing', async () => {
+    const user = userEvent.setup()
+    vi.spyOn(Storage.prototype, 'getItem').mockImplementation(() => {
+      throw new Error('blocked')
+    })
+    vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+      throw new Error('blocked')
+    })
+    renderAdmin('/login', loginRoutes())
+    await logIn(user)
+    expect(await screen.findByRole('heading', { level: 1, name: 'What would you like to do?' })).toBeInTheDocument()
   })
 })
 

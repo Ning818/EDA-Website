@@ -34,7 +34,7 @@ npm run build    # the files to serve, in dist/
 
 | Screen | For | Does |
 |---|---|---|
-| Log in, Change password | everyone | the login; a user on a temporary password is sent to change it first and can do nothing else |
+| Log in, Change password | everyone | the login; a user on a temporary password is sent to change it first and can do nothing else. The email addresses that have logged in on this computer (the five latest, never a password, and only ones that logged in) are listed by the browser when the email field is clicked, and a button forgets them |
 | Home | everyone | the tasks the user's grants allow, and the ones their grants allow but that have no screen yet |
 | People, a person, Add a new person | `people_add`, `people_edit` | find a person; add one (a user who keeps theme pages chooses the research area to list them under; with a photo that needs the confirmation that the person agreed, and a warning about a name that is there already); correct one, a change of title to Former member included (a member who leaves), after seeing which themes lose a contact; delete one added by mistake (grant `people_delete`, or the one who added the person, for 24 hours), after seeing what goes with them |
 | Accounts, Make a new account, one account | `accounts` | make an account with a temporary password shown once; change the name or what the account may do; switch it off or on; give a new temporary password |

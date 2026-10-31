@@ -46,6 +46,7 @@ def cleanup_admin_data() -> None:
     """Back to what the seed made: no accounts, no audit rows, no people but the seed's, no photo files but theirs."""
     with engine.begin() as connection:
         connection.execute(text("DELETE FROM audit_log"))
+        connection.execute(text("DELETE FROM help_requests"))
         connection.execute(text("DELETE FROM login_attempts"))
         connection.execute(text("DELETE FROM users"))
         connection.execute(text("DELETE FROM people WHERE slug <> ALL(:slugs)"), {"slugs": list(PEOPLE_BY_SLUG)})

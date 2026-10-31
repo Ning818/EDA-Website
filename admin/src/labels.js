@@ -4,6 +4,7 @@ export const PRESETS = [
   { value: 'administrative', label: 'Administrative staff', description: 'Adds and changes people, keeps the site pages, and manages accounts.' },
   { value: 'theme-owner', label: 'Theme owner', description: 'Adds people and keeps the content of every theme.' },
   { value: 'projects-owner', label: 'Projects owner', description: 'Keeps the funded projects.' },
+  { value: 'developer', label: 'Developer', description: 'Answers the requests of people who cannot find what they need, reads the activity log and checks how the system is doing.' },
 ]
 
 export const presetLabel = (account) => {
@@ -19,6 +20,7 @@ export const AREA_LABELS = {
   projects: 'Funded projects',
   theme: 'Theme pages',
   accounts: 'Accounts',
+  system: 'System',
 }
 
 export const TITLES = ['Full Professor', 'Associate Professor', 'Assistant Professor', 'Research Fellow', 'PhD Student', 'Former member']

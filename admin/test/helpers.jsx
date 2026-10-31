@@ -16,6 +16,7 @@ export const THEME_OWNER = [
   { area: 'theme', theme: null },
 ]
 export const PROJECTS_OWNER = [{ area: 'projects', theme: null }]
+export const DEVELOPER = [{ area: 'system', theme: null }]
 
 export const me = (over = {}) => ({ id: 1, email: 'ada@example.org', name: 'Ada Lovelace', grants: ADMINISTRATIVE, must_change_password: false, ...over })
 

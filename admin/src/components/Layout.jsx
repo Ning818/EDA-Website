@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react'
-import { NavLink, Outlet, useLocation } from 'react-router-dom'
+import { Link, NavLink, Outlet, useLocation } from 'react-router-dom'
 import { useAuth } from '../auth/useAuth'
 import SessionWarning from './SessionWarning'
 
@@ -80,6 +80,15 @@ export default function Layout() {
                       </NavLink>
                     </li>
                   )}
+                  {can('system') && (
+                    <>
+                      <li>
+                        <NavLink to="/requests" className="nav-link">
+                          Requests
+                        </NavLink>
+                      </li>
+                    </>
+                  )}
                   {can('accounts') && (
                     <li>
                       <NavLink to="/accounts" className="nav-link">
@@ -109,6 +118,12 @@ export default function Layout() {
       <main id="main" tabIndex={-1} className="app-main">
         <Outlet />
       </main>
+      {/* the link to the page where a request is written is not offered on that page itself, nor to the developer, who answers the requests */}
+      {!forced && user.grants.length > 0 && !can('system') && pathname !== '/help' && (
+        <footer className="app-footer">
+          <Link to={`/help?from=${encodeURIComponent(pathname)}`}>I can&apos;t find what I need</Link>
+        </footer>
+      )}
       <SessionWarning />
     </>
   )

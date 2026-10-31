@@ -17,6 +17,7 @@ class Area(StrEnum):
     PROJECTS = "projects"  # the funded projects of every theme, and the funded-projects paragraph of each theme page
     THEME = "theme"  # the content of a theme (its words, research areas, highlights, contacts); `theme_id` says which one, empty means every theme
     ACCOUNTS = "accounts"  # make, switch off and give grants to accounts
+    SYSTEM = "system"  # the developer's: read and answer the "I can't find what I need" requests, read the activity log, see how the system is doing
 
 
 class UserGrant(Base):

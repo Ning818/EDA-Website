@@ -329,6 +329,10 @@ All need a login, and the ones that change something also pass the cross-site ch
 | `PUT /api/admin/themes/{slug}/funded-blurb` | write the sentence of the theme's Funded projects card about its own projects (JSON: `text`) |
 | `GET /api/admin/links/problems` | the links in the content the user keeps that failed the threshold number of checks in a row, longest broken first, with the time of the last check and the threshold; none for a user who keeps nothing with links |
 | `POST /api/admin/links/problems/{id}/check` | check that one link again now: a good answer clears the report, a bad one counts as one more failure; 403 `not_allowed` for a link of content the user does not keep, 404 `link_not_found` when the address was changed or removed meanwhile |
+| `POST /api/admin/requests` | say what you could not find or do (JSON: `message`, and `page`, the admin page you came from); any logged-in user with at least one grant, at most 5 waiting at once (409 `too_many_open`) |
+| `GET /api/admin/requests/mine` | the user's own requests with their answers, newest first |
+| `GET /api/admin/requests` | every request, the waiting ones first (grant `system`, the developer's) |
+| `POST /api/admin/requests/{id}/close` | mark one as answered, with an answer if wanted (JSON: `answer`; grant `system`); 409 `already_done` the second time |
 | `DELETE /api/admin/people/{slug}?confirm=true` | delete a person added by mistake (grant `people_delete`, or the one who added the person for a day); without `confirm` it answers 409 `delete_needs_confirmation` with what would go |
 
 ### The check of the links in the content (`app/services/links.py`)
@@ -347,10 +351,17 @@ prints how many work, how many failed this time, how many could not be checked, 
   `projects`, highlight cards the holders of `theme` (for that theme). A link whose address was changed or removed after the check is not shown, and the next check starts it again.
 - The list is read-only; a user may check one link again (`POST .../check`), and the answer is the same as the scheduled check would give.
 
+### The "I can't find what I need" requests (`app/services/requests.py`)
+
+For an edit that no screen covers, a user writes what they need (`help_requests` table). Only the developer can build or change what a screen does not, so the requests go to them: the
+holder of the grant `system` (the preset `developer`, which has nothing else) reads them and closes each with an answer that the user reads in the admin. Any logged-in user with at least one grant may ask (an account with no grants may do nothing in the admin); a request is plain text of at most 1500 characters, comes with the admin page it was
+written from (a path only, never an address of another site), and at most 5 of one user wait at once. Asking and closing write audit rows (`request.create`, `request.close`); a
+closed request cannot be answered again, and a request stays readable after its account is gone. Nothing is sent by email: the developer sees the waiting ones on their Home page. The first developer account is made from the command line:
+`python -m app.manage create-user --email ... --name ... --preset developer`.
+
 ### Still to build
 
 - The admin's own interface is a separate front-end application (`../admin`) that shows each user only the tasks their grants allow; its README lists the screens that exist and the ones still to build.
-- A "I cannot find what I need" request, for edits that no screen covers.
 - Rare edits outside the screens: a restricted expert mode for the administrative staff (the validation sits in the models and services, so it cannot be skipped there either); new fields
   and new themes stay developer work.
 - **New theme:** a developer builds its particle cloud, models and header artwork and redeploys the front end; the theme owner then adds the theme's own text in the admin and ticks `published`. The theme list becomes the code's templates (`frontend/src/themes.js`: slug, colour, artwork) joined by slug to the database's content. Nothing is copied from another theme, and no code or particle bundle is ever uploaded through the admin.

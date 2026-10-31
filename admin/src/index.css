@@ -248,11 +248,13 @@ h1[tabindex='-1']:focus, main[tabindex='-1']:focus { outline: none; }
   gap: 1.5rem;
 }
 .page-narrow { max-width: 40rem; }
+.app-footer { max-width: 60rem; margin: 0 auto; padding: 0 1rem 2rem; }
 /* On a desktop screen the content of every page after the login, forms included, keeps 240px from the sides of the screen, so that its left edge lines up with the first link of the
    navigation (the header's 40px, the brand's width and the gap after it come to about 238px); both are multiples of 8. The login page stays narrow and centred. */
 @media (width >= 80rem) {
   .app-header-inner { max-width: none; padding-left: 40px; padding-right: 40px; }
   .app-main > .page { max-width: none; padding-left: 240px; padding-right: 240px; }
+  .app-footer { max-width: none; padding-left: 240px; padding-right: 240px; }
 }
 .page-head {
   display: flex;

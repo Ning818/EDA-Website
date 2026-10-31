@@ -409,3 +409,40 @@ class TemporaryPasswordRead(BaseModel):
 
     account: AccountRead
     temporary_password: str
+
+
+class RequestIn(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    message: str = Field(max_length=5000)
+    # the page of the admin the asker came from
+    page: str | None = Field(default=None, max_length=500)
+
+
+class RequestCloseIn(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    answer: str | None = Field(default=None, max_length=5000)
+
+
+class RequestRead(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    user_name: str
+    user_email: str
+    message: str
+    page: str | None
+    status: str
+    answer: str | None
+    created_at: datetime
+    handled_at: datetime | None
+    handled_by: str | None
+
+
+class RequestsRead(BaseModel):
+    requests: list[RequestRead]
+    # how many are waiting for an answer
+    open: int
+
+

@@ -42,9 +42,11 @@ npm run build    # the files to serve, in dist/
 | Funded projects, a project, Add a project | `projects` | the projects of every theme, ongoing and ended, with a search; add one; correct one; mark one as ended (a project is never deleted). After a project is added, ended or changed (its address alone does not count) the admin asks whether the theme's Guided Introduction (the paragraph in the Funded projects card of its Research page) still fits, with the projects next to it; that text is written by hand and can be opened from the list at any time |
 | Collaborations, a collaborator, Add a collaborator, a joint project, Add a joint project | `site` | the three logo walls and the joint projects of the Collaborations page; add, correct and remove a collaborator, which needs a logo (required when adding, replaced but never taken away; checked, made smaller and kept as a PNG where it is transparent); add, correct and remove a joint project, with its other partners one to a line; a name or code that is taken is put at its field |
 | Broken links | `people_edit`, `site`, `projects` or `theme` | the links that stopped working in the content the user keeps, each with the address, what the check got back (such as 404 Not Found), how many checks in a row it failed, a link to the page where the content is changed, and a button that checks that one link again; the Home page counts them. A link is reported only after several failed checks, so a short outage does not show here |
+| I can't find what I need | everyone with a grant | a link at the foot of every page except this one (and not for the developer, who is the one who answers); a box to say what is needed (it records the page the user came from), and the user's own requests with the answers of the developer |
+| Requests | `system` (the developer) | the requests that wait for an answer and the ones answered; a dialog to answer one and mark it as answered; the Home page counts the waiting ones |
 | Site text, Footer numbers, Page introductions | `site` | the footer's phone and fax numbers, checked for being phone numbers and showing what the phone link dials; the paragraph under the title of the People page and of the Collaborations page, each saved on its own, with its length |
 
-Not built yet: the request for what no screen covers.
+The warning before a login ends and the request for what no screen covers are built (see below).
 
 What a user sees is decided by the grants the API sends with `GET /api/auth/me`; the API checks them again on every request, so hiding a screen is only a convenience.
 
@@ -100,7 +102,7 @@ come from the group.
 | X3 A link has gone dead | Checked on a schedule; each user is shown the broken links of their own area, and a count on the Home page: project links to the funded-projects owner, collaborator and people links to the administrative staff, Highlight links to the theme owner | Built (the checker is `python -m app.manage check-links`) |
 | Y1 Accounts | The administrative staff make an account for a person and choose what it may do; the temporary password is shown once and has to be changed at the first login; they can change, switch off and reset an account | Built |
 | Y2 A new research theme | Not done in the admin: a developer adds it to the site, and then the theme owner writes its text | Out of the admin |
-| Z "I can't find what I need" | A way to ask for something the scenarios do not cover | Not yet |
+| Z "I can't find what I need" | A way to ask for something the scenarios do not cover: a request that the developer reads and answers | Built |
 
 Every scenario shares these rules: a link must be `http` or `https`, text has no HTML, and every change is written to the audit log with who made it. Still to come with the theme screens: a text
 alternative for each picture and the language of text that is not English.

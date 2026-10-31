@@ -1,6 +1,6 @@
 """Who may do what: a user may do what their grants say, and nothing else. The routes and the services ask here; nothing checks a role or a name.
 
-A grant is a part of the content (an `Area`), and for the area `theme` the theme it is about, or every theme. The three kinds of people who keep the site have a preset: a bundle
+A grant is a part of the content (an `Area`), and for the area `theme` the theme it is about, or every theme. The kinds of people who keep the site, and the developer, have a preset: a bundle
 of grants given together when the account is made.
 """
 from enum import StrEnum
@@ -26,6 +26,7 @@ class Preset(StrEnum):
     ADMINISTRATIVE = "administrative"  # the administrative staff
     THEME_OWNER = "theme-owner"  # the one person who keeps every theme page
     PROJECTS_OWNER = "projects-owner"  # the one person who keeps the funded projects
+    DEVELOPER = "developer"  # whoever looks after the system: answers the requests for what no screen does, reads the activity log, checks how the system is doing
 
 
 # What each preset grants. A theme grant given by a preset is for every theme (theme_id empty), the ones added later included.
@@ -33,6 +34,7 @@ PRESET_AREAS: dict[Preset, tuple[Area, ...]] = {
     Preset.ADMINISTRATIVE: (Area.PEOPLE_ADD, Area.PEOPLE_EDIT, Area.PEOPLE_DELETE, Area.SITE, Area.ACCOUNTS),
     Preset.THEME_OWNER: (Area.PEOPLE_ADD, Area.THEME),
     Preset.PROJECTS_OWNER: (Area.PROJECTS,),
+    Preset.DEVELOPER: (Area.SYSTEM,),
 }
 
 

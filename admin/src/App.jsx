@@ -12,6 +12,7 @@ import CollaboratorPage from './pages/CollaboratorPage'
 import Collaborations from './pages/Collaborations'
 import FooterNumbers from './pages/FooterNumbers'
 import FundedSentence from './pages/FundedSentence'
+import Help from './pages/Help'
 import Home from './pages/Home'
 import JointProjectNew from './pages/JointProjectNew'
 import JointProjectPage from './pages/JointProjectPage'
@@ -24,6 +25,7 @@ import People from './pages/People'
 import ProjectNew from './pages/ProjectNew'
 import ProjectPage from './pages/ProjectPage'
 import Projects from './pages/Projects'
+import Requests from './pages/Requests'
 import Site from './pages/Site'
 import ThemeArea from './pages/ThemeArea'
 import ThemeAreas from './pages/ThemeAreas'
@@ -37,6 +39,7 @@ const PEOPLE = ['people_add', 'people_edit', 'people_delete']
 const PROJECTS = ['projects']
 const SITE = ['site']
 const THEME = ['theme']
+const ANY = ['people_add', 'people_edit', 'people_delete', 'site', 'projects', 'theme', 'accounts', 'system']
 const LINKS = ['people_edit', 'site', 'projects', 'theme']
 
 export default function App() {
@@ -71,6 +74,8 @@ export default function App() {
             <Route path="themes/:slug/areas/:id" element={<RequireGrant areas={THEME}><ThemeArea /></RequireGrant>} />
             <Route path="themes/:slug/highlights/:kind" element={<RequireGrant areas={THEME}><ThemeHighlight /></RequireGrant>} />
             <Route path="links" element={<RequireGrant areas={LINKS}><BrokenLinks /></RequireGrant>} />
+            <Route path="help" element={<RequireGrant areas={ANY}><Help /></RequireGrant>} />
+            <Route path="requests" element={<RequireGrant areas={['system']}><Requests /></RequireGrant>} />
             <Route path="accounts" element={<RequireGrant areas={['accounts']}><Accounts /></RequireGrant>} />
             <Route path="accounts/new" element={<RequireGrant areas={['accounts']}><AccountNew /></RequireGrant>} />
             <Route path="accounts/:id" element={<RequireGrant areas={['accounts']}><AccountEdit /></RequireGrant>} />

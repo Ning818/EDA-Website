@@ -24,7 +24,24 @@ const logPage = (entries, next_before = null, actions = ['page.intro', 'person.u
 const status = (over = {}) => ({
   server_time: '2026-10-31T10:00:00Z',
   database: { ok: true, migration: '3b7d5e90a1c8' },
-  links: { last_check: '2026-10-30T19:25:00Z', stale: false, stale_after_days: 3, total: 120, ok: 100, broken: 6, blocked: 9, unchecked: 5, reported: 2, threshold: 3 },
+  links: {
+    last_check: '2026-10-30T19:25:00Z',
+    stale: false,
+    stale_after_days: 3,
+    total: 120,
+    ok: 100,
+    broken: 6,
+    blocked: 9,
+    unchecked: 5,
+    reported: 2,
+    threshold: 3,
+    by_keeper: [
+      { area: 'people', total: 60, broken: 4, reported: 1, blocked: 5, keepers: ['Ada Demo', 'Bea Demo'] },
+      { area: 'site', total: 20, broken: 2, reported: 1, blocked: 0, keepers: ['Ada Demo', 'Bea Demo'] },
+      { area: 'projects', total: 30, broken: 0, reported: 0, blocked: 4, keepers: [] },
+      { area: 'theme', total: 10, broken: 0, reported: 0, blocked: 0, keepers: ['Tom Demo'] },
+    ],
+  },
   media: { files: 42, bytes: 5 * 1024 * 1024 },
   accounts: { total: 5, active: 4, on_temporary_password: 1 },
   requests_open: 2,
@@ -145,6 +162,27 @@ describe('the system status', () => {
     await expectNoAxeViolations(container)
   })
 
+  it('counts the failing links by who keeps them, with their names, and says when no account keeps a kind', async () => {
+    renderAdmin('/system', { ...developer(), [`GET ${SYSTEM}`]: { body: status() } })
+    const table = await screen.findByRole('table', { name: 'Who keeps the links' })
+    const rows = within(table).getAllByRole('row')
+    expect(rows).toHaveLength(5)
+    const cells = (row) => within(row).getAllByRole('cell').map((c) => c.textContent)
+    expect(within(rows[1]).getByRole('rowheader')).toHaveTextContent("People's links")
+    expect(cells(rows[1])).toEqual(['Ada Demo, Bea Demo', '60', '4', '1'])
+    expect(within(rows[2]).getByRole('rowheader')).toHaveTextContent('Collaborators and joint projects')
+    expect(cells(rows[2])).toEqual(['Ada Demo, Bea Demo', '20', '2', '1'])
+    expect(within(rows[3]).getByRole('rowheader')).toHaveTextContent('Funded projects')
+    expect(cells(rows[3])).toEqual(['No active account', '30', '0', '0'])
+    expect(cells(rows[4])).toEqual(['Tom Demo', '10', '0', '0'])
+  })
+
+  it('has no accessibility violations with the table', async () => {
+    const { container } = renderAdmin('/system', { ...developer(), [`GET ${SYSTEM}`]: { body: status() } })
+    await screen.findByRole('table', { name: 'Who keeps the links' })
+    await expectNoAxeViolations(container)
+  })
+
   it('warns when the check of the links has not run for days', async () => {
     renderAdmin('/system', { ...developer(), [`GET ${SYSTEM}`]: { body: status({ links: { ...status().links, stale: true } }) } })
     expect(await screen.findByText(/has not run for more than 3 days/)).toBeInTheDocument()
@@ -166,10 +204,10 @@ describe('the system status', () => {
   it('looks again when asked', async () => {
     const user = userEvent.setup()
     let asked = 0
-    renderAdmin('/system', { ...developer(), [`GET ${SYSTEM}`]: () => ({ body: status({ content: { ...status().content, people: asked++ === 0 ? 60 : 61 } }) }) })
-    await screen.findByText('60')
+    renderAdmin('/system', { ...developer(), [`GET ${SYSTEM}`]: () => ({ body: status({ media: { files: asked++ === 0 ? 42 : 43, bytes: 5 * 1024 * 1024 } }) }) })
+    await screen.findByText(/42 files/)
     await user.click(screen.getByRole('button', { name: 'Look again' }))
-    expect(await screen.findByText('61')).toBeInTheDocument()
+    expect(await screen.findByText(/43 files/)).toBeInTheDocument()
   })
 
   it('is closed to everyone but the developer', async () => {

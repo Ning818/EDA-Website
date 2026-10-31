@@ -270,3 +270,82 @@ def test_a_database_that_cannot_answer_is_said_so_and_the_rest_still_comes(db, d
     answer = system.status(Broken(db), user)
     assert answer["database"] == {"ok": False, "migration": None}
     assert answer["accounts"]["total"] >= 1
+
+
+# --- the links by who keeps them ------------------------------------------------------------------------------------------------------------------------------------
+
+
+def add_links(db, area, states, source_type):
+    """Links of one area: `states` is a list of (state, failures)."""
+    for n, (state, failures) in enumerate(states):
+        db.add(
+            LinkCheck(source_type=source_type, source_key=f"{area}{n}", field="url", label=f"{area} {n}", url=f"https://example.org/{area}/{n}", area=area, state=state, failures=failures,
+                      last_checked_at=datetime.now(UTC))
+        )
+    db.commit()
+
+
+def by_keeper(dev):
+    return {row["area"]: row for row in dev.get(SYSTEM).json()["links"]["by_keeper"]}
+
+
+def test_the_links_are_counted_by_who_keeps_them(db, dev):
+    make_user("ada@example.org", Preset.ADMINISTRATIVE)
+    make_user("bea@example.org", Preset.ADMINISTRATIVE)
+    make_user("tom@example.org", Preset.THEME_OWNER)
+    make_user("pia@example.org", Preset.PROJECTS_OWNER)
+    threshold = settings.link_fail_threshold
+    add_links(db, "people", [("ok", 0), ("broken", 1), ("broken", threshold), ("blocked", 0)], "person")
+    add_links(db, "site", [("broken", threshold + 2), ("ok", 0)], "collaborator")
+    add_links(db, "projects", [("ok", 0), ("ok", 0)], "project")
+    add_links(db, "theme", [("unchecked", 0)], "highlight")
+    rows = by_keeper(dev)
+    assert list(rows) == ["people", "site", "projects", "theme"]  # always the four kinds, in this order
+    assert (rows["people"]["total"], rows["people"]["broken"], rows["people"]["reported"], rows["people"]["blocked"]) == (4, 2, 1, 1)
+    assert (rows["site"]["total"], rows["site"]["broken"], rows["site"]["reported"], rows["site"]["blocked"]) == (2, 1, 1, 0)
+    assert (rows["projects"]["total"], rows["projects"]["broken"], rows["projects"]["reported"]) == (2, 0, 0)
+    assert (rows["theme"]["total"], rows["theme"]["broken"], rows["theme"]["reported"]) == (1, 0, 0)
+
+
+def test_each_kind_names_the_accounts_that_keep_it(db, dev):
+    make_user("ada@example.org", Preset.ADMINISTRATIVE)
+    make_user("bea@example.org", Preset.ADMINISTRATIVE)
+    make_user("tom@example.org", Preset.THEME_OWNER)
+    make_user("pia@example.org", Preset.PROJECTS_OWNER)
+    rows = by_keeper(dev)
+    assert rows["people"]["keepers"] == ["Ada", "Bea"] and rows["site"]["keepers"] == ["Ada", "Bea"]  # sorted by name
+    assert rows["projects"]["keepers"] == ["Pia"] and rows["theme"]["keepers"] == ["Tom"]
+    # the developer holds none of these grants, so is named nowhere
+    assert all("Dev" not in row["keepers"] for row in rows.values())
+
+
+def test_an_account_that_is_switched_off_keeps_nothing(db, dev):
+    make_user("ada@example.org", Preset.ADMINISTRATIVE)
+    with SessionLocal() as session:
+        get_by_email(session, "ada@example.org").is_active = False
+        session.commit()
+    assert by_keeper(dev)["people"]["keepers"] == [] and by_keeper(dev)["site"]["keepers"] == []
+
+
+def test_a_theme_grant_for_one_theme_makes_its_holder_a_keeper_once(db, dev):
+    from app.models.grant import Area
+    from app.models.theme import Theme
+    from app.services.grants import grant
+
+    make_user("one@example.org")
+    one = get_by_email(db, "one@example.org")
+    for slug in ("smart-city", "bioinformatics"):  # two theme grants, one person: named once
+        grant(db, one, Area.THEME, db.scalar(select(Theme.id).where(Theme.slug == slug)))
+    db.commit()
+    assert by_keeper(dev)["theme"]["keepers"] == ["One"]
+
+
+def test_links_that_no_one_keeps_are_counted_with_no_names(db, dev):
+    add_links(db, "projects", [("broken", settings.link_fail_threshold)], "project")
+    row = by_keeper(dev)["projects"]
+    assert row["reported"] == 1 and row["keepers"] == []
+
+
+def test_a_system_with_no_links_still_lists_the_four_kinds(dev):
+    rows = by_keeper(dev)
+    assert list(rows) == ["people", "site", "projects", "theme"] and all(r["total"] == 0 and r["broken"] == 0 for r in rows.values())

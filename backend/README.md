@@ -370,7 +370,9 @@ The preset `developer` has one grant, `system`, and it only reads and answers: t
   email is never read as a pattern. It never holds a password or its hash (a test reads a whole log after accounts were made and reset).
 - **The status** reports the database (and says so when it does not answer, instead of failing), the version of the tables, the link check, the size of the uploaded files, the accounts and the
   requests waiting. The link check is called **stale** when it has not run for `LINK_CHECK_STALE_DAYS` days (3 by default) or never: it is run by the host's scheduler, and nothing else would
-  notice that the scheduler stopped. The developer's Home page shows that, and the requests waiting.
+  notice that the scheduler stopped. The developer's Home page shows that, and the requests waiting. The links are also counted **by who keeps them** (the people's links, the collaborators
+  and joint projects, the funded projects, the highlight cards): how many there are, how many failed the last check and how many are reported, with the names of the active accounts that hold the
+  grant for each kind, so that a failing link that no account is there to mend can be seen.
 
 ### Making a theme
 

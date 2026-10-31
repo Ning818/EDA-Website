@@ -6,6 +6,8 @@ Rules kept here:
   It can be narrowed to the actions that start with a word ("person." for everything done to people) and to the users whose email contains a word; neither is ever read as a pattern, so a
   "%" typed in the filter matches a "%" and nothing else.
 - The status never changes anything and never fails because one part of it is down: a database that cannot answer is reported as such.
+- The links are counted by who keeps them (the people's links, the collaborators and joint projects, the funded projects, the highlight cards), with the names of the active accounts that hold
+  the grant for each kind, so that a failing link no one is there to mend shows.
 - A link check that has not run for `link_check_stale_days` days, or never, is called stale: the check is run by the host's scheduler (python -m app.manage check-links), and nothing else
   would notice that the scheduler stopped.
 """
@@ -19,7 +21,7 @@ from sqlalchemy.orm import Session
 from app.core.config import settings
 from app.models.audit import AuditLog
 from app.models.collaboration import Collaborator, JointProject
-from app.models.grant import Area
+from app.models.grant import Area, UserGrant
 from app.models.link import LinkCheck
 from app.models.person import Person
 from app.models.request import HelpRequest
@@ -67,6 +69,39 @@ def _media_size(folder: Path) -> tuple[int, int]:
     return files, size
 
 
+# the kinds of link, in the order shown, and the grant of whoever keeps each (the same rule as in app/services/links.py)
+KEPT_BY = {"people": Area.PEOPLE_EDIT, "site": Area.SITE, "projects": Area.PROJECTS, "theme": Area.THEME}
+
+
+def keepers(db: Session, area: str) -> list[str]:
+    """The names of the active accounts that hold the grant for this kind of link."""
+    grant = KEPT_BY[area]
+    return list(
+        db.scalars(
+            select(User.name).join(UserGrant, UserGrant.user_id == User.id).where(UserGrant.area == grant.value, User.is_active.is_(True)).distinct().order_by(User.name)
+        )
+    )
+
+
+def links_by_keeper(db: Session) -> list[dict]:
+    rows = db.execute(select(LinkCheck.area, LinkCheck.state, LinkCheck.failures)).all()
+    out = []
+    for area in KEPT_BY:
+        mine = [(state, failures) for a, state, failures in rows if a == area]
+        broken = [failures for state, failures in mine if state == link_service.BROKEN]
+        out.append(
+            {
+                "area": area,
+                "total": len(mine),
+                "broken": len(broken),
+                "reported": sum(1 for failures in broken if failures >= settings.link_fail_threshold),
+                "blocked": sum(1 for state, _ in mine if state == link_service.BLOCKED),
+                "keepers": keepers(db, area),
+            }
+        )
+    return out
+
+
 def link_status(db: Session, now: datetime | None = None) -> dict:
     now = now or datetime.now(UTC)
     last = link_service.last_check(db)
@@ -84,6 +119,7 @@ def link_status(db: Session, now: datetime | None = None) -> dict:
         "unchecked": counts.get(link_service.UNCHECKED, 0),
         "reported": reported,
         "threshold": settings.link_fail_threshold,
+        "by_keeper": links_by_keeper(db),
     }
 
 

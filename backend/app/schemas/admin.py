@@ -495,6 +495,19 @@ class DatabaseStatusRead(BaseModel):
     migration: str | None
 
 
+class LinkKeeperRead(BaseModel):
+    """The links of one kind of content, and who keeps them."""
+
+    # "people", "site", "projects" or "theme"
+    area: str
+    total: int
+    broken: int
+    reported: int
+    blocked: int
+    # the names of the active accounts that hold the grant for them; none: no one is there to mend them
+    keepers: list[str]
+
+
 class LinkStatusRead(BaseModel):
     last_check: datetime | None
     # the check has not run for `stale_after_days` days, or never: the host's scheduler may have stopped
@@ -508,6 +521,7 @@ class LinkStatusRead(BaseModel):
     # the broken links that have failed `threshold` checks in a row, which the people who keep them are shown
     reported: int
     threshold: int
+    by_keeper: list[LinkKeeperRead]
 
 
 class MediaStatusRead(BaseModel):

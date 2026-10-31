@@ -29,6 +29,14 @@ function Fact({ term, children }) {
   )
 }
 
+// the kinds of link, as the API names them: what they are, in the words of the people who keep them
+const KINDS = {
+  people: "People's links",
+  site: 'Collaborators and joint projects',
+  projects: 'Funded projects',
+  theme: 'Highlight cards',
+}
+
 const plural = (n, one, many) => `${n} ${n === 1 ? one : many}`
 
 /** For the developer: how the system is doing. Nothing here can be changed. */
@@ -74,6 +82,31 @@ function Status({ data }) {
           <Fact term="Not checked, because the site refuses programs">{links.blocked}</Fact>
           <Fact term="Not checked yet">{links.unchecked}</Fact>
         </Facts>
+        <div className="table-wrap" role="region" aria-label="The links by who keeps them, scrolls sideways on a narrow screen" tabIndex={0}>
+          <table>
+            <caption>Who keeps the links</caption>
+            <thead>
+              <tr>
+                <th scope="col">Links of</th>
+                <th scope="col">Kept by</th>
+                <th scope="col">Links</th>
+                <th scope="col">Failed the last check</th>
+                <th scope="col">Reported</th>
+              </tr>
+            </thead>
+            <tbody>
+              {links.by_keeper.map((row) => (
+                <tr key={row.area}>
+                  <th scope="row">{KINDS[row.area] ?? row.area}</th>
+                  <td>{row.keepers.length ? row.keepers.join(', ') : <span className="badge badge-warn">No active account</span>}</td>
+                  <td>{row.total}</td>
+                  <td>{row.broken}</td>
+                  <td>{row.reported}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </section>
 
       <section aria-labelledby="database-heading" className="card stack">

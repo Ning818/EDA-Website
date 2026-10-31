@@ -44,7 +44,7 @@ npm run build    # the files to serve, in dist/
 | Broken links | `people_edit`, `site`, `projects` or `theme` | the links that stopped working in the content the user keeps, each with the address, what the check got back (such as 404 Not Found), how many checks in a row it failed, a link to the page where the content is changed, and a button that checks that one link again; the Home page counts them. A link is reported only after several failed checks, so a short outage does not show here |
 | Site text, Footer numbers, Page introductions | `site` | the footer's phone and fax numbers, checked for being phone numbers and showing what the phone link dials; the paragraph under the title of the People page and of the Collaborations page, each saved on its own, with its length |
 
-Not built yet: the warning before a login ends, and the request for what no screen covers.
+Not built yet: the request for what no screen covers.
 
 What a user sees is decided by the grants the API sends with `GET /api/auth/me`; the API checks them again on every request, so hiding a screen is only a convenience.
 
@@ -146,7 +146,9 @@ login, home, people, add a person, a person, accounts and one account screens, a
 and adding a joint project screens, with no violations; reflow was measured at 320 px. The funded-projects screens were run through axe in the tests only, not yet in a real browser. The theme screens (a theme, its words, its contacts, its research areas, a research area and a highlight card) were run in a real browser too, with no violations.
 
 Not checked yet, and needed before the admin is relied on: a manual pass with a screen reader (NVDA, VoiceOver), with the keyboard alone on every flow, with Windows high-contrast mode and
-with 200% text size; and the warning before a login ends (the API's idle limit is 2 hours), which does not exist yet.
+with 200% text size.
+
+**The warning before a login ends.** The API says how long a login lasts (2 hours without a request, 12 hours at most). Five minutes before the earliest of the two, a dialog says when the login ends: when it is the idle limit it offers "Stay logged in" (which asks the server who is logged in, and so starts the time again) or "Not now"; when it is the 12-hour limit, which nothing can extend, it says so and asks the user to save and log in again, with "Keep working" or "Log out now". It sits on top of the page, so a form half filled is not lost, and the time is checked every few seconds and when the tab is shown again (a laptop that slept).
 
 ## Where things are
 

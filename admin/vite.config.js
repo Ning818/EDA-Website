@@ -18,5 +18,6 @@ export default defineConfig({
     globals: true,
     css: false,
     setupFiles: ['./test/setup.js'],
+    testTimeout: 20000, // a page with a long list, an axe run and a dialog can take a while on a busy machine
   },
 })

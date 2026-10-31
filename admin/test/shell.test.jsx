@@ -1,4 +1,4 @@
-import { screen, within } from '@testing-library/react'
+import { screen, within, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it } from 'vitest'
 import { PROJECTS_OWNER, THEME_OWNER, expectNoAxeViolations, me, person, renderAdmin } from './helpers'
@@ -34,7 +34,7 @@ describe('the home page', () => {
     const tasks = screen.getByRole('list', { name: 'Things you can do' })
     expect(within(tasks).getAllByRole('listitem')).toHaveLength(2)
     expect(screen.getByRole('link', { name: /Keep the funded projects/ })).toHaveAttribute('href', '/projects')
-    expect(screen.getByRole('link', { name: /See the broken links/ })).toHaveAttribute('href', '/links')
+    expect(screen.getByRole('link', { name: /Check the broken links/ })).toHaveAttribute('href', '/links')
     expect(screen.queryByRole('heading', { name: 'Coming soon' })).not.toBeInTheDocument()
   })
 
@@ -49,11 +49,11 @@ describe('moving around', () => {
     const user = userEvent.setup()
     renderAdmin('/', { 'GET /api/auth/me': { body: me() }, 'GET /api/people': { body: [person()] } })
     await screen.findByRole('heading', { level: 1, name: 'What would you like to do?' })
-    expect(document.title).toBe('Home - EDA Group admin')
+    await waitFor(() => expect(document.title).toBe('Home - EDA Group admin'))
     await user.click(screen.getByRole('link', { name: 'People' }))
     const heading = await screen.findByRole('heading', { level: 1, name: 'People' })
     expect(heading).toHaveFocus()
-    expect(document.title).toBe('People - EDA Group admin')
+    await waitFor(() => expect(document.title).toBe('People - EDA Group admin'))
   })
 
   it('marks the page the user is on in the navigation', async () => {

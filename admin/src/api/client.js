@@ -36,6 +36,10 @@ export class ApiError extends Error {
   }
 }
 
+// When the server last answered a request: every request, answered, starts the idle time of the login again (SessionWarning.jsx counts from here).
+let lastActivity = Date.now()
+export const getLastActivity = () => lastActivity
+
 // Told when a request that needed a login is refused with 401: the login ended (the AuthProvider then sends the user to the login page).
 let onUnauthorized = null
 export const setUnauthorizedHandler = (handler) => {
@@ -57,6 +61,7 @@ async function request(method, path, { json, form, quiet401 = false } = {}) {
     throw new ApiError(0)
   }
   if (response.status === 204) return null
+  lastActivity = Date.now()
   let body = null
   try {
     body = await response.json()

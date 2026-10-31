@@ -6,13 +6,22 @@ from sqlalchemy.orm import Session
 
 from app.dependencies import check_origin, get_db, require_user
 from app.models.user import User
-from app.schemas.user import LoginIn, UserRead
+from app.core.config import settings
+from app.schemas.user import LoginIn, SessionRead, UserRead
 from app.services.users import InvalidLogin, LoginLocked, UserError, authenticate, change_password
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
 # nothing here is kept by a cache, in the browser or on the way
 NO_STORE = {"Cache-Control": "no-store"}
+
+
+def _read(user: User, request: Request) -> UserRead:
+    """The user as the admin needs them, with how long this login lasts."""
+    left = request.session["iat"] + settings.session_max_hours * 3600 - time.time()
+    read = UserRead.from_model(user)
+    read.session = SessionRead(idle_seconds=settings.session_idle_minutes * 60, max_seconds_left=max(0, int(left)))
+    return read
 
 
 @router.post("/login", response_model=UserRead, dependencies=[Depends(check_origin)])
@@ -33,7 +42,7 @@ def login(data: LoginIn, request: Request, response: Response, db: Session = Dep
     request.session.clear()  # a fresh session for the login, whatever the cookie held before
     request.session["uid"] = user.id
     request.session["iat"] = time.time()
-    return UserRead.from_model(user)
+    return _read(user, request)
 
 
 @router.post("/logout", status_code=204, dependencies=[Depends(check_origin)])
@@ -67,11 +76,11 @@ def change_own_password(data: PasswordChangeIn, request: Request, response: Resp
     except UserError as error:
         raise HTTPException(status_code=422, detail={"code": "invalid_password", "message": str(error)}, headers=NO_STORE) from None
     request.session["iat"] = time.time()  # this login goes on; the ones that began before the change do not
-    return UserRead.from_model(user)
+    return _read(user, request)
 
 
 @router.get("/me", response_model=UserRead)
-def me(response: Response, user: User = Depends(require_user)):
-    """Who is logged in; 401 when nobody is."""
+def me(request: Request, response: Response, user: User = Depends(require_user)):
+    """Who is logged in, and how long the login lasts; 401 when nobody is logged in. Asking also renews the login, as any request does."""
     response.headers.update(NO_STORE)
-    return UserRead.from_model(user)
+    return _read(user, request)

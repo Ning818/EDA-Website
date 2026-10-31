@@ -14,7 +14,7 @@ const TASKS = [
   { id: 'projects', title: 'Keep the funded projects', text: 'Add a project, mark one as ended, correct one, and keep the Guided Introduction of each theme.', to: '/projects', areas: ['projects'] },
   { id: 'collaborations', title: 'Update the collaborations', text: 'The collaborators on the logo walls of the Collaborations page, and its joint projects.', to: '/collaborations', areas: ['site'] },
   { id: 'intros', title: 'Change a page introduction', text: 'The paragraph under the title of the People page or of the Collaborations page.', to: '/site/intros', areas: ['site'] },
-  { id: 'links', title: 'See the broken links', text: 'The websites linked from the content you keep that have stopped answering.', to: '/links', areas: ['people_edit', 'site', 'projects', 'theme'] },
+  { id: 'links', title: 'Check the broken links', text: 'The websites linked from the content you keep that have stopped answering.', to: '/links', areas: ['people_edit', 'site', 'projects', 'theme'] },
   { id: 'footer', title: 'Change the footer numbers', text: 'The phone and fax numbers at the foot of every page.', to: '/site/footer', areas: ['site'] },
 ]
 
@@ -26,7 +26,7 @@ function BrokenLinksNotice() {
   return (
     <Notice kind="warn">
       <p>
-        {count} {count === 1 ? 'link in the content you keep has' : 'links in the content you keep have'} stopped working. <Link to="/links">See the broken links</Link>
+        {count} {count === 1 ? 'link in the content you keep has' : 'links in the content you keep have'} stopped working. <Link to="/links">Check the broken links</Link>
       </p>
     </Notice>
   )

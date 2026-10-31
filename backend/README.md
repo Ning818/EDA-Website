@@ -145,7 +145,7 @@ There is no sign-up. The administrative staff make the accounts in the admin (se
 
 - **Passwords** are stored only as Argon2id hashes. An account made by the staff, or given a new password by them, starts with a temporary one that is shown once and has to be changed at the first login. A password is 12 to 128 characters (length is what counts, a phrase of a few words is fine) and is not the email.
 - **Grants, not roles:** what a user may do is what their grants say (see "The admin" below); routes ask with `Depends(require_grant(Area.ACCOUNTS))` (`app/dependencies.py`) and the services check again.
-- **The login** is a signed cookie (`eda_session`): HttpOnly, SameSite=Lax, and Secure where `SESSION_COOKIE_SECURE=true` (set it wherever the site is served over HTTPS). It ends after 2 hours without a request, 12 hours after the login whatever happens, when the account is switched off or deleted, and when the password is changed. Visitors who only read the site get no cookie.
+- **The login** is a signed cookie (`eda_session`): HttpOnly, SameSite=Lax, and Secure where `SESSION_COOKIE_SECURE=true` (set it wherever the site is served over HTTPS). It ends after 2 hours without a request, 12 hours after the login whatever happens, when the account is switched off or deleted, and when the password is changed. The login, `GET /api/auth/me` and the password change tell the admin how long it lasts (`session.idle_seconds` and `session.max_seconds_left`), so that it can warn before it ends; asking `me` is also a request, so it starts the idle time again. Visitors who only read the site get no cookie.
 - **Wrong passwords:** after 5 wrong tries for an email the login is refused for 15 minutes, even with the right password. An email nobody has is counted the same, and a wrong email and a wrong password get the same answer, so nothing tells which accounts exist. The times and numbers are settings (`LOGIN_MAX_FAILURES`, `LOGIN_LOCK_MINUTES`, `SESSION_IDLE_MINUTES`, `SESSION_MAX_HOURS`).
 - **Pages of other sites:** every route that changes something checks the request's `Origin` (`check_origin`): it must be the site's own address or one of `CORS_ORIGINS`, so another site cannot make a logged-in visitor's browser send it.
 - Behind a reverse proxy the proxy must pass the `Host` header on (`proxy_set_header Host $host;`) and the API must be started with `--proxy-headers`. The same goes for a dev server: the admin's
@@ -357,7 +357,7 @@ prints how many work, how many failed this time, how many could not be checked, 
 - **Fields the admin forms add for accessibility** (to be added with the forms, with a migration): `image_alt` on the highlight cards is done (a picture needs one; a card saved before has none, and
   the site then writes one from the title). Still to come:
   - `language` on projects (and on any text that is not English, such as the Italian project names): an ISO code such as `it`, which the site writes as `lang="it"` on that text so a screen reader pronounces it right. Empty means English.
-- **Accessibility of the admin itself:** keyboard and screen-reader behaviour is to be tested; the login session must warn before it ends, so a form half filled is not lost.
+- **Accessibility of the admin itself:** keyboard and screen-reader behaviour is still to be tested by hand.
 
 ## Migrations
 

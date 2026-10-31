@@ -17,6 +17,14 @@ class LoginIn(BaseModel):
     password: str = Field(max_length=1000)
 
 
+class SessionRead(BaseModel):
+    """How long this login lasts, so that the admin can warn before it ends. `idle_seconds`: it ends after this long without a request (every request starts the time again);
+    `max_seconds_left`: whatever the user does, it ends this long from now."""
+
+    idle_seconds: int
+    max_seconds_left: int
+
+
 class UserRead(BaseModel):
     """A logged-in user as the site needs them. Never the password or its hash."""
 
@@ -26,6 +34,7 @@ class UserRead(BaseModel):
     grants: list[GrantRead]
     # the password is a temporary one: the user may do nothing but change it (POST /api/auth/change-password)
     must_change_password: bool
+    session: SessionRead | None = None
 
     @classmethod
     def from_model(cls, user: User) -> "UserRead":

@@ -117,7 +117,7 @@ describe('the broken links on the home page', () => {
     renderAdmin('/', staff([problem(), problem({ id: 8 })]))
     expect(await screen.findByText(/2 links in the content you keep have stopped working/)).toBeInTheDocument()
     const notice = screen.getByText(/stopped working/).closest('[role="status"]')
-    expect(within(notice).getByRole('link', { name: 'See the broken links' })).toHaveAttribute('href', '/links')
+    expect(within(notice).getByRole('link', { name: 'Check the broken links' })).toHaveAttribute('href', '/links')
   })
 
   it('says nothing when no link is broken', async () => {

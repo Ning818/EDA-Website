@@ -54,14 +54,18 @@ What a user sees is decided by the grants the API sends with `GET /api/auth/me`;
 
 ## The scenarios it serves
 
-The admin is designed from the internal scenarios: who has to keep which part of the site up to date, what sets it off, and what has to be right afterwards. There are three kinds of user,
+The admin is designed from the internal scenarios: who has to keep which part of the site up to date, what sets it off, and what has to be right afterwards. There are four kinds of user,
 and what each may do is a set of grants (`../backend/README.md`, "Who may do what"):
 
 | User | Preset | May |
 |---|---|---|
-| Administrative staff | `administrative` | add, correct and delete people; the collaborators, the footer numbers and the page introductions (`site`); make accounts |
-| Theme content owner (one person, all themes) | `theme-owner` | add people; edit the theme pages |
-| Funded-projects owner (one person) | `projects-owner` | keep the funded projects |
+| Administrative staff | `administrative` | add, correct and delete people (`people_add`, `people_edit`, `people_delete`); the collaborators, the joint projects, the footer numbers and the page introductions (`site`); make and change accounts (`accounts`) |
+| Theme content owner (one person, all themes) | `theme-owner` | add people (`people_add`); edit the theme pages (`theme`) |
+| Funded-projects owner (one person) | `projects-owner` | keep the funded projects (`projects`) |
+| Developer | `developer` | answer the requests, read the activity log and see how the system is doing (`system`); all of it only reads and answers, nothing of the content can be changed with it |
+
+Every account has one of these four: an account that may do nothing is not made, and an account that is no longer needed is switched off. Everyone who has a grant (the developer apart, who answers) can also ask for what no screen
+covers (Z). What the developer does with the command line, and not in this admin, is written in D4.
 
 "Built" below means the screen exists in this admin and is tested; no real user has tried it yet. How often each scenario happens, and what a mistake costs, are not written here: that has to
 come from the group.
@@ -73,7 +77,7 @@ come from the group.
 | A1 A new member | A professor, researcher or student joins | Enter the name, title, photo and links, and how the name is written on the small cards | The group comes from the title; a theme can only name the person once they are in the list; a wrong or unsafe link; the photo needs the person's agreement; a name that is in the list already | The People page shows the person in the right group, with a working photo and links | Built |
 | A2 A member changes (a promotion, a new photo or link, leaving) | The person's situation changes | Change the title, photo or links. A member who leaves gets the title Former member: they are never deleted | A new title can move the person to another group, change their order and the short title on the small cards; the wrong person can be changed. A leaver is taken out of the contacts ("Refer to") of every theme: the admin says which themes lose a contact and asks to confirm, and a theme left with none shows no Refer to section. They stay in the research topics, as a former member | The new title is on every small card. A leaver is in the Former members group, last, and no theme names them as a contact | Built |
 | A3 A member added by mistake | Someone was added who should not be there | Delete the person, after seeing which contacts and topics they are in | It also takes them out of those lists, so it is not for a member who left (A2); the deletion is written in the log and the photo is removed. The user who added the person may delete them too, for 24 hours | The person and their photo are gone and nothing else changed | Built |
-| A4 A collaboration changes | A collaboration starts or ends | Add, change or remove collaborators (kind, name, address, and a logo, which is required) and joint projects (code, name, funding, years, coordinator, other partners, link) | The logo has to be fit for use and the right size; links go stale | The Collaborations page shows the right logo wall and project list | Built |
+| A4 A collaboration changes | A collaboration starts or ends | Add, change or remove collaborators (kind, name, address, and a logo, which is required) and joint projects (code, name, funding, years, coordinator, other partners, link) | The logo has to be fit for use and the right size; links go stale, and the check of the links (X3) lists the ones that have stopped working | The Collaborations page shows the right logo wall and project list | Built |
 | A5 The footer numbers change | The phone or fax number changes | Change the two numbers; either may be left empty | A wrong number is dialled by visitors | The footer shows the right numbers and the link dials | Built |
 | A6 An introduction changes | The wording should change | Change the paragraph under the title of the People or Collaborations page | No HTML; a long text breaks the layout | The page shows the new text | Built |
 
@@ -83,7 +87,7 @@ come from the group.
 |---|---|---|---|---|---|
 | B1 A research direction changes | A new direction, or topics are regrouped | Add or change research areas and the topics under them, choosing the people involved from the People list | A person who is needed may not be in the list yet (B5) | The theme's research topics and involved people are right | Built |
 | B2 A new representative paper or project | There is something new to show | Replace a Highlight card; everything is typed by hand: title, authors (full names and short forms), venue, keywords, summary, link, picture | Picture rights and size; the picture needs a text alternative; nothing is read from IRIS | The card is replaced and the authors' short forms are right on a phone | Built |
-| B3 A theme is reworded | The name or the introduction changes | Change the name, the short name, the home-page text and the introduction of the theme page | The navigation, the page titles, the home page and the section dots follow; a long name can break the navigation. The colours and the background drawing are in the code, not here | The name is the same everywhere | Built |
+| B3 A theme is reworded | The name or the introduction changes | Change the name, the short name, the home-page text and the introduction of the theme page | The navigation, the page titles, the home page and the section dots follow; a long name can break the navigation. The colours and the background drawing are in the code, not here. A theme the developer has made but not yet put on the website (D4) is marked "Not on the website yet" here: it can be written, and no visitor can read it until it is put on the site | The name is the same everywhere | Built |
 | B4 The contacts change | A contact person changes | Choose the "Refer to" contacts from the People list and put them in order | Not a former member (a leaver is taken out by the admin, A2); the section disappears when no contact is left | The contact cards are right | Built |
 | B5 A person a theme needs is not in the list | B1 or B4 needs someone who has not been added | Add the person (name, title, photo with the agreement, links) and choose the research area they are listed under; they show at once on the People page and under that area's "Involved people", with no review | A mistake can be corrected or deleted for 24 hours; after that only the administrative staff can. A name in the list already is warned about | The person can be chosen straight away, without asking anyone | Built |
 
@@ -91,9 +95,18 @@ come from the group.
 
 | Scenario | Trigger | What is done | What follows, what can go wrong | Done when | In the admin |
 |---|---|---|---|---|---|
-| C1 A new project starts | A new funding is won | Choose the theme, mark it ongoing, enter the code (may be empty), the full name and the address (may be empty) | The wrong theme; the counts at the top of the page recount themselves; the admin then asks whether the theme's Guided Introduction needs changing (it is written by hand, by this owner) | The count and the list are right | Built |
+| C1 A new project starts | A new funding is won | Choose the theme, mark it ongoing, enter the code (may be empty), the full name, the language of the name when it is not English, and the address (may be empty) | The wrong theme; a name that is not in English has to say its language, or a screen reader reads it in English; the counts at the top of the page recount themselves; the admin then asks whether the theme's Guided Introduction needs changing (it is written by hand, by this owner) | The count and the list are right | Built |
 | C2 A project ends | The project is over | Move it from ongoing to ended; it is never deleted | The projects shown and the numbers change; the same question about the Guided Introduction | The project is in the ended list and the numbers are right | Built |
-| C3 A project is corrected | A link is dead or a name is wrong | Change the description; change or clear the address | Many old project sites are gone, which is normal | No dead link is left | Built |
+| C3 A project is corrected | A link is dead or a name is wrong | Change the description or its language; change or clear the address | Many old project sites are gone, which is normal; the check of the links (X3) lists them | No dead link is left | Built |
+
+**D. Developer**
+
+| Scenario | Trigger | What is done | What follows, what can go wrong | Done when | In the admin |
+|---|---|---|---|---|---|
+| D1 A request arrives (the other end of Z) | Someone could not find or do what they needed and wrote it down; the Home page says how many wait | Read the request (who asked, the page they came from, what they wrote), do what it asks or say why it cannot be done, write an answer and mark the request as answered | Nothing is sent by email, so the Home page and the navigation are the only notice; a request is answered once and then stays; a user has at most five waiting. What no screen covers is something only the developer can build or change | The person reads the answer on the page where they asked | Built |
+| D2 A change has to be traced | A mistake, or the question "who changed this?" | Open the activity log, narrow it to one kind of action or one person, and open an entry to see the values before and after | The log is only read: nothing in it can be changed. It never shows a password or its hash. What was done from the command line is there too, as "(command line)" | The change and who made it are found | Built |
+| D3 The system is looked at | From time to time, or because the Home page warns | Open the system status: when the check of the links last ran, how the links stand for each of the four kinds and who keeps them, the database and its version, the uploaded files, the accounts and the size of the content | The check of the links runs from the host's scheduler and nothing else would notice that it stopped, so a check that has not run for three days, or never, is a warning. A kind of link that no active account keeps is marked: a failing link there has no one to mend it | Nothing is flagged, or what is wrong is known | Built |
+| D4 A new research theme | The group decides on a new direction | **Command line and code, not this admin:** make the theme in the database (`python -m app.manage create-theme`), let the staff write it in the admin (B1 to B5, C1 to C3) while the public cannot see it, then build its look, cloud and place in the home page animation in the front end, release it and put it on the website (`python -m app.manage set-theme-live`) | The theme starts off the website: the public API does not know it, so nothing half written can be read; the website draws a theme only when its template is in the code. The last theme on the site cannot be taken off. No code or particle file is ever uploaded through the admin. The steps are in the root README | The theme is on the website with its content already written | The command line makes and releases it; the admin marks it "Not on the website yet" and the staff write it |
 
 **Across the roles, and the system**
 
@@ -101,13 +114,15 @@ come from the group.
 |---|---|---|
 | X1 A needed person is not in the list | Settled by B5: the theme owner may add people, so there is no hand-off to the administrative staff | Built (B5) |
 | X2 Tidying up after a member leaves | Done by A2: the leaver is taken out of the contacts at once, after the confirmation that names the themes | Built (A2) |
-| X3 A link has gone dead | Checked on a schedule; each user is shown the broken links of their own area, and a count on the Home page: project links to the funded-projects owner, collaborator and people links to the administrative staff, Highlight links to the theme owner | Built (the checker is `python -m app.manage check-links`) |
-| Y1 Accounts | The administrative staff make an account for a person and choose what it may do; the temporary password is shown once and has to be changed at the first login; they can change, switch off and reset an account | Built |
-| Y2 A new research theme | Not done in the admin: a developer adds it to the site, and then the theme owner writes its text | Out of the admin |
-| Z "I can't find what I need" | A way to ask for something the scenarios do not cover: a request that the developer reads and answers | Built |
+| X3 A link has gone dead | Every link of the content is checked on a schedule (`python -m app.manage check-links`, run once a day by the host). A link is reported only after it has failed three checks in a row, so a site that is down for a night raises no alarm; a site that refuses programs is never counted as broken. Each user is shown the broken links of their own area (project links to the funded-projects owner, collaborator, joint-project and people links to the administrative staff, Highlight links to the theme owner), with a count on the Home page, a way to the place where it is changed and a button to check that one again. The developer sees the counts by who keeps them (D3) | Built |
+| X4 The login ends | After two hours of doing nothing, or twelve hours after the login whatever is done, the login ends. Five minutes before, a dialog says when: for the idle limit it offers to stay logged in, for the twelve hours, which cannot be extended, it asks to save and log in again. It sits over the page, so a half-filled form is not lost. After a logout, whoever logs in next starts at the home page; after a login that ended by itself, only the same person is taken back to their page | Built |
+| Y1 Accounts | The administrative staff make an account for a person and choose one of the four kinds (administrative staff, theme owner, projects owner, developer); the temporary password is shown once and has to be changed at the first login; they can change what an account may do, switch it off and on, and give a new temporary password. An account always has one of the kinds and an account that is not needed is switched off; nobody can change what their own account may do or switch it off, and the last account that can manage accounts is always kept | Built |
+| Y2 A new research theme | Not done in the admin: the developer makes and releases it, and the staff write it in between (D4) | Command line, see D4 |
+| Z "I can't find what I need" | A way to ask for something the scenarios do not cover. Anyone with a grant writes what they need from a link at the foot of every page (it records the page they came from), reads the answers on the same page, and can have five waiting at most. The developer reads and answers (D1) | Built |
 
-Every scenario shares these rules: a link must be `http` or `https`, text has no HTML, and every change is written to the audit log with who made it. Still to come with the theme screens: a text
-alternative for each picture and the language of text that is not English.
+Every scenario shares these rules: a link must be `http` or `https`, text has no HTML, and every change is written to the audit log with who made it (the developer reads it, D2). A picture has a
+text alternative (B2), and the language of a project's description is said when it is not English (C1); the other texts are all English. A page that breaks shows a message and a way back to the
+home page instead of a blank screen.
 
 ## The look
 

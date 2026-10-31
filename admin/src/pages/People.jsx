@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import { api } from '../api/client'
 import { useAuth } from '../auth/useAuth'
@@ -6,6 +6,7 @@ import FlashNotice from '../components/FlashNotice'
 import { LinkButton, Loading, LoadError, PageHeading, TextField } from '../components/ui'
 import { GROUPS } from '../labels'
 import { useLoad } from '../useLoad'
+import { useQueryParam } from '../useQueryParam'
 
 // capitals and accents do not matter when looking for a name
 const plain = (text) => text.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase()
@@ -13,7 +14,7 @@ const plain = (text) => text.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCas
 export default function People() {
   const { can } = useAuth()
   const { status, data, error, reload } = useLoad(() => api.get('/api/people'), [])
-  const [query, setQuery] = useState('')
+  const [query, setQuery] = useQueryParam('q') // in the address, so that a reload or a link brings the same search back
 
   // the titles stay in the order the API gives them; within one title the people are in alphabetical order of the name as it is written here (accents and capitals do not count)
   const sorted = useMemo(() => {

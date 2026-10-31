@@ -1,5 +1,5 @@
 import { render } from '@testing-library/react'
-import { MemoryRouter } from 'react-router-dom'
+import { MemoryRouter, useLocation } from 'react-router-dom'
 import { vi } from 'vitest'
 import { axe } from 'vitest-axe'
 import App from '../src/App'
@@ -150,11 +150,21 @@ export function mockApi(routes) {
 
 export const unauthorized = { status: 401, body: { detail: 'Log in first' } }
 
+// where the page is, as an address: a test cannot read it from a MemoryRouter, so a probe beside the app writes it here
+let address = ''
+export const currentUrl = () => address
+function Probe() {
+  const { pathname, search } = useLocation()
+  address = pathname + search
+  return null
+}
+
 export function renderAdmin(path, routes) {
   const calls = mockApi(routes)
   const view = render(
     <MemoryRouter initialEntries={[path]}>
       <App />
+      <Probe />
     </MemoryRouter>,
   )
   return { ...view, calls }

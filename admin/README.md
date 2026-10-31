@@ -167,6 +167,8 @@ and adding a joint project screens, with no violations; reflow was measured at 3
 Not checked yet, and needed before the admin is relied on: a manual pass with a screen reader (NVDA, VoiceOver), with the keyboard alone on every flow, with Windows high-contrast mode and
 with 200% text size.
 
+**What a page remembers in its address.** What the People and the Funded projects pages are searched for (`/people?q=sara`) and what the Activity log is filtered by (`/audit?action=person.&user=ada`) is in the address, so that a reload, the back button and a link bring it back; typing changes the address in place and adds no history entries. Not in the address: how far down the Activity log the reader has gone ("Show older entries"), and what is typed in a form.
+
 **A page that breaks.** If a page cannot be drawn (for example an answer of the API it did not expect), the frame stays and the page area says "Something went wrong on this page" with a way back to the home page, announced at once, instead of a blank screen; going to another page starts again (`ErrorBoundary.jsx`).
 
 **The warning before a login ends.** The API says how long a login lasts (2 hours without a request, 12 hours at most). Five minutes before the earliest of the two, a dialog says when the login ends: when it is the idle limit it offers "Stay logged in" (which asks the server who is logged in, and so starts the time again) or "Not now"; when it is the 12-hour limit, which nothing can extend, it says so and asks the user to save and log in again, with "Keep working" or "Log out now". It sits on top of the page, so a form half filled is not lost, and the time is checked every few seconds and when the tab is shown again (a laptop that slept).

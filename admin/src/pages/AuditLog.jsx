@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { api } from '../api/client'
 import { Button, Loading, LoadError, PageHeading, SelectField, TextField } from '../components/ui'
 import { useLoad } from '../useLoad'
@@ -111,45 +112,59 @@ function Entries({ filters, onActions }) {
   )
 }
 
-/** For the developer: who changed what, and when, the newest first, which can be narrowed to one kind of action or one user. */
+/** The two filters, as typed: they take effect, and go into the address, when "Show these entries" is pressed. Made new when the address changes, so that going back shows what it says. */
+function Filters({ filters, actions, onApply, onClear }) {
+  const [draft, setDraft] = useState(filters)
+  return (
+    <form
+      onSubmit={(event) => {
+        event.preventDefault()
+        onApply({ action: draft.action, user: draft.user.trim() })
+      }}
+      className="card stack"
+      aria-label="Filter the log"
+    >
+      <div className="row" style={{ alignItems: 'flex-end' }}>
+        <SelectField id="log-action" label="Kind of action" value={draft.action} onChange={(event) => setDraft((now) => ({ ...now, action: event.target.value }))}>
+          <option value="">All actions</option>
+          {actions.map((action) => (
+            <option key={action} value={action}>
+              {action}
+            </option>
+          ))}
+          {draft.action && !actions.includes(draft.action) && <option value={draft.action}>{draft.action}</option>}
+        </SelectField>
+        <TextField id="log-user" label="Who (part of the email)" value={draft.user} onChange={(event) => setDraft((now) => ({ ...now, user: event.target.value }))} autoComplete="off" />
+      </div>
+      <div className="row">
+        <Button type="submit" variant="primary">
+          Show these entries
+        </Button>
+        <Button onClick={onClear}>Clear the filters</Button>
+      </div>
+    </form>
+  )
+}
+
+/** For the developer: who changed what, and when, the newest first, which can be narrowed to one kind of action or one user. The filters are in the address (`/audit?action=person.&user=ada`). */
 export default function AuditLog() {
-  const [draft, setDraft] = useState({ action: '', user: '' })
-  const [filters, setFilters] = useState({ action: '', user: '' })
+  const [params, setParams] = useSearchParams()
+  const filters = { action: params.get('action') ?? '', user: params.get('user') ?? '' }
   const [actions, setActions] = useState([])
 
-  const apply = (event) => {
-    event.preventDefault()
-    setFilters({ action: draft.action, user: draft.user.trim() })
-  }
-  const clear = () => {
-    setDraft({ action: '', user: '' })
-    setFilters({ action: '', user: '' })
+  const show = (next) => {
+    const query = new URLSearchParams()
+    if (next.action) query.set('action', next.action)
+    if (next.user) query.set('user', next.user)
+    setParams(query)
   }
 
   return (
     <div className="page">
       <PageHeading>Activity log</PageHeading>
       <p className="lead">Who changed what, and when. Every change made in the admin is written here at the moment it is made, and nothing here can be changed.</p>
-      <form onSubmit={apply} className="card stack" aria-label="Filter the log">
-        <div className="row" style={{ alignItems: 'flex-end' }}>
-          <SelectField id="log-action" label="Kind of action" value={draft.action} onChange={(event) => setDraft((now) => ({ ...now, action: event.target.value }))}>
-            <option value="">All actions</option>
-            {actions.map((action) => (
-              <option key={action} value={action}>
-                {action}
-              </option>
-            ))}
-          </SelectField>
-          <TextField id="log-user" label="Who (part of the email)" value={draft.user} onChange={(event) => setDraft((now) => ({ ...now, user: event.target.value }))} autoComplete="off" />
-        </div>
-        <div className="row">
-          <Button type="submit" variant="primary">
-            Show these entries
-          </Button>
-          <Button onClick={clear}>Clear the filters</Button>
-        </div>
-      </form>
-      <Entries key={`${filters.action}|${filters.user}`} filters={filters} onActions={setActions} />
+      <Filters key={`filters|${filters.action}|${filters.user}`} filters={filters} actions={actions} onApply={show} onClear={() => show({ action: '', user: '' })} />
+      <Entries key={`entries|${filters.action}|${filters.user}`} filters={filters} onActions={setActions} />
     </div>
   )
 }

@@ -1,10 +1,11 @@
-import { useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import { api } from '../api/client'
 import FlashNotice from '../components/FlashNotice'
 import { LinkButton, Loading, LoadError, PageHeading, TextField } from '../components/ui'
 import { byCode } from '../sorting'
 import { useLoad } from '../useLoad'
+import { useQueryParam } from '../useQueryParam'
 
 // capitals and accents do not matter when looking for a project
 const plain = (text) => text.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase()
@@ -27,7 +28,7 @@ function ProjectList({ projects }) {
 export default function Projects() {
   const projects = useLoad(() => api.get('/api/admin/projects'), [])
   const themes = useLoad(() => api.get('/api/themes'), [])
-  const [query, setQuery] = useState('')
+  const [query, setQuery] = useQueryParam('q') // in the address, so that a reload or a link brings the same search back
 
   const shown = useMemo(() => {
     const wanted = plain(query.trim())

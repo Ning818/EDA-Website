@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react'
 import { Link, NavLink, Outlet, useLocation } from 'react-router-dom'
 import { useAuth } from '../auth/useAuth'
+import ErrorBoundary from './ErrorBoundary'
 import SessionWarning from './SessionWarning'
 
 /** The frame of every page after the login: a skip link, the header with the navigation, and the main area. */
@@ -126,7 +127,9 @@ export default function Layout() {
         </div>
       </header>
       <main id="main" tabIndex={-1} className="app-main">
-        <Outlet />
+        <ErrorBoundary key={pathname}>
+          <Outlet />
+        </ErrorBoundary>
       </main>
       {/* the link to the page where a request is written is not offered on that page itself, nor to the developer, who answers the requests */}
       {!forced && user.grants.length > 0 && !can('system') && pathname !== '/help' && (

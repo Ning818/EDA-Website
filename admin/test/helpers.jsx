@@ -38,8 +38,8 @@ export const person = (over = {}) => ({
 })
 
 export const THEMES = [
-  { slug: 'bioinformatics', name: 'Bioinformatics', short_name: null, home_summary: null },
-  { slug: 'smart-city', name: 'Smart City', short_name: null, home_summary: null },
+  { slug: 'bioinformatics', name: 'Bioinformatics', short_name: null, home_summary: null, on_site: true },
+  { slug: 'smart-city', name: 'Smart City', short_name: null, home_summary: null, on_site: true },
 ]
 
 export const project = (over = {}) => ({
@@ -83,6 +83,7 @@ export const theme = (over = {}) => ({
   name: 'Bioinformatics',
   short_name: null,
   home_summary: 'The home paragraph.',
+  on_site: true,
   intro: 'The introduction of the Research page.',
   areas: [
     { id: 11, title: 'Gene expression and modeling', topics: [{ id: 101, text: 'Regulatory networks' }, { id: 102, text: 'Modeling of expression' }], people: [personRef(), personRef({ slug: 'sara-vinco', name: 'Sara Vinco', title: 'Associate Professor', title_short: 'Assoc. Prof.' })] },

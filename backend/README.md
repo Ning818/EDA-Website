@@ -372,12 +372,21 @@ The preset `developer` has one grant, `system`, and it only reads and answers: t
   requests waiting. The link check is called **stale** when it has not run for `LINK_CHECK_STALE_DAYS` days (3 by default) or never: it is run by the host's scheduler, and nothing else would
   notice that the scheduler stopped. The developer's Home page shows that, and the requests waiting.
 
+### Making a theme
+
+`python -m app.manage create-theme --slug <slug> --name <name> [--short-name ...] [--home-summary ...] [--intro ...] [--funded-blurb ...] [--position N]` makes a theme with the words given (a placeholder for
+an introduction and a funded-projects sentence left out, which may not be empty), with no areas, contacts, cards or projects. It goes last unless `--position` puts it earlier, and it starts **off the website** (`themes.on_site` false): `GET /api/themes` leaves it out and `GET /api/themes/{slug}` answers 404, while the admin still
+lists it, marked, so that the staff can write it before anyone can read it. `python -m app.manage set-theme-live --slug <slug>` puts it on the website when its template is in the front end's code (`--off`
+takes it off; the last theme on the site cannot be taken off), and both write a row in the activity log. The slug is lower-case
+letters, digits and single hyphens, at most 50 characters, and not one that is taken. The theme owner, whose grant covers every theme, can write it in the admin at once. It is the only way to make a
+theme: no admin screen does, because a theme also needs code (see the root README).
+
 ### Still to build
 
 - The admin's own interface is a separate front-end application (`../admin`) that shows each user only the tasks their grants allow; its README lists the screens that exist and the ones still to build.
 - Rare edits outside the screens: a restricted expert mode for the administrative staff (the validation sits in the models and services, so it cannot be skipped there either); new fields
   and new themes stay developer work.
-- **New theme:** a developer builds its particle cloud, models and header artwork and redeploys the front end; the theme owner then adds the theme's own text in the admin and ticks `published`. The theme list becomes the code's templates (`frontend/src/themes.js`: slug, colour, artwork) joined by slug to the database's content. Nothing is copied from another theme, and no code or particle bundle is ever uploaded through the admin.
+- **New theme:** made by the developer with `python -m app.manage create-theme`, written in the admin by the staff, and shown on the website only when its template is added to the front end's code (`frontend/src/themes.js`); the steps are in the [root README](../README.md#adding-a-research-theme). The code's templates (slug, colour, artwork) are joined by slug to the database's content; a theme in the database that has no template is not shown. Nothing is copied from another theme, and no code or particle bundle is ever uploaded through the admin, and the switch is `themes.on_site`, which the developer sets together with releasing the template.
 - **Fields the admin forms add for accessibility** (to be added with the forms, with a migration): `image_alt` on the highlight cards is done (a picture needs one; a card saved before has none, and
   the site then writes one from the title). Still to come:
   - `language` on projects (and on any text that is not English, such as the Italian project names): an ISO code such as `it`, which the site writes as `lang="it"` on that text so a screen reader pronounces it right. Empty means English.

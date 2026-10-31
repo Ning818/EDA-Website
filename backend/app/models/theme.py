@@ -1,6 +1,6 @@
 from enum import StrEnum
 
-from sqlalchemy import ForeignKey, Integer, String, Text, UniqueConstraint
+from sqlalchemy import Boolean, ForeignKey, Integer, String, Text, UniqueConstraint, true
 from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -29,6 +29,9 @@ class Theme(Base):
     # a shorter name for the places where the full one is too long
     short_name: Mapped[str | None] = mapped_column(String(50))
     position: Mapped[int] = mapped_column(Integer, default=0)
+    # whether the theme is on the website: its template is in the front end's code, which the developer says by `python -m app.manage set-theme-live`. A theme made by the developer starts
+    # without, so that the staff can write it before the public can read anything of it; the public routes do not know a theme that is not on the site
+    on_site: Mapped[bool] = mapped_column(Boolean, default=True, server_default=true())
     # the paragraph under the title of the theme's Research page
     intro: Mapped[str] = mapped_column(Text)
     # the shorter paragraph beside the theme's particle cloud on the home page (empty: the site shows the text it has built in)

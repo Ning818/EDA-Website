@@ -20,8 +20,20 @@ export default function Themes() {
           {data.map((theme) => (
             <li key={theme.slug}>
               <Link to={`/themes/${theme.slug}`} className="task-card">
-                <span className="task-title">{theme.name}</span>
-                <span className="task-text">Words, research areas, contacts and highlight cards.</span>
+                <span className="task-title">
+                  {theme.name}
+                  {theme.on_site === false && (
+                    <>
+                      {' '}
+                      <span className="badge badge-warn">Not on the website yet</span>
+                    </>
+                  )}
+                </span>
+                <span className="task-text">
+                  {theme.on_site === false
+                    ? 'Waiting to go on the website. You can write it now; visitors cannot read it until the developer puts it on the site.'
+                    : 'Words, research areas, contacts and highlight cards.'}
+                </span>
               </Link>
             </li>
           ))}

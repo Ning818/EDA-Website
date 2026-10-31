@@ -12,6 +12,7 @@ from app.schemas.admin import (
     AdminAreaRead,
     AdminHighlightRead,
     AdminThemeRead,
+    AdminThemeSummary,
     AdminTopicRead,
     AreaImpactRead,
     AreaIn,
@@ -22,7 +23,6 @@ from app.schemas.admin import (
     ThemeWordsPatch,
     TopicIn,
 )
-from app.schemas.theme import ThemeSummary
 from app.services import photos
 from app.services import projects as projects_service
 from app.services import themes as service
@@ -96,7 +96,7 @@ def set_funded_blurb(theme_slug: str, body: FundedBlurbIn, user: User = Depends(
 # --- the theme owner's themes ------------------------------------------------------------------------------------------------------------------------------------------
 
 
-@router.get("", response_model=list[ThemeSummary])
+@router.get("", response_model=list[AdminThemeSummary])
 def list_themes(user: User = Depends(require_ready_user), db: Session = Depends(get_db)):
     """The themes the user may keep (those they hold the grant `theme` for), in the order of the site; none for a user without it."""
     return service.editable_themes(db, user)

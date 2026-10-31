@@ -11,6 +11,7 @@ from app.models.theme import Highlight, Project, Theme, TopicGroup
 from app.models.user import User
 from app.schemas.collaboration import JointProjectRead
 from app.schemas.person import PersonRead
+from app.schemas.theme import ThemeSummary
 from app.schemas.user import GrantRead
 from app.services.grants import Preset, preset_of
 
@@ -242,6 +243,12 @@ class AdminHighlightRead(BaseModel):
         )
 
 
+class AdminThemeSummary(ThemeSummary):
+    """A theme in the admin's list: what the public list has, and whether the website shows it yet."""
+
+    on_site: bool
+
+
 class AdminThemeRead(BaseModel):
     """Everything of a theme that the theme owner keeps, with the ids the routes for its parts take."""
 
@@ -249,6 +256,8 @@ class AdminThemeRead(BaseModel):
     name: str
     short_name: str | None
     home_summary: str | None
+    # whether the website shows the theme yet; a theme that is not on the site can be written, and no visitor can read it
+    on_site: bool
     intro: str
     areas: list[AdminAreaRead]
     contacts: list[PersonRefRead]
@@ -263,6 +272,7 @@ class AdminThemeRead(BaseModel):
             name=theme.name,
             short_name=theme.short_name,
             home_summary=theme.home_summary,
+            on_site=theme.on_site,
             intro=theme.intro,
             areas=[AdminAreaRead.from_model(a) for a in sorted(theme.groups, key=lambda a: (a.position, a.id))],
             contacts=[PersonRefRead.from_model(c.person) for c in sorted(theme.contacts, key=lambda c: c.position)],

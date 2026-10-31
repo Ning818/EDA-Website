@@ -209,7 +209,9 @@ def test_each_user_sees_the_broken_links_of_the_content_they_keep(db):
 def test_a_user_with_the_grant_for_one_theme_sees_the_cards_of_that_theme_only(db):
     chosen = report_one_of_each(db)
     card_theme = chosen["highlight"].theme_id
-    other = db.scalar(select(Theme.id).where(Theme.id != card_theme))
+    # another theme whose card does not share the broken address (the same address on two cards would be broken on both)
+    sharing = set(db.scalars(select(LinkCheck.theme_id).where(LinkCheck.source_type == "highlight", LinkCheck.url == chosen["highlight"].url)))
+    other = db.scalar(select(Theme.id).where(Theme.id.notin_(sharing)).order_by(Theme.id))
     make_user("one@example.org")
     make_user("two@example.org")
     grant(db, get_by_email(db, "one@example.org"), Area.THEME, card_theme)

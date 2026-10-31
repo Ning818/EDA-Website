@@ -46,6 +46,32 @@ describe('the theme pages', () => {
   })
 })
 
+describe('a theme that is not on the website yet', () => {
+  const waiting = { slug: 'smart-grid', name: 'Smart Grid', short_name: null, home_summary: null, on_site: false }
+
+  it('is marked in the list, and the others are not', async () => {
+    const { container } = renderAdmin('/themes', { ...owner(), 'GET /api/admin/themes': { body: [...THEMES, waiting] } })
+    const card = (await screen.findByRole('link', { name: /Smart Grid/ })).closest('li')
+    expect(card).toHaveTextContent('Not on the website yet')
+    expect(card).toHaveTextContent('visitors cannot read it until the developer puts it on the site')
+    expect(screen.getByRole('link', { name: /Smart Grid/ })).toHaveAttribute('href', '/themes/smart-grid')
+    expect(screen.getAllByText('Not on the website yet')).toHaveLength(1)
+    expect(screen.getByRole('link', { name: /Bioinformatics/ }).closest('li')).not.toHaveTextContent('Not on the website yet')
+    await expectNoAxeViolations(container)
+  })
+
+  it('says so on its own page too, and a theme that is on the site does not', async () => {
+    const { container, unmount } = renderAdmin('/themes/bioinformatics', withTheme({}, theme({ on_site: false })))
+    expect(await screen.findByText('This theme is not on the website yet')).toBeInTheDocument()
+    expect(screen.getByText(/Visitors cannot read any of it/)).toBeInTheDocument()
+    await expectNoAxeViolations(container)
+    unmount()
+    renderAdmin('/themes/bioinformatics', withTheme())
+    await screen.findByRole('heading', { level: 1, name: 'Bioinformatics' })
+    expect(screen.queryByText('This theme is not on the website yet')).not.toBeInTheDocument()
+  })
+})
+
 describe('the words of a theme', () => {
   it('shows the words, and has no accessibility violations', async () => {
     const { container } = renderAdmin('/themes/bioinformatics/words', withTheme())

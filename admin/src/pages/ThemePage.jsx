@@ -1,7 +1,7 @@
 import { Link, useParams } from 'react-router-dom'
 import { api } from '../api/client'
 import FlashNotice from '../components/FlashNotice'
-import { LinkButton, Loading, LoadError, PageHeading } from '../components/ui'
+import { LinkButton, Loading, LoadError, Notice, PageHeading } from '../components/ui'
 import { useLoad } from '../useLoad'
 
 const WHAT = { paper: 'Highlight paper', project: 'Highlight project' }
@@ -55,6 +55,11 @@ export default function ThemePage() {
       </Link>
       <PageHeading title={theme.name}>{theme.name}</PageHeading>
       <FlashNotice />
+      {theme.on_site === false && (
+        <Notice kind="info" title="This theme is not on the website yet">
+          <p>You can write all of it now. Visitors cannot read any of it until the developer puts the theme on the website, so there is no hurry and nothing half written is seen.</p>
+        </Notice>
+      )}
 
       <section aria-labelledby="words-heading" className="card stack">
         <h2 id="words-heading">Words</h2>

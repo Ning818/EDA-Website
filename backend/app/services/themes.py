@@ -13,7 +13,10 @@ Rules kept here, so that no way in can skip them:
 - A highlight card (a paper or a project) is typed by hand, nothing is read from IRIS. Its picture is optional, is checked, made smaller and stored like the other pictures, and needs a text
   alternative; a replaced or removed picture is deleted. There is one card of each kind to a theme.
 - A change that changes nothing writes no audit row.
+- A theme is made by the developer from the command line (`create_theme`, `python -m app.manage create-theme`), never in the admin: the website draws a theme only when its template is in
+  the code (frontend/src/themes.js), so a theme made here is kept up to date by its owners without the public seeing it, until the developer adds the template.
 """
+import re
 from dataclasses import dataclass
 
 from sqlalchemy import delete, func, select
@@ -26,7 +29,7 @@ from app.models.theme import Highlight, HighlightKind, Theme, ThemeContact, Topi
 from app.models.user import User
 from app.services import audit, photos
 from app.services.grants import has_grant, require
-from app.services.projects import ThemeNotFound
+from app.services.projects import BLURB_MAX, ThemeNotFound
 
 HIGHLIGHT_FOLDER = "highlights"
 HIGHLIGHT_MAX_SIDE = 1200
@@ -42,6 +45,19 @@ AREA_PEOPLE_MAX = 24
 CONTACTS_MAX = 12
 TAGS_MAX = 8
 TAG_MAX = 100
+SLUG_MAX = 50
+SLUG_PATTERN = re.compile(r"^[a-z0-9]+(-[a-z0-9]+)*$")
+# what a theme starts with when the developer gives no words: the owner writes the real ones in the admin
+PLACEHOLDER_INTRO = "The introduction of this theme is still to be written."
+PLACEHOLDER_FUNDED_BLURB = "The sentence about the funded projects of this theme is still to be written."
+
+
+class ThemeSlugTaken(ValueError):
+    pass
+
+
+class ThemeStateError(ValueError):
+    """A theme cannot be put on or taken off the site as asked; the message can be shown."""
 
 
 class AreaNotFound(LookupError):
@@ -145,6 +161,68 @@ def _move(items: list, item, direction: str) -> bool:
         return False
     items[at].position, items[other].position = items[other].position, items[at].position
     return True
+
+
+# --- a new theme (the developer, from the command line) ----------------------------------------------------------------------------------------------------------------
+
+
+def create_theme(
+    db: Session,
+    slug: str | None,
+    name: str | None,
+    short_name: str | None = None,
+    intro: str | None = None,
+    funded_blurb: str | None = None,
+    home_summary: str | None = None,
+    position: int | None = None,
+) -> Theme:
+    """Make a theme with its words: it goes last in the order of the admin unless `position` (0 is first) puts it earlier, which moves the ones from there on one place down. It is made
+    with no research areas, contacts, highlight cards or projects: those are written in the admin. Without an `intro` or a `funded_blurb` a placeholder is written, since neither may be
+    empty. The audit row says it was made from the command line."""
+    slug = (slug or "").strip()
+    if not slug or len(slug) > SLUG_MAX or not SLUG_PATTERN.match(slug):
+        raise InvalidInput("slug", f"The slug must be lower-case letters and digits with single hyphens between them, at most {SLUG_MAX} characters (for example smart-city).")
+    if db.scalar(select(Theme.id).where(Theme.slug == slug)) is not None:
+        raise ThemeSlugTaken(f"There is a theme with the slug {slug} already.")
+    words = {
+        "name": clean_text(name, "name", label="The name", max_length=NAME_MAX, required=True),
+        "short_name": clean_text(short_name, "short_name", label="The short name", max_length=SHORT_NAME_MAX),
+        "home_summary": clean_text(home_summary, "home_summary", label="The home page paragraph", max_length=SUMMARY_MAX),
+        "intro": clean_text(intro, "intro", label="The introduction", max_length=INTRO_MAX) or PLACEHOLDER_INTRO,
+        "funded_blurb": clean_text(funded_blurb, "funded_blurb", label="The sentence about the funded projects", max_length=BLURB_MAX) or PLACEHOLDER_FUNDED_BLURB,
+    }
+    last = db.scalar(select(func.max(Theme.position)))
+    last = -1 if last is None else last
+    if position is None:
+        position = last + 1
+    elif position < 0:
+        raise InvalidInput("position", "The position must be 0 or more.")
+    else:
+        position = min(position, last + 1)
+        for other in db.scalars(select(Theme).where(Theme.position >= position)):
+            other.position += 1
+    theme = Theme(slug=slug, position=position, on_site=False, **words)
+    db.add(theme)
+    db.flush()
+    audit.record(db, None, "theme.create", "theme", slug, after={"slug": slug, "position": position, "on_site": False, **words})
+    db.commit()
+    return theme
+
+
+def set_on_site(db: Session, slug: str, on_site: bool) -> Theme:
+    """Say whether the website shows the theme (the developer, from the command line, when the theme's template is in or out of the front end's code). The public routes know a theme
+    only while it is on the site, so the site always has at least one: the last one cannot be taken off. Saying what is already so changes nothing and writes no row."""
+    theme = db.scalar(select(Theme).where(Theme.slug == slug))
+    if theme is None:
+        raise ThemeNotFound(slug)
+    if theme.on_site == on_site:
+        return theme
+    if not on_site and db.scalar(select(func.count()).select_from(Theme).where(Theme.on_site.is_(True))) <= 1:
+        raise ThemeStateError("The website needs at least one theme: this is the last one on it.")
+    theme.on_site = on_site
+    audit.record(db, None, "theme.on_site" if on_site else "theme.off_site", "theme", slug, before={"on_site": not on_site}, after={"on_site": on_site})
+    db.commit()
+    return theme
 
 
 # --- B3: the words ----------------------------------------------------------------------------------------------------------------------------------------------------

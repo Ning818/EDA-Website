@@ -11,8 +11,8 @@ router = APIRouter(prefix="/themes", tags=["themes"])
 
 @router.get("", response_model=list[ThemeSummary])
 def list_themes(db: Session = Depends(get_db)):
-    """The four themes, in the order of the site."""
-    return db.scalars(select(Theme).order_by(Theme.position)).all()
+    """The themes the website shows, in the order of the site (a theme the developer has made but not put on the site is not here)."""
+    return db.scalars(select(Theme).where(Theme.on_site.is_(True)).order_by(Theme.position)).all()
 
 
 @router.get("/{slug}", response_model=ThemeRead)
@@ -20,7 +20,7 @@ def get_theme(slug: str, db: Session = Depends(get_db)):
     """Everything the Research page and the Funded Projects page of a theme show: its words, research areas with their topics and people, projects and contacts."""
     statement = (
         select(Theme)
-        .where(Theme.slug == slug)
+        .where(Theme.slug == slug, Theme.on_site.is_(True))
         .options(
             selectinload(Theme.highlights),
             selectinload(Theme.groups).selectinload(TopicGroup.topics),
